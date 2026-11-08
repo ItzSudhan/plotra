@@ -16,11 +16,19 @@ export type Note = {
   wordCount: number;
   updatedAt: string;
   canEdit: boolean;
+  /** The release that reveals it, when tagged itself (lib/horizon.ts works out the rest). */
+  revealReleaseId: string | null;
 };
 
-export type NoteWithText = Note & { markdown: string | null };
+/** `revealed` comes back when asked "as of" a release: whether the audience knows the note then. */
+export type NoteWithText = Note & { markdown: string | null; revealed?: boolean };
 
 export type Hit = { id: string; title: string; kind: NodeKind; snippet: string };
+export type ProjectHit = Hit & { projectId: string; projectTitle: string };
+
+export type Release = { id: string; title: string; kind: string; date: string | null; position: string; nodeId: string | null };
+
+export type CollabSeat = { token: string; role: "editor" | "commenter" | "viewer"; url: string; user: { name: string; color: string } };
 
 export type Me = {
   user: { id: string; name: string; email: string; image: string | null };

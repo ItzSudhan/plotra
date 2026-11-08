@@ -11,6 +11,9 @@ import { openWeb, webUrl, words } from "@/lib/links";
 import { useProject } from "@/lib/project";
 import { forgetRecent } from "@/lib/recent";
 import { useClient, useSession } from "@/lib/session";
+import { refreshTextIndex } from "@/lib/text-index";
+import { useHorizon } from "@/lib/use-horizon";
+import type { Horizon } from "@/lib/horizon";
 import { radius, space, useColors } from "@/lib/theme";
 import { parentsIn, pathOf, totalWords, visibleRows, type Row as BinderRow } from "@/lib/tree";
 import type { Note } from "@/lib/types";
@@ -29,6 +32,12 @@ export default function ProjectScreen() {
   const { project, notes } = useProject(projectId);
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState("");
+  const { releases, release, horizon, setAsOf } = useHorizon(projectId, notes.data);
+
+  // Its text, kept for searching offline.
+  useEffect(() => {
+    void refreshTextIndex(client, projectId);
+  }, [client, projectId]);
 
   useEffect(() => {
     AsyncStorage.getItem(openKey(projectId))
@@ -98,6 +107,13 @@ export default function ProjectScreen() {
       ],
     });
 
+  const asOfMenu = () =>
+    showMenu({
+      title: "Show the project as of…",
+      message: "What readers know once a release is out. The rest is dimmed, and passages revealed later are left out.",
+      items: [{ label: "Everything", icon: "globe", onPress: () => setAsOf(null) }, ...releases.map((r) => ({ label: r.title, icon: "book" as const, onPress: () => setAsOf(r.id) }))],
+    });
+
   const projectMenu = () =>
     showMenu({
       title: name,
@@ -152,6 +168,18 @@ export default function ProjectScreen() {
                 </View>
               </>
             )}
+            {releases.length > 0 && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`As of ${release?.title ?? "everything"}. Change`}
+                onPress={asOfMenu}
+                style={({ pressed }) => ({ alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 6, marginHorizontal: space.lg, marginTop: space.md, paddingHorizontal: space.md, height: 34, borderRadius: radius.pill, backgroundColor: release ? c.emberSoft : c.muted, opacity: pressed ? 0.7 : 1 })}
+              >
+                <Icon name="book" size={14} color={release ? c.emberInk : c.mutedForeground} />
+                <Text style={{ color: release ? c.emberInk : c.mutedForeground, fontSize: 14 }}>{release ? `As of ${release.title}` : "Everything, no spoiler limit"}</Text>
+                <Icon name="chevronDown" size={11} color={release ? c.emberInk : c.mutedForeground} />
+              </Pressable>
+            )}
           </View>
         }
         ListEmptyComponent={
@@ -166,6 +194,8 @@ export default function ProjectScreen() {
         renderItem={({ item }) => (
           <BinderRowView
             row={item}
+            horizon={horizon}
+            releaseTitle={(id) => releases.find((r) => r.id === id)?.title}
             path={filter.trim() ? pathOf(list, item.note.id).join(" › ") : null}
             onPress={() => (item.hasChildren && !hasText(item.note.kind) ? toggle(item.note.id) : hasText(item.note.kind) ? openNote(item.note) : noteMenu(item.note))}
             onToggle={() => toggle(item.note.id)}
@@ -177,11 +207,31 @@ export default function ProjectScreen() {
   );
 }
 
-function BinderRowView({ row, path, onPress, onToggle, onLongPress }: { row: BinderRow; path: string | null; onPress: () => void; onToggle: () => void; onLongPress: () => void }) {
+function BinderRowView({
+  row,
+  path,
+  horizon,
+  releaseTitle,
+  onPress,
+  onToggle,
+  onLongPress,
+}: {
+  row: BinderRow;
+  path: string | null;
+  horizon: Horizon | null;
+  releaseTitle: (id: string) => string | undefined;
+  onPress: () => void;
+  onToggle: () => void;
+  onLongPress: () => void;
+}) {
   const c = useColors();
   const { note, depth, hasChildren, open } = row;
   const status = statusLabel(note.status);
-  const detail = path || note.synopsis || [status, note.wordCount ? words(note.wordCount) : null].filter(Boolean).join(" · ") || null;
+  // Under a horizon: what readers don't know yet is dimmed, and says when they will.
+  const unknown = !!horizon && !horizon.knows(note.id);
+  const later = unknown ? horizon!.revealedBy.get(note.id) : undefined;
+  const revealNote = unknown ? (later ? `Revealed in ${releaseTitle(later) ?? "a later release"}` : "Not revealed yet") : null;
+  const detail = revealNote || path || note.synopsis || [status, note.wordCount ? words(note.wordCount) : null].filter(Boolean).join(" · ") || null;
   return (
     <Pressable
       accessibilityRole="button"
@@ -189,7 +239,7 @@ function BinderRowView({ row, path, onPress, onToggle, onLongPress }: { row: Bin
       accessibilityHint={hasChildren ? (open ? "Open. Hold for more." : "Closed. Hold for more.") : "Hold for more."}
       onPress={onPress}
       onLongPress={onLongPress}
-      style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", minHeight: 52, paddingLeft: space.sm + depth * 20, paddingRight: space.lg, backgroundColor: pressed ? c.accent : "transparent" })}
+      style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", minHeight: 52, paddingLeft: space.sm + depth * 20, paddingRight: space.lg, backgroundColor: pressed ? c.accent : "transparent", opacity: unknown && !horizon!.shows(note.id) ? 0.45 : 1 })}
     >
       <Pressable
         accessibilityRole="button"

@@ -108,6 +108,7 @@ export const keys = {
   me: "me",
   projects: "projects",
   notes: (projectId: string) => `notes:${projectId}`,
-  note: (projectId: string, noteId: string) => `note:${projectId}:${noteId}`,
+  note: (projectId: string, noteId: string, asOf?: string | null) => `note:${projectId}:${noteId}${asOf ? `@${asOf}` : ""}`,
+  releases: (projectId: string) => `releases:${projectId}`,
   notifications: "notifications",
 };

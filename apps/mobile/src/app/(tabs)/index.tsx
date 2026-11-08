@@ -1,5 +1,5 @@
 import { router, useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Icon } from "@/components/icon";
 import { TabScreen } from "@/components/screen";
@@ -10,6 +10,7 @@ import { ago, openWeb } from "@/lib/links";
 import { useOutbox } from "@/lib/outbox";
 import { listRecent, type Recent } from "@/lib/recent";
 import { useClient } from "@/lib/session";
+import { refreshTextIndex } from "@/lib/text-index";
 import { radius, space, useColors } from "@/lib/theme";
 import type { Project } from "@/lib/types";
 
@@ -29,6 +30,21 @@ export default function Library() {
   );
 
   const groups = useMemo(() => groupByWorkspace(projects.data ?? []), [projects.data]);
+
+  // Keep every project's text on the phone, for searching offline. One at a time, in the background.
+  useEffect(() => {
+    if (!projects.data || projects.offline) return;
+    let stop = false;
+    void (async () => {
+      for (const p of projects.data ?? []) {
+        if (stop) return;
+        await refreshTextIndex(client, p.id);
+      }
+    })();
+    return () => {
+      stop = true;
+    };
+  }, [projects.data, projects.offline, client]);
 
   return (
     <TabScreen

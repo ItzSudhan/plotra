@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createClient, type Client } from "./api";
+import { clearFiles } from "./files";
 import { DEFAULT_SERVER, signInWithBrowser } from "./sign-in";
 
 // Who's signed in on this phone. The token lives in the keychain (iOS) or the
@@ -44,7 +45,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await SecureStore.deleteItemAsync(TOKEN).catch(() => {});
     // What was cached belongs to whoever was signed in.
     const keys = await AsyncStorage.getAllKeys().catch(() => [] as readonly string[]);
-    await AsyncStorage.multiRemove(keys.filter((k) => k.startsWith("cache:") || k.startsWith("draft:") || k === "plotra.outbox" || k === "plotra.recent")).catch(() => {});
+    await AsyncStorage.multiRemove(keys.filter((k) => k.startsWith("cache:") || k.startsWith("draft:") || k.startsWith("plotra.asOf:") || k === "plotra.outbox" || k === "plotra.recent")).catch(() => {});
+    clearFiles();
     setToken(null);
     setStatus("signedOut");
   }, []);

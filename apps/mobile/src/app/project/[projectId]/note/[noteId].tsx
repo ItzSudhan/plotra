@@ -15,6 +15,7 @@ import { forgetRecent, rememberRecent } from "@/lib/recent";
 import { useClient, useSession } from "@/lib/session";
 import { fonts, space, useColors } from "@/lib/theme";
 import { childrenOf, pathOf, resolveLink } from "@/lib/tree";
+import { useHorizon } from "@/lib/use-horizon";
 
 // Reading a note. Its text is drawn from Markdown; [[links]] open the note
 // they name; Previous and Next walk the binder, to read straight through.
@@ -26,7 +27,9 @@ export default function NoteScreen() {
   const { server } = useSession();
   const showMenu = useMenu();
   const { project, notes } = useProject(projectId);
-  const note = useResource(keys.note(projectId, noteId), () => client.note(projectId, noteId));
+  const { release, setAsOf } = useHorizon(projectId, notes.data);
+  const asOf = release?.id ?? null;
+  const note = useResource(keys.note(projectId, noteId, asOf), () => client.note(projectId, noteId, asOf));
   const data = note.data;
   const list = useMemo(() => notes.data ?? [], [notes.data]);
 
@@ -136,6 +139,21 @@ export default function NoteScreen() {
             )}
             {!!data.synopsis && <Text style={{ color: c.mutedForeground, fontSize: 15, lineHeight: 22, fontStyle: "italic", marginTop: space.md }}>{data.synopsis}</Text>}
             <View style={{ height: 1, backgroundColor: c.border, marginVertical: space.xl }} />
+
+            {release && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setAsOf(null)}
+                style={{ marginBottom: space.lg, padding: space.md, borderRadius: 12, backgroundColor: c.emberSoft, flexDirection: "row", gap: space.sm, alignItems: "center" }}
+              >
+                <Icon name="book" size={16} color={c.emberInk} />
+                <Text style={{ flex: 1, color: c.emberInk, fontSize: 14, lineHeight: 20 }}>
+                  {data.revealed === false
+                    ? `As of ${release.title}, readers don't know this note yet. Tap to show everything.`
+                    : `Showing what readers know as of ${release.title}; passages revealed later are left out. Tap to show everything.`}
+                </Text>
+              </Pressable>
+            )}
 
             {readable ? (
               data.markdown?.trim() ? (

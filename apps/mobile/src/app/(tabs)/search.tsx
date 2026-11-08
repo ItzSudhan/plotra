@@ -5,17 +5,15 @@ import { Icon } from "@/components/icon";
 import { TabScreen } from "@/components/screen";
 import { Card, Chip, Empty, Loading, Row, SectionLabel, Separator, T } from "@/components/ui";
 import { isOffline } from "@/lib/api";
-import { keys, readCache, useResource } from "@/lib/cache";
+import { keys, useResource } from "@/lib/cache";
 import { kindIcon } from "@/lib/kinds";
 import { useClient } from "@/lib/session";
 import { radius, space, useColors } from "@/lib/theme";
-import type { Hit, Note, Project } from "@/lib/types";
+import { searchOffline } from "@/lib/text-index";
+import type { Hit, Project } from "@/lib/types";
 
 // Words anywhere in your projects. "quoted phrases", or, -word work as on the web.
-// Offline, it looks through the titles saved on the phone instead.
-
-/** Searching every project at once asks this many, most recently changed first. */
-const MAX_PROJECTS = 12;
+// Offline, it looks through the text kept on the phone (lib/text-index.ts).
 
 type Group = { project: Project; hits: Hit[] };
 
@@ -37,19 +35,33 @@ export default function Search() {
     const id = ++run.current;
     const timer = setTimeout(async () => {
       setBusy(true);
-      const targets = (scope ? list.filter((p) => p.id === scope) : [...list].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))).slice(0, MAX_PROJECTS);
+      const byId = new Map(list.map((p) => [p.id, p]));
+      let found: Group[];
       let wentOffline = false;
-      const found = await Promise.all(
-        targets.map(async (project) => {
-          try {
-            return { project, hits: await client.search(project.id, q, scope ? 40 : 8) };
-          } catch (e) {
-            if (!isOffline(e)) return { project, hits: [] };
-            wentOffline = true;
-            return { project, hits: await searchSaved(project.id, q) };
+      try {
+        if (scope) {
+          const project = byId.get(scope);
+          found = project ? [{ project, hits: await client.search(scope, q, 50) }] : [];
+        } else {
+          // One search across every project, grouped by project in the order the best hits come.
+          const groups = new Map<string, Group>();
+          for (const hit of await client.searchAll(q, 50)) {
+            const project = byId.get(hit.projectId);
+            if (!project) continue;
+            const group = groups.get(project.id) ?? { project, hits: [] };
+            group.hits.push(hit);
+            groups.set(project.id, group);
           }
-        }),
-      );
+          found = [...groups.values()];
+        }
+      } catch (e) {
+        if (!isOffline(e)) found = [];
+        else {
+          wentOffline = true;
+          const targets = scope ? list.filter((p) => p.id === scope) : list;
+          found = await Promise.all(targets.map(async (project) => ({ project, hits: await searchOffline(project.id, q, scope ? 50 : 10) })));
+        }
+      }
       if (id !== run.current) return;
       setOffline(wentOffline);
       setGroups(found.filter((g) => g.hits.length));
@@ -89,7 +101,7 @@ export default function Search() {
 
       {offline && (
         <T tone="muted" style={{ marginHorizontal: space.lg, marginTop: space.md, fontSize: 13 }}>
-          You&apos;re offline, so this only looks at titles saved on your phone.
+          You&apos;re offline, so this looks through the copy of your projects kept on this phone.
         </T>
       )}
 
@@ -121,21 +133,4 @@ export default function Search() {
       )}
     </TabScreen>
   );
-}
-
-/** Titles, aliases and tags of the notes saved on the phone that contain every word. */
-async function searchSaved(projectId: string, q: string): Promise<Hit[]> {
-  const notes = (await readCache<Note[]>(keys.notes(projectId))) ?? [];
-  const words = q
-    .toLowerCase()
-    .replace(/["']/g, "")
-    .split(/\s+/)
-    .filter((w) => w && !w.startsWith("-") && w !== "or");
-  return notes
-    .filter((n) => {
-      const hay = [n.title, ...n.aliases, ...n.tags, n.synopsis ?? ""].join(" ").toLowerCase();
-      return words.every((w) => hay.includes(w));
-    })
-    .slice(0, 20)
-    .map((n) => ({ id: n.id, title: n.title, kind: n.kind, snippet: n.synopsis ?? "" }));
 }
