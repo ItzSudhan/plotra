@@ -8,7 +8,7 @@ The Model Context Protocol lets an AI assistant use tools. Connect one to Plotra
 Plotra's MCP server is at:
 
 ```
-https://<your Plotra address>/api/mcp
+https://app.plotra.ink/api/mcp
 ```
 
 It uses the Streamable HTTP transport.
@@ -26,7 +26,7 @@ In Claude, open **Settings → Connectors**, choose **Add custom connector**, an
 Claude Code works the same way:
 
 ```sh
-claude mcp add --transport http plotra https://<your Plotra address>/api/mcp
+claude mcp add --transport http plotra https://app.plotra.ink/api/mcp
 ```
 
 Then run `/mcp` in Claude Code and pick plotra to sign in.
@@ -38,7 +38,7 @@ Connected apps are listed in **Your settings → Advanced → API tokens and MCP
 Clients that can't sign in take an [API token](/docs/developers/api#api-tokens) as a bearer token instead:
 
 ```sh
-claude mcp add --transport http plotra https://<your Plotra address>/api/mcp \
+claude mcp add --transport http plotra https://app.plotra.ink/api/mcp \
   --header "Authorization: Bearer plt_…"
 ```
 
