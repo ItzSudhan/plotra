@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-type Choice = "cloud" | "open" | { cloud: "sign-in" | "sign-up" } | { create: { parent: string; name: string } } | { library: string };
+type Choice = "cloud" | "open" | { cloud: "sign-in" | "sign-up" } | { create: { parent: string; name: string; dailySnapshots?: boolean } } | { library: string };
 
 // What the first-run page (static/chooser.html) may ask of the app. Nothing
 // else reaches Electron from a page: the app's own windows get no preload.

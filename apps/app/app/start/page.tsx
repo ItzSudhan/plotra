@@ -4,6 +4,7 @@ import { ColdOpen, type LocalLibrary } from "@/components/onboarding/cold-open";
 import { aiRemoved } from "@/lib/agent/no-ai";
 import { modelSource } from "@/lib/agent/settings";
 import { listProjects, listWorkspaces, requireSession } from "@/lib/data";
+import { dailySnapshotsOn } from "@/lib/library-settings";
 import { isLocalMode } from "@/lib/local-mode";
 
 export const metadata: Metadata = { title: "Start a project" };
@@ -22,7 +23,7 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
   let library: LocalLibrary | null = null;
   if (isLocalMode) {
     const dir = process.env.PLOTRA_LIBRARY || null;
-    library = { name: dir ? path.basename(dir) : "My library", dir, askAi: !workspace && !aiRemoved() && !(await modelSource()) };
+    library = { name: dir ? path.basename(dir) : "My library", dir, askAi: !workspace && !aiRemoved() && !(await modelSource()), dailySnapshots: dailySnapshotsOn() };
   }
 
   return <ColdOpen workspace={workspace && { name: workspace.name, slug: workspace.slug }} userName={user.name} templates={templates} library={library} />;

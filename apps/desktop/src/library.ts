@@ -35,6 +35,13 @@ export type LibraryManifest = {
   authSecret: string;
   /** Encrypts AI keys saved in the app (apps/app/lib/agent/keys.ts). */
   aiKeySecret: string;
+  /**
+   * Whether the server takes a snapshot once a day (apps/app/lib/library.ts).
+   * Asked when the library is made, off unless chosen; File → Snapshot Every
+   * Day changes it. Libraries made before it was asked have no answer, and
+   * keep the daily snapshot they always had.
+   */
+  dailySnapshots?: boolean;
 };
 
 export type Library = { dir: string; manifest: LibraryManifest };
@@ -59,7 +66,7 @@ function writeAtomic(file: string, text: string) {
  * folder with other things in it gets a "Plotra Library" folder inside it, so
  * the library never mixes with someone's other files.
  */
-export function createLibrary(dir: string): Library {
+export function createLibrary(dir: string, { dailySnapshots = false }: { dailySnapshots?: boolean } = {}): Library {
   if (isLibrary(dir)) return openLibrary(dir);
   let target = dir;
   if (existsSync(dir) && readdirSync(dir).some((name) => !name.startsWith("."))) {
@@ -68,7 +75,7 @@ export function createLibrary(dir: string): Library {
     if (isLibrary(target)) return openLibrary(target);
   }
   mkdirSync(target, { recursive: true });
-  const manifest: LibraryManifest = { format: FORMAT, createdAt: new Date().toISOString(), authSecret: secret(), aiKeySecret: secret() };
+  const manifest: LibraryManifest = { format: FORMAT, createdAt: new Date().toISOString(), authSecret: secret(), aiKeySecret: secret(), dailySnapshots };
   writeAtomic(path.join(target, MANIFEST), `${JSON.stringify(manifest, null, 2)}\n`);
   for (const sub of [databaseDir(target), markdownDir(target), snapshotsDir(target)]) mkdirSync(sub, { recursive: true });
   writeFileSync(
@@ -78,7 +85,8 @@ export function createLibrary(dir: string): Library {
       "",
       "Database   your projects. Open them with Plotra; don't change these files by hand.",
       "Markdown   a readable copy of every project, kept up to date while Plotra is open.",
-      "Snapshots  dated copies of the database. Restore one from Plotra's File menu.",
+      "Snapshots  dated copies of the database: File → Back Up Now, and every day if you",
+      "           turn on File → Snapshot Every Day. Restore one from Plotra's File menu.",
       "",
       "Back up this whole folder. Only one copy of Plotra may have it open at a time:",
       "if you sync it between computers, close Plotra on one before opening it on the other.",
@@ -121,6 +129,17 @@ export function newLibraryPath(parent: string, name: string): string {
     target = path.join(parent, `${base} ${n}`);
   }
   return target;
+}
+
+/** Whether the library takes a snapshot every day: unless it says not, for libraries from before it was asked. */
+export const takesDailySnapshots = (manifest: LibraryManifest) => manifest.dailySnapshots !== false;
+
+/** Turns the daily snapshot on or off, in the library's settings file. Returns the library as it is now. */
+export function setDailySnapshots(library: Library, on: boolean): Library {
+  const file = path.join(library.dir, MANIFEST);
+  const manifest = { ...(JSON.parse(readFileSync(file, "utf8")) as LibraryManifest), dailySnapshots: on };
+  writeAtomic(file, `${JSON.stringify(manifest, null, 2)}\n`);
+  return { dir: library.dir, manifest };
 }
 
 export class NotALibraryError extends Error {}

@@ -46,7 +46,7 @@ const compare: React.ReactNode[][] = [
   ["Writing with others, sharing, public links", "Yes", "No"],
   ["Sync between your devices", "Yes", "Copy the folder yourself"],
   ["AI", "Hosted AI on Pro, or your own key", "Your own key, or a local model (Ollama)"],
-  ["Backups", "Ours", "Yours: daily snapshots in the folder"],
+  ["Backups", "Ours", "Yours: snapshots in the folder, daily if you like"],
   ["Plan limits", "Free or Pro", "None: as big as your disk"],
 ];
 
@@ -91,7 +91,7 @@ export default function DownloadPage() {
           you write, so your work is readable without Plotra.
         </li>
         <li>
-          <strong>Snapshots.</strong> A dated copy of the whole library is kept every day, and whenever you ask. Restore
+          <strong>Snapshots.</strong> A dated copy of the whole library whenever you ask, and every day if you choose. Restore
           one from the File menu.
         </li>
         <li>

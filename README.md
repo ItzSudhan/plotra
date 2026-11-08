@@ -27,7 +27,7 @@ Try it on a sample project without an account: the fantasy novel [*The Ninth Bel
 | | What it is | Cost |
 | --- | --- | --- |
 | **[Plotra Cloud](https://app.plotra.ink)** | The hosted version. Sign up and start writing; share projects and write with others. | Free plan, or Pro at $10 a month per workspace |
-| **Desktop app** (coming soon) | macOS, Windows and Linux. Use it as a window on Plotra Cloud, or keep a library in a folder on your computer: no account, no internet, Markdown copies and daily snapshots beside it. | Free |
+| **Desktop app** (coming soon) | macOS, Windows and Linux. Use it as a window on Plotra Cloud, or keep a library in a folder on your computer: no account, no internet, Markdown copies and snapshots beside it. | Free |
 | **[Self-hosted](https://docs.plotra.ink/docs/self-hosting)** | Your own server, with one `docker compose` command: the app, Postgres, the collab server and file storage. | Free, no limits you didn't set |
 
 Whichever you pick, you can export everything: a whole project as a `.plotra` file that opens in any of the three, or as Markdown, DOCX, EPUB and Fountain.

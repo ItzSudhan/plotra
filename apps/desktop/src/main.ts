@@ -3,7 +3,19 @@ import { existsSync, readdirSync, renameSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { showProblem } from "./dialogs";
-import { createLibrary, databaseDir, DEFAULT_LIBRARY_NAME, isLibrary, lockLibrary, newLibraryPath, openLibrary, snapshotsDir, type Library } from "./library";
+import {
+  createLibrary,
+  databaseDir,
+  DEFAULT_LIBRARY_NAME,
+  isLibrary,
+  lockLibrary,
+  newLibraryPath,
+  openLibrary,
+  setDailySnapshots,
+  snapshotsDir,
+  takesDailySnapshots,
+  type Library,
+} from "./library";
 import { backupSaved, describeError, fileManager, folderName, libraryLabels, NOT_A_LIBRARY, quoted, switchQuestion } from "./messages";
 import { staysInWindow } from "./navigation";
 import { freePort, startLocalServer, type LocalServer } from "./server";
@@ -26,9 +38,10 @@ const DEV_URL = process.env.PLOTRA_DESKTOP_DEV_URL;
 type CloudStart = "sign-in" | "sign-up";
 
 /** What the first-run window (static/chooser.html, through ./preload.ts) can ask for. */
-type Choice = "cloud" | "open" | { cloud: CloudStart } | { create: { parent: string; name: string } } | { library: string };
+type Choice = "cloud" | "open" | { cloud: CloudStart } | { create: { parent: string; name: string; dailySnapshots?: boolean } } | { library: string };
 
-const isPlace = (value: unknown): value is { parent: string; name: string } =>
+type Place = { parent: string; name: string; dailySnapshots?: boolean };
+const isPlace = (value: unknown): value is Place =>
   typeof value === "object" && value !== null && typeof (value as { parent?: unknown }).parent === "string" && typeof (value as { name?: unknown }).name === "string" && path.isAbsolute((value as { parent: string }).parent);
 
 type Current =
@@ -519,10 +532,10 @@ async function switchToLibrary(dir: string): Promise<boolean> {
 }
 
 /** Makes a library called `name` in `parent` (the first-run window's "Set up your library"), or opens the one already there. */
-async function newLibrary({ parent, name }: { parent: string; name: string }): Promise<boolean> {
+async function newLibrary({ parent, name, dailySnapshots }: Place): Promise<boolean> {
   let library: Library;
   try {
-    library = createLibrary(newLibraryPath(parent, name));
+    library = createLibrary(newLibraryPath(parent, name), { dailySnapshots: dailySnapshots === true });
   } catch (error) {
     await showProblem(describeError(error, "Couldn't make the library there"), chooser);
     return false;
@@ -560,7 +573,7 @@ function showChooser({ screen }: { screen?: "new" } = {}) {
   }
   chooser = new BrowserWindow({
     width: 760,
-    height: 620,
+    height: 660,
     resizable: false,
     title: "Welcome to Plotra",
     backgroundColor: windowBackground(),
@@ -616,6 +629,17 @@ ipcMain.handle("plotra:choose", async (_event, choice: Choice) => {
   }
   return opened;
 });
+
+/** File → Snapshot Every Day: saved in the library, and read by its server at its next hourly check. */
+async function toggleDailySnapshots(on: boolean) {
+  if (current?.mode !== "local") return;
+  try {
+    current.library = setDailySnapshots(current.library, on);
+  } catch (error) {
+    await showProblem(describeError(error, "Couldn't change the library's snapshots"));
+  }
+  buildMenu();
+}
 
 async function backUpNow() {
   if (current?.mode !== "local" || !current.server) return;
@@ -693,6 +717,13 @@ function buildMenu() {
     { type: "separator" },
     { label: "Show Library in Folder", enabled: Boolean(local), click: () => local && shell.openPath(local.library.dir) },
     { label: "Back Up Now", enabled: Boolean(local?.server), click: () => void backUpNow() },
+    {
+      label: "Snapshot Every Day",
+      type: "checkbox",
+      enabled: Boolean(local),
+      checked: Boolean(local && takesDailySnapshots(local.library.manifest)),
+      click: (item) => void toggleDailySnapshots(item.checked),
+    },
     { label: "Restore a Snapshot…", enabled: Boolean(local?.server), click: () => void restoreSnapshot() },
     { type: "separator" },
     current?.mode === "cloud"

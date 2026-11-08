@@ -2,7 +2,7 @@ import { afterAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { hostname, tmpdir } from "node:os";
 import path from "node:path";
-import { createLibrary, DEFAULT_LIBRARY_NAME, isLibrary, libraryFolderName, LibraryInUseError, lockLibrary, LOCK_STALE_MS, newLibraryPath, NotALibraryError, openLibrary } from "../src/library";
+import { createLibrary, DEFAULT_LIBRARY_NAME, isLibrary, libraryFolderName, LibraryInUseError, lockLibrary, LOCK_STALE_MS, newLibraryPath, NotALibraryError, openLibrary, setDailySnapshots, takesDailySnapshots } from "../src/library";
 import { rememberLibrary } from "../src/settings";
 
 const root = mkdtempSync(path.join(tmpdir(), "plotra-library-"));
@@ -106,5 +106,27 @@ describe("settings", () => {
     settings = rememberLibrary(settings, "/a");
     expect(settings.recent).toEqual(["/a", "/b"]);
     expect(settings.mode).toBe("local");
+  });
+});
+
+describe("daily snapshots", () => {
+  test("a new library takes none unless asked to", () => {
+    expect(takesDailySnapshots(createLibrary(dir("quiet")).manifest)).toBe(false);
+    expect(takesDailySnapshots(createLibrary(dir("daily"), { dailySnapshots: true }).manifest)).toBe(true);
+  });
+
+  test("turning them on or off is saved in the library", () => {
+    const library = setDailySnapshots(createLibrary(dir("toggled")), true);
+    expect(takesDailySnapshots(library.manifest)).toBe(true);
+    expect(openLibrary(library.dir).manifest.dailySnapshots).toBe(true);
+    expect(openLibrary(library.dir).manifest.authSecret).toBe(library.manifest.authSecret);
+    expect(openLibrary(setDailySnapshots(library, false).dir).manifest.dailySnapshots).toBe(false);
+  });
+
+  test("a library from before it was asked keeps taking them", () => {
+    const library = createLibrary(dir("older"));
+    const { dailySnapshots: _, ...older } = library.manifest;
+    writeFileSync(path.join(library.dir, "plotra-library.json"), JSON.stringify(older));
+    expect(takesDailySnapshots(openLibrary(library.dir).manifest)).toBe(true);
   });
 });

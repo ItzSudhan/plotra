@@ -6,6 +6,7 @@ import { unzipSync } from "fflate";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, rmdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { flushLocalRooms } from "./collab/local-hub";
+import { dailySnapshotsOn } from "./library-settings";
 import { runAsApiUser, type Session } from "./data";
 import { buildExport } from "./io/export";
 import { LOCAL_EMAIL } from "./local-person";
@@ -20,8 +21,9 @@ import { readOnly } from "./request-cache";
  *   binder, in the library's Markdown folder, kept up to date: the writing is
  *   readable without Plotra, and safe to sync between computers (the live
  *   database isn't).
- * - **Snapshots.** A dated copy of the whole database, taken once a day and
- *   when asked for (File → Take a Snapshot Now), the newest few kept.
+ * - **Snapshots.** A dated copy of the whole database, taken when asked for
+ *   (File → Back Up Now), and once a day if the library says so (File →
+ *   Snapshot Every Day), the newest few kept.
  *
  * The desktop app says where these go (PLOTRA_MARKDOWN_DIR and
  * PLOTRA_SNAPSHOTS_DIR); without them, neither job runs.
@@ -238,10 +240,10 @@ export async function takeSnapshot(): Promise<string> {
   return name;
 }
 
-/** Takes the day's snapshot if there isn't one from today yet. */
+/** Takes the day's snapshot if the library takes them and there isn't one from today yet. */
 async function dailySnapshot() {
   const dir = snapshotsRoot();
-  if (!dir) return;
+  if (!dir || !dailySnapshotsOn()) return;
   const today = `Plotra ${day(new Date())}`;
   const newest = listSnapshots(dir)[0];
   if (newest?.startsWith(today) && statSync(/*turbopackIgnore: true*/ path.join(/*turbopackIgnore: true*/ dir, newest)).size > 0) return;

@@ -225,6 +225,63 @@
         color: var(--fg);
         font-weight: 600;
       }
+      .toggle {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .toggle strong {
+        display: block;
+        font-weight: 600;
+      }
+      .toggle small {
+        display: block;
+        margin-top: 2px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      /* The checkbox, drawn as a switch: still a real checkbox for the keyboard and screen readers. */
+      .toggle input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+      }
+      .switch {
+        position: relative;
+        flex: none;
+        width: 34px;
+        height: 20px;
+        margin-top: 1px;
+        border-radius: 999px;
+        background: var(--line);
+      }
+      .switch::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      }
+      .toggle input:checked + .switch {
+        background: var(--accent);
+      }
+      .toggle input:checked + .switch::after {
+        transform: translateX(14px);
+      }
+      .toggle input:focus-visible + .switch {
+        box-shadow: 0 0 0 3px var(--ring);
+      }
       .setup .buttons {
         margin-top: 4px;
       }
@@ -312,6 +369,10 @@
         }
         button.busy::before {
           animation: spin 0.8s linear infinite;
+        }
+        .switch,
+        .switch::after {
+          transition: background-color 200ms, transform 240ms cubic-bezier(0.3, 1.4, 0.5, 1);
         }
         /* Each screen comes in a piece at a time; going between them, it slides the way you went. */
         .screen:not([hidden]) > *,
@@ -498,10 +559,19 @@
         <ul class="inside" style="--i: 3" aria-label="What the library keeps">
           <li><strong>Your projects</strong>, in a database that Plotra opens</li>
           <li><strong>A Markdown copy</strong> of every project, readable in any app</li>
-          <li><strong>A snapshot</strong> of everything once a day, and whenever you choose File → Back Up Now</li>
+          <li><strong>A snapshot</strong> of everything whenever you choose File → Back Up Now</li>
         </ul>
 
-        <div class="buttons" style="--i: 4">
+        <label class="toggle" style="--i: 4">
+          <input type="checkbox" id="daily" />
+          <span class="switch" aria-hidden="true"></span>
+          <span>
+            <strong>Also take a snapshot every day</strong>
+            <small>A copy of the whole library once a day, the newest 14 kept. You can turn it on or off later from the File menu.</small>
+          </span>
+        </label>
+
+        <div class="buttons" style="--i: 5">
           <button type="submit" class="primary" id="create">Create library</button>
           <button type="button" data-screen="choose">Back</button>
         </div>
@@ -582,7 +652,7 @@
         event.preventDefault();
         if (!place.parent) return;
         const button = document.getElementById("create");
-        run(button, () => window.plotra.choose({ create: { parent: place.parent, name: nameField.value } }));
+        run(button, () => window.plotra.choose({ create: { parent: place.parent, name: nameField.value, dailySnapshots: document.getElementById("daily").checked } }));
       });
       window.plotra.libraryDefaults().then((defaults) => {
         place.parent = defaults.parent;
