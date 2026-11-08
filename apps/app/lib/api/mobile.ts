@@ -1,6 +1,7 @@
 import "server-only";
 import { db, schema } from "@plotra/db";
 import { and, eq, isNull } from "drizzle-orm";
+import { isLocalMode } from "../local-mode";
 import { ApiError } from "./handler";
 import { hashToken, MAX_TOKENS, newToken, tokenPrefix } from "./token";
 
@@ -36,4 +37,10 @@ export async function issueMobileToken(userId: string, name: string): Promise<st
 /** Signing out of the app: its token stops working at once. */
 export async function revokeMobileToken(tokenId: string): Promise<void> {
   await db.delete(apiToken).where(eq(apiToken.id, tokenId));
+}
+
+/** The collab server the web editor talks to (components/collab/party-provider.ts), or null in local mode. */
+export function collabUrl(): string | null {
+  if (isLocalMode) return null;
+  return process.env.NEXT_PUBLIC_COLLAB_URL || (process.env.NODE_ENV === "production" ? null : "http://localhost:8787");
 }

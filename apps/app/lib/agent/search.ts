@@ -101,6 +101,64 @@ export async function searchNodes(projectId: string, rawQuery: string, limit = 2
     .map((row) => ({ id: row.id, title: row.title, kind: row.kind, snippet: (row.snippet ?? "").replace(/\s+/g, " ").trim(), rank: Number(row.rank) }));
 }
 
+/**
+ * The same search across several projects at once (the phone app's Search,
+ * app/api/v1/search), best first. `projectIds` are ones the person can open;
+ * row-level security still limits the notes to theirs.
+ */
+export async function searchEverywhere(projectIds: string[], rawQuery: string, limit = 40): Promise<Array<SearchHit & { projectId: string }>> {
+  return readOnly(async () => {
+    const query = rawQuery.trim().slice(0, MAX_QUERY);
+    if (!query || !projectIds.length) return [];
+    const wanted = Math.min(Math.max(1, Math.floor(limit)), MAX_LIMIT);
+    const fetched = wanted + 10;
+    const vector = nodeSearchVector(node);
+    const tsquery = sql`websearch_to_tsquery('english', ${query})`;
+    const like = `%${query.replace(/[%_\\]/g, "\\$&")}%`;
+    const inProjects = sql`${node.projectId} in (${sql.join(
+      projectIds.map((id) => sql`${id}`),
+      sql`, `,
+    )})`;
+    type ProjectRow = Row & { project_id: string };
+    const [matched, named] = await userDb((tx) =>
+      Promise.all([
+        tx.execute<ProjectRow>(sql`
+          select hit.id, hit.project_id, hit.title, hit.kind, hit.rank, ts_headline('english', hit.body, ${tsquery}, ${HEADLINE}) as snippet
+          from (
+            select ${node.id} as id, ${node.projectId} as project_id, ${node.title} as title, ${node.kind} as kind, ${node.updatedAt} as updated_at,
+              coalesce(nullif(${node.text}, ''), ${node.synopsis}, '') as body,
+              ts_rank(${vector}, ${tsquery}) as rank
+            from ${node}
+            where ${inProjects} and ${node.deletedAt} is null and ${vector} @@ ${tsquery}
+            order by rank desc, ${node.updatedAt} desc
+            limit ${fetched}
+          ) hit
+          order by hit.rank desc, hit.updated_at desc`),
+        tx.execute<ProjectRow>(sql`
+          select ${node.id} as id, ${node.projectId} as project_id, ${node.title} as title, ${node.kind} as kind, 0 as rank,
+            left(coalesce(nullif(${node.text}, ''), ${node.synopsis}, ''), 200) as snippet
+          from ${node}
+          where ${inProjects} and ${node.deletedAt} is null
+            and (${node.title} ilike ${like} or array_to_string(${node.aliases}, ' ') ilike ${like})
+          order by ${node.updatedAt} desc
+          limit ${fetched}`),
+      ]),
+    );
+    const seen = new Set(matched.rows.map((row) => row.id));
+    const rows = [...matched.rows, ...named.rows.filter((row) => !seen.has(row.id))];
+    // Notes inside a trashed folder, project by project.
+    const indexes = new Map<string, ReturnType<typeof indexNodes>>();
+    for (const projectId of new Set(rows.map((r) => r.project_id))) indexes.set(projectId, indexNodes(await listNodes(projectId)));
+    return rows
+      .filter((row) => {
+        const index = indexes.get(row.project_id);
+        return !!index && index.byId.has(row.id) && !isTrashed(index, row.id);
+      })
+      .slice(0, wanted)
+      .map((row) => ({ id: row.id, projectId: row.project_id, title: row.title, kind: row.kind, snippet: (row.snippet ?? "").replace(/\s+/g, " ").trim(), rank: Number(row.rank) }));
+  });
+}
+
 /** Project search for the workspace (lib/reads.ts): checks access itself, like any read. */
 export async function searchProject(projectId: string, query: string): Promise<SearchHit[]> {
   return readOnly(async () => {

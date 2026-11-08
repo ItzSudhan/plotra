@@ -3,12 +3,13 @@ import { readApiNote, trashApiNote, updateApiNote, type NotePatch } from "@/lib/
 
 type Context = { params: Promise<{ project: string; note: string }> };
 
-// GET   /api/v1/projects/<id>/notes/<id>: the note, its text as Markdown.
+// GET   /api/v1/projects/<id>/notes/<id>: the note, its text as Markdown. ?asOf=<release> leaves out what isn't revealed by then.
 // PATCH /api/v1/projects/<id>/notes/<id>: { title?, synopsis?, tags?, aliases?, status? }.
 // DELETE /api/v1/projects/<id>/notes/<id>: moves it, and what's inside it, to the trash.
 export async function GET(request: Request, { params }: Context) {
   const { project, note } = await params;
-  return withApi(request, "read", async () => json({ note: await readApiNote(project, note) }));
+  const asOf = new URL(request.url).searchParams.get("asOf");
+  return withApi(request, "read", async () => json({ note: await readApiNote(project, note, asOf) }));
 }
 
 export async function PATCH(request: Request, { params }: Context) {

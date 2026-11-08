@@ -40,8 +40,10 @@ curl -H "Authorization: Bearer plt_…" https://app.plotra.ink/api/v1/projects
 | --- | --- |
 | `GET /api/v1/me` | `{ user: { id, name, email, image }, workspaces: [{ id, name, slug, role }] }` |
 | `GET /api/v1/projects` | `{ projects: [{ id, slug, title, type, workspaceId, workspaceName, workspaceSlug, updatedAt }] }` |
-| `GET /api/v1/projects/{project}/notes` | `{ notes: [{ id, parentId, kind, title, synopsis, tags, aliases, status, wordCount, updatedAt, canEdit }] }`, in binder order, without the trash |
-| `GET /api/v1/projects/{project}/notes/{note}` | `{ note }`, with `markdown`: its text. `null` for a canvas, timeline or dialogue |
+| `GET /api/v1/projects/{project}/notes` | `{ notes: [{ id, parentId, kind, title, synopsis, tags, aliases, status, wordCount, updatedAt, canEdit, revealReleaseId }] }`, in binder order, without the trash. `?text=1` adds each note's plain `text` |
+| `GET /api/v1/projects/{project}/notes/{note}` | `{ note }`, with `markdown`: its text. `null` for a canvas, timeline or dialogue. `?asOf={release}` leaves out passages not revealed by that release and adds `revealed`: whether the note itself is |
+| `GET /api/v1/projects/{project}/releases` | `{ releases: [{ id, title, kind, date, position, nodeId }] }`, in shipping order |
+| `GET /api/v1/search?q=…&limit=40` | `{ hits: [{ id, title, kind, snippet, projectId, projectTitle }] }`: every project you can open, best first |
 | `GET /api/v1/projects/{project}/search?q=…&limit=20` | `{ hits: [{ id, title, kind, snippet }] }` |
 | `POST /api/v1/projects/{project}/notes` | Makes a note. Body: `{ title, kind?, parentId?, markdown?, tags?, synopsis? }`. `201` with `{ note }` |
 | `PATCH /api/v1/projects/{project}/notes/{note}` | Body: any of `{ title, synopsis, tags, aliases, status }`. `{ note }` |
