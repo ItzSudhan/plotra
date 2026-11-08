@@ -307,6 +307,47 @@ export async function writeApiNoteText(projectId: string, nodeId: string, change
   }
 }
 
+/** A note's live document can't grow by more than this in one go from the phone. */
+export const MAX_DOC_UPDATE = 8 * 1024 * 1024;
+
+/**
+ * Changes the phone app made to a note's live document while offline
+ * (apps/mobile: the editor keeps the document on the phone): merged into the
+ * room the way a reconnecting editor's would be. Yjs merges are idempotent,
+ * so sending the phone's whole copy is safe; what the room has already is
+ * ignored.
+ */
+export async function mergeApiNoteState(projectId: string, nodeId: string, update: Uint8Array): Promise<void> {
+  if (!update.length) return;
+  if (update.length > MAX_DOC_UPDATE) throw new ApiError(413, "That's too much to send at once.");
+  await readOnly(async () => {
+    await requireNodeAccess(projectId, nodeId, "edit");
+    await assertUnlocked(projectId, nodeId);
+    const index = indexNodes(await listNodes(projectId));
+    const found = index.byId.get(nodeId);
+    if (!found || isTrashed(index, nodeId)) throw new ApiError(404, "Not found.");
+    if (!isDocumentKind(found.kind)) throw new ApiError(400, `That's a ${found.kind}, not a text document.`);
+  });
+  const room = roomName({ kind: "node", id: nodeId });
+  const doc = new Y.Doc();
+  try {
+    Y.applyUpdate(doc, await fetchRoomState(room));
+    const before = Y.encodeStateVector(doc);
+    try {
+      Y.applyUpdate(doc, update);
+    } catch {
+      throw new ApiError(400, "That isn't a document update.");
+    }
+    const missing = Y.encodeStateAsUpdate(doc, before);
+    if (missing.length > 2) {
+      await postRoomUpdate(room, missing);
+      await syncRoomState(room, Y.encodeStateAsUpdate(doc));
+    }
+  } finally {
+    doc.destroy();
+  }
+}
+
 /** What the note said before a replace, in its history. */
 async function keepVersion(projectId: string, nodeId: string, userId: string, state: Uint8Array) {
   await transaction(async () => {
