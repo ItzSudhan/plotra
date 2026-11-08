@@ -136,6 +136,24 @@ function pageAction(target: string, page: string): string | null {
   }
 }
 
+/**
+ * The Plotra Cloud window the app opened by itself at launch, until it's known
+ * to be signed in. Signed out, it gives way to the welcome window (the
+ * person may never have finished signing in): the browser only opens for a
+ * sign-in they asked for.
+ */
+let launchWindow: BrowserWindow | null = null;
+
+/** Closes the cloud window opened at launch and shows the welcome window in its place. */
+function backToWelcome(win: BrowserWindow) {
+  launchWindow = null;
+  current = null;
+  buildMenu();
+  // The welcome window first, so closing the last window doesn't quit the app.
+  showChooser();
+  if (!win.isDestroyed()) win.destroy();
+}
+
 /** Signing in to Plotra Cloud through the browser (./sign-in.ts): the one under way, and the window waiting on it. */
 let signingIn: { flow: SignInFlow; win: BrowserWindow } | null = null;
 
@@ -249,18 +267,28 @@ function openWindow(url: string, onReady?: () => void): BrowserWindow {
   const toBrowser = (event: { preventDefault: () => void } | null, target: string) => {
     if (current?.mode !== "cloud" || !signInPage(target, CLOUD_URL)) return false;
     event?.preventDefault();
+    // Opened by the app at launch and signed out: the welcome window, not a browser opening by itself.
+    if (launchWindow === win) {
+      backToWelcome(win);
+      return true;
+    }
     void signInThroughBrowser(win, target);
     return true;
   };
   win.webContents.on("will-redirect", (event, target, _inPlace, isMainFrame) => {
     if (isMainFrame) toBrowser(event, target);
   });
-  win.webContents.on("did-navigate", (_event, target) => void toBrowser(null, target));
+  win.webContents.on("did-navigate", (_event, target) => {
+    if (toBrowser(null, target)) return;
+    // Got into the cloud signed in: from here a sign-in page means the person signed out, or their session ran out.
+    if (launchWindow === win && sameOrigin(target, CLOUD_URL)) launchWindow = null;
+  });
   win.webContents.on("did-navigate-in-page", (_event, target, isMainFrame) => {
     if (isMainFrame) toBrowser(null, target);
   });
   const contentsId = win.webContents.id;
   win.once("closed", () => {
+    if (launchWindow === win) launchWindow = null;
     pendingSignIn.delete(contentsId);
     if (signingIn?.win === win) cancelSignIn();
   });
@@ -342,12 +370,13 @@ async function closeCurrent(): Promise<boolean> {
  * Opens Plotra Cloud. `start` is the first-run window's choice: "sign-up" goes
  * straight to making an account (in the browser, as signing in does).
  */
-function openCloud(start: CloudStart = "sign-in") {
+function openCloud(start: CloudStart = "sign-in"): BrowserWindow {
   current = { mode: "cloud", url: CLOUD_URL };
   settings = { ...settings, mode: "cloud" };
   save();
-  openWindow(start === "sign-up" ? new URL("/sign-up", CLOUD_URL).toString() : CLOUD_URL);
+  const win = openWindow(start === "sign-up" ? new URL("/sign-up", CLOUD_URL).toString() : CLOUD_URL);
   buildMenu();
+  return win;
 }
 
 type OpenOptions = {
@@ -659,7 +688,7 @@ else {
     // The opening window may be the only one for a while: that's expected.
     switching = true;
     try {
-      if (settings.mode === "cloud") openCloud();
+      if (settings.mode === "cloud") launchWindow = openCloud();
       else if (settings.mode === "local" && settings.library && isLibrary(settings.library) && (await openLocal(settings.library))) {
         // Opened where it was left.
       } else showChooser();
