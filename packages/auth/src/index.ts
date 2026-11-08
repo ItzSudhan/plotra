@@ -13,7 +13,9 @@ const google =
     : undefined;
 
 // GitHub isn't a way to sign in: a signed-in person links it from Project
-// settings → GitHub, asking for the `repo` scope, so Plotra can list their
+// settings → GitHub (a GitHub App: its permissions and the repositories it's
+// installed on decide what it reaches; the `repo` scope asked for only matters
+// to an OAuth app), so Plotra can list their
 // repositories, make a new one, and keep a project's copy in it
 // (apps/app/lib/git-sync-actions.ts). No new accounts come from it.
 const github =

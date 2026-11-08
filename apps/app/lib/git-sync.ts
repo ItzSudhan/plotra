@@ -1,4 +1,5 @@
 import "server-only";
+import { auth } from "@plotra/auth";
 import { db, schema } from "@plotra/db";
 import { and, eq, isNotNull, sql } from "drizzle-orm";
 import { unzipSync } from "fflate";
@@ -33,6 +34,26 @@ const API = "https://api.github.com";
 const PURPOSE = "git-sync";
 
 export const tokenContext = (projectId: string) => `git-sync:${projectId}`;
+
+/**
+ * The token hint of a sync set up with the person's connected GitHub account
+ * (git-sync-actions.ts) rather than a pasted token. Such a sync asks Better
+ * Auth for a current token each time: a GitHub App's tokens last 8 hours and
+ * are refreshed, so the sealed copy is only a fallback.
+ */
+export const LINKED_HINT = "github";
+
+/** A current token for someone's connected GitHub account, refreshed if it expired; null without one. */
+export async function linkedGitHubToken(userId: string): Promise<string | null> {
+  const [linked] = await db
+    .select({ id: schema.account.id })
+    .from(schema.account)
+    .where(and(eq(schema.account.userId, userId), eq(schema.account.providerId, "github")))
+    .limit(1);
+  if (!linked) return null;
+  const { accessToken } = await auth.api.getAccessToken({ body: { accountId: linked.id, userId } });
+  return accessToken ?? null;
+}
 
 export type SyncOutcome = { ok: boolean; commit: string | null; changed: number; error: string | null };
 
@@ -177,7 +198,9 @@ export async function runGitSync(projectId: string): Promise<SyncOutcome> {
       if (error instanceof Error && /nothing written/i.test(error.message)) files = new Map();
       else throw new Error("The project couldn't be read with the access of whoever set up the sync. Set it up again yourself.");
     }
-    const github = githubWith(unseal(row.tokenSealed, PURPOSE, tokenContext(projectId)));
+    const linked = row.tokenHint === LINKED_HINT ? await linkedGitHubToken(row.userId).catch(() => null) : null;
+    if (row.tokenHint === LINKED_HINT && !linked) throw new Error("The GitHub account this was set up with isn't connected any more. Connect GitHub again.");
+    const github = githubWith(linked ?? unseal(row.tokenSealed, PURPOSE, tokenContext(projectId)));
     const { commit, changed } = await commitFiles(github, row.repo, row.branch, row.path, files, `Update from Plotra (${files.size} ${plural(files.size, "file")})`);
     outcome = { ok: true, commit, changed, error: null };
   } catch (error) {

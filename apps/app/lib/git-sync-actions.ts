@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { requireProjectAccess } from "./access";
 import { requireSession } from "./data";
 import { userDb } from "./db";
-import { cleanRepoPath, githubWith, runGitSync, tokenContext, type GitHubRequest, type SyncOutcome } from "./git-sync";
+import { LINKED_HINT, cleanRepoPath, githubWith, runGitSync, tokenContext, type GitHubRequest, type SyncOutcome } from "./git-sync";
 import { isLocalMode } from "./local-mode";
 import { rateLimit } from "./rate-limit";
 import { readOnly, transaction } from "./request-cache";
@@ -43,6 +43,13 @@ export type GitHubConnection = {
   available: boolean;
   /** Their GitHub username, when linked. */
   login: string | null;
+  /** Where on GitHub they choose which repositories Plotra can use (a GitHub App's installation), when known. */
+  installUrl: string | null;
+};
+
+const installUrl = () => {
+  const slug = process.env.GITHUB_APP_SLUG?.trim();
+  return slug && /^[a-z0-9-]+$/i.test(slug) ? `https://github.com/apps/${slug}/installations/new` : null;
 };
 
 export type GitHubRepo = { fullName: string; private: boolean; defaultBranch: string; empty: boolean };
@@ -71,13 +78,13 @@ async function requireLinked(): Promise<GitHubRequest> {
 /** Whether GitHub can be linked here, and as whom it is. */
 export async function getGitHubConnection(): Promise<GitHubConnection> {
   await requireSession();
-  if (!githubLinking || isLocalMode) return { available: false, login: null };
+  if (!githubLinking || isLocalMode) return { available: false, login: null, installUrl: null };
   const token = await linkedToken();
-  if (!token) return { available: true, login: null };
+  if (!token) return { available: true, login: null, installUrl: installUrl() };
   const me = await githubWith(token)("GET", "/user");
   // A token GitHub no longer takes (revoked there) is as good as none.
-  if (me.status !== 200) return { available: true, login: null };
-  return { available: true, login: (me.data as { login: string }).login };
+  if (me.status !== 200) return { available: true, login: null, installUrl: installUrl() };
+  return { available: true, login: (me.data as { login: string }).login, installUrl: installUrl() };
 }
 
 /** The linked account's repositories it can write to, most recently changed first. */
@@ -113,6 +120,8 @@ export async function createGitHubRepo(input: { name: string; private?: boolean 
     description: "Kept up to date by Plotra.",
   });
   if (res.status === 422) throw new Error(`You already have a repository called ${name}. Pick it from the list, or choose another name.`);
+  if (res.status === 403 || res.status === 404)
+    throw new Error("GitHub doesn't let Plotra make repositories for you. Make one on GitHub, let Plotra use it, then pick it from the list.");
   if (res.status !== 201) throw new Error("GitHub didn't make the repository. Connect GitHub again and retry.");
   const repo = res.data as { full_name: string; private: boolean; default_branch: string };
   return { fullName: repo.full_name, private: repo.private, defaultBranch: repo.default_branch || "main", empty: false };
@@ -191,8 +200,9 @@ export async function saveGitSync(
   if (!BRANCH.test(branch) || branch.includes("..")) throw new Error("That isn't a branch name GitHub takes.");
   const path = cleanRepoPath(input?.path ?? "");
   let token = String(input?.token ?? "").trim();
+  const viaGitHub = input?.useGitHub === true;
   if (token.length > 400) throw new Error("That doesn't look like a GitHub token.");
-  if (input?.useGitHub === true) {
+  if (viaGitHub) {
     const linked = await linkedToken();
     if (!linked) throw new Error("Connect your GitHub account first.");
     token = linked;
@@ -205,7 +215,12 @@ export async function saveGitSync(
     const github = githubWith(token);
     const found = await github("GET", `/repos/${repo}`);
     if (found.status === 401) throw new Error("GitHub didn't accept that token.");
-    if (found.status !== 200) throw new Error("The token can't see that repository. Check its name, and that the token is for it.");
+    if (found.status !== 200)
+      throw new Error(
+        viaGitHub
+          ? "Plotra can't see that repository. Check its name, and that Plotra is allowed to use it on GitHub."
+          : "The token can't see that repository. Check its name, and that the token is for it.",
+      );
     const permissions = (found.data as { permissions?: { push?: boolean } }).permissions;
     if (permissions && permissions.push === false) throw new Error("The token can read the repository but not write to it. Give it Contents: Read and write.");
     let ref = await github("GET", `/repos/${repo}/git/ref/heads/${encodeURIComponent(branch)}`);
@@ -230,7 +245,7 @@ export async function saveGitSync(
       path,
       enabled: true,
       userId: user.id,
-      ...(token && { tokenSealed: seal(token, "git-sync", tokenContext(projectId)), tokenHint: token.slice(-4) }),
+      ...(token && { tokenSealed: seal(token, "git-sync", tokenContext(projectId)), tokenHint: viaGitHub ? LINKED_HINT : token.slice(-4) }),
       dirtyAt: new Date(),
       lastError: null,
     };

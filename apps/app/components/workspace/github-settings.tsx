@@ -56,7 +56,7 @@ export function GitHubSettings() {
   const [path, setPath] = useState("");
   const [token, setToken] = useState("");
   const [busy, setBusy] = useState(false);
-  const [connection, setConnection] = useState<GitHubConnection>({ available: false, login: null });
+  const [connection, setConnection] = useState<GitHubConnection>({ available: false, login: null, installUrl: null });
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
   /** Linked: pick a repository, or make one. Not linked: the pasted key. */
   const [mode, setMode] = useState<"pick" | "create" | "token">("pick");
@@ -237,9 +237,31 @@ export function GitHubSettings() {
         <div className="flex flex-wrap items-center gap-3 rounded-lg border p-3.5 text-ui-sm">
           {linked ? (
             <>
-              <p className="min-w-0 flex-1">
-                Connected to GitHub as <span className="font-medium">{connection.login}</span>
-              </p>
+              <div className="min-w-0 flex-1">
+                <p>
+                  Connected to GitHub as <span className="font-medium">{connection.login}</span>
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {repos.length === 0 ? "Plotra can't use any of your repositories yet. " : `Plotra can use ${repos.length === 1 ? "1 repository" : `${repos.length} repositories`}. `}
+                  {connection.installUrl ? (
+                    <a href={connection.installUrl} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-foreground">
+                      Choose which ones on GitHub
+                    </a>
+                  ) : (
+                    "Choose which ones in your GitHub settings"
+                  )}
+                  , then{" "}
+                  <button
+                    type="button"
+                    disabled={busy}
+                    className="underline underline-offset-2 hover:text-foreground"
+                    onClick={() => void run(async () => void (await loadConnection()))}
+                  >
+                    refresh the list
+                  </button>
+                  .
+                </p>
+              </div>
               <Button
                 type="button"
                 size="sm"
@@ -356,7 +378,8 @@ export function GitHubSettings() {
           {mode === "token" && (
             <label className="grid gap-1">
               <span className="text-xs text-muted-foreground">
-                Access key {state ? `(saved, ending ${state.tokenHint}; leave empty to keep it)` : ""}
+                Access key{" "}
+                {state ? (state.tokenHint === "github" ? "(now using your connected GitHub account; paste a key to use it instead)" : `(saved, ending ${state.tokenHint}; leave empty to keep it)`) : ""}
               </span>
               <Input
                 type="password"
