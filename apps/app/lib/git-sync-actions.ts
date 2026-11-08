@@ -120,11 +120,31 @@ export async function createGitHubRepo(input: { name: string; private?: boolean 
     description: "Kept up to date by Plotra.",
   });
   if (res.status === 422) throw new Error(`You already have a repository called ${name}. Pick it from the list, or choose another name.`);
-  if (res.status === 403 || res.status === 404)
-    throw new Error("GitHub doesn't let Plotra make repositories for you. Make one on GitHub, let Plotra use it, then pick it from the list.");
-  if (res.status !== 201) throw new Error("GitHub didn't make the repository. Connect GitHub again and retry.");
+  if (res.status !== 201) {
+    console.error("[plotra] GitHub refused to make a repository", res.status, res.data);
+    throw new Error(await whyNoNewRepo(github));
+  }
   const repo = res.data as { full_name: string; private: boolean; default_branch: string };
   return { fullName: repo.full_name, private: repo.private, defaultBranch: repo.default_branch || "main", empty: false };
+}
+
+/**
+ * Why GitHub wouldn't make a repository, from Plotra's installation on the
+ * person's account (a GitHub App's user token reaches only what it's installed on).
+ */
+async function whyNoNewRepo(github: GitHubRequest): Promise<string> {
+  const fallback = "GitHub didn't make the repository. Make one on GitHub, let Plotra use it, then pick it from the list.";
+  const res = await github("GET", "/user/installations");
+  if (res.status !== 200) return fallback;
+  const slug = process.env.GITHUB_APP_SLUG?.trim();
+  const all = (res.data as { installations?: Array<{ id: number; app_slug: string; repository_selection: string; permissions?: Record<string, string>; account?: { type?: string } }> }).installations ?? [];
+  const mine = all.find((i) => (!slug || i.app_slug === slug) && i.account?.type === "User");
+  if (!mine) return "Plotra isn't installed on your GitHub account yet. Use \"Choose which ones on GitHub\" to install it, then try again.";
+  if (mine.permissions?.administration !== "write")
+    return `Plotra needs your OK on GitHub to make repositories. Accept its new permissions at github.com/settings/installations/${mine.id}, then try again.`;
+  if (mine.repository_selection !== "all")
+    return `GitHub only lets Plotra make repositories when it can use all of yours. Change that at github.com/settings/installations/${mine.id}, or make the repository on GitHub, add it there, and pick it from the list.`;
+  return fallback;
 }
 
 /**
