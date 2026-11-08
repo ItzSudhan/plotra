@@ -20,7 +20,8 @@ Written 8 November 2026.
 
 **Not done:**
 
-- **For you, by hand:** step 1 hasn't been run in the app (no Electron run here). Steps 1 and 2 haven't been tried in a running app. Worth a look: the window's height with the recent-libraries list, and that "Create an account" doesn't flash the cloud's sign-up page in the window before the browser opens; the AI step with Ollama running, stopped, and running with no models.
+- **For you, by hand:** none of the three steps has been tried in a running app (no Electron or browser run here). Worth a look: the first-run window's height with the recent-libraries list; that "Create an account" doesn't flash the cloud's sign-up page in the window before the browser opens; the AI step with Ollama running, stopped, and running with no models; the desktop card on the projects page, and that it stays closed.
+- The cloud card goes live once the web app is deployed; the first-run window and library screens ship with the next desktop release (`desktop-v*` tag).
 
 ## The problem
 
