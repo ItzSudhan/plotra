@@ -69,6 +69,8 @@ export function createClient(server: string, token: string, onUnauthorized: () =
     notesWithText: (projectId: string) => request<{ notes: (Note & { text?: string })[] }>(`${p(projectId)}/notes?text=1`).then((r) => r.notes),
     releases: (projectId: string) => request<{ releases: Release[] }>(`${p(projectId)}/releases`).then((r) => r.releases),
     searchAll: (q: string, limit = 50) => request<{ hits: ProjectHit[] }>(`/api/v1/search?${new URLSearchParams({ q, limit: String(limit) })}`).then((r) => r.hits),
+    /** What the editor wrote in a note while offline: its kept document, merged on the server. */
+    pushDoc: (projectId: string, noteId: string, update: string) => request<{ ok: true }>("/api/mobile/doc", { method: "POST", body: { projectId, noteId, update } }),
     collabSeat: (projectId: string, room: string) => request<CollabSeat>(`/api/mobile/collab-token?${new URLSearchParams({ project: projectId, room })}`),
     search: (projectId: string, q: string, limit = 30) => request<{ hits: Hit[] }>(`${p(projectId)}/search?${new URLSearchParams({ q, limit: String(limit) })}`).then((r) => r.hits),
     createNote: (projectId: string, input: NewNote) => request<{ note: Note }>(`${p(projectId)}/notes`, { method: "POST", body: input }).then((r) => r.note),

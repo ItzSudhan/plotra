@@ -158,7 +158,7 @@ export default function NoteScreen() {
             {readable ? (
               data.markdown?.trim() ? (
                 <MarkdownView markdown={data.markdown} onWiki={onWiki} />
-              ) : (
+              ) : data.revealed === false ? null : (
                 <Pressable accessibilityRole="button" disabled={!canEdit} onPress={edit} style={{ paddingVertical: space.xl }}>
                   <Text style={{ color: c.mutedForeground, fontFamily: fonts.serif, fontSize: 18, fontStyle: "italic" }}>{canEdit ? "Nothing written yet. Tap to start." : "Nothing written yet."}</Text>
                 </Pressable>

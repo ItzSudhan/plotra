@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { AppState } from "react-native";
 import { ApiError, isOffline, type Client } from "./api";
 import { invalidate, keys } from "./cache";
+import { readDocState } from "./doc-store";
 import { useSession } from "./session";
 import type { NewNote, NotePatch } from "./types";
 
@@ -15,6 +16,8 @@ import type { NewNote, NotePatch } from "./types";
 
 export type Change =
   | { type: "text"; projectId: string; noteId: string; title: string; mode: "append" | "update"; markdown: string }
+  /** The editor wrote in a note offline: its document, kept on the phone (lib/doc-store.ts), goes when it can. */
+  | { type: "doc"; projectId: string; noteId: string; title: string }
   | { type: "create"; projectId: string; title: string; input: NewNote }
   | { type: "patch"; projectId: string; noteId: string; title: string; patch: NotePatch };
 
@@ -28,12 +31,17 @@ type Value = {
   enqueue: (change: Change) => void;
   flush: () => Promise<void>;
   discard: (id: string) => void;
+  /** The editor saw the server take a note's changes: nothing about its document is waiting any more. */
+  settleDoc: (noteId: string) => void;
 };
 
-const Context = createContext<Value>({ pending: [], failed: [], enqueue: () => {}, flush: async () => {}, discard: () => {} });
+const Context = createContext<Value>({ pending: [], failed: [], enqueue: () => {}, flush: async () => {}, discard: () => {}, settleDoc: () => {} });
 
 async function send(client: Client, change: Change) {
-  if (change.type === "text") await client.writeText(change.projectId, change.noteId, change.mode, change.markdown);
+  if (change.type === "doc") {
+    const state = await readDocState(change.noteId);
+    if (state) await client.pushDoc(change.projectId, change.noteId, state);
+  } else if (change.type === "text") await client.writeText(change.projectId, change.noteId, change.mode, change.markdown);
   else if (change.type === "create") await client.createNote(change.projectId, change.input);
   else await client.updateNote(change.projectId, change.noteId, change.patch);
   invalidate(keys.notes(change.projectId));
@@ -84,8 +92,10 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
 
   const enqueue = useCallback(
     (change: Change) => {
-      // A newer version of the same note's text makes an older waiting one pointless.
-      const rest = change.type === "text" && change.mode === "update" ? itemsRef.current.filter((i) => i.error || !(i.type === "text" && i.mode === "update" && i.noteId === change.noteId)) : itemsRef.current;
+      // A newer version of the same note's text, or its document, makes an older waiting one pointless.
+      const same = (i: Queued) =>
+        !i.error && ((change.type === "doc" && i.type === "doc" && i.noteId === change.noteId) || (change.type === "text" && change.mode === "update" && i.type === "text" && i.mode === "update" && i.noteId === change.noteId));
+      const rest = itemsRef.current.filter((i) => !same(i));
       save([...rest, { ...change, id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, queuedAt: Date.now() }]);
       void flush();
     },
@@ -93,6 +103,12 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
   );
 
   const discard = useCallback((id: string) => save(itemsRef.current.filter((i) => i.id !== id)), [save]);
+  const settleDoc = useCallback(
+    (noteId: string) => {
+      if (itemsRef.current.some((i) => i.type === "doc" && i.noteId === noteId)) save(itemsRef.current.filter((i) => !(i.type === "doc" && i.noteId === noteId)));
+    },
+    [save],
+  );
 
   useEffect(() => {
     const net = NetInfo.addEventListener((s) => {
@@ -109,7 +125,7 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
   }, [flush]);
 
   return (
-    <Context.Provider value={{ pending: items.filter((i) => !i.error), failed: items.filter((i) => i.error), enqueue, flush, discard }}>{children}</Context.Provider>
+    <Context.Provider value={{ pending: items.filter((i) => !i.error), failed: items.filter((i) => i.error), enqueue, flush, discard, settleDoc }}>{children}</Context.Provider>
   );
 }
 

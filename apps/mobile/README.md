@@ -7,10 +7,11 @@ Plotra on iPhone and Android, built with Expo (SDK 58) and Expo Router. It talks
 - **Library**: every project, by workspace, and the notes you opened lately.
 - **A project's binder**: folders, chapters, scenes and notes in the web app's order. Open and close folders, filter by title or tag, hold a note for its menu.
 - **Reading**: a note's text set in serif, with `[[links]]` that open the note they name, and Previous / Next to read straight through. Boards, timelines and dialogues open on the web.
-- **Writing**: Markdown with a formatting bar above the keyboard, lists that carry on when you press Return, and `[[` suggesting notes to link. What you type is kept on the phone as a draft until it's saved. Saving checks nobody changed the note meanwhile, rewrites only the paragraphs you changed (so comments and formatting elsewhere stay), and the server keeps the version before in the note's history.
+- **Writing**: the note's own document, live, in Plate (the web's editor) running in a web view (`src/components/rich-editor`, an Expo DOM component) joined to the note's room on the collab server. There's nothing to save: every keystroke goes into the shared document, people writing elsewhere appear as they type, and comments, suggestions, block tags and formatting the phone doesn't show stay as they are. A formatting bar sits above the keyboard (bold, italic, headings, lists, to-dos, quotes, scene breaks, undo; script elements in a script), and `[[` opens a note picker to link. The document is kept on the phone, so you can write offline; what you write then goes when you're back, from the editor or, if it's closed, from the outbox (`POST /api/mobile/doc`).
 - **Details**: title, synopsis, tags and status. New notes of any kind the API can make, at the top or inside a folder or chapter. Moving a note to the trash.
 - **Quick note**: catch an idea as a new note in any project, or at the end of a note you pick.
-- **Search** across all your projects, or one.
+- **Search** across all your projects at once, or one. Every project's text is kept on the phone, so search finds words inside notes offline too.
+- **As of a release**: pick a book, episode or session in a project, and the binder dims what readers don't know yet, the reader leaves out passages revealed later, and the editor dims them.
 - **Inbox**: mentions, replies, shares and reviews, with a badge on the tab.
 - **Offline**: everything you've opened is saved on the phone and shown when there's no connection. Changes made offline wait on the phone and are sent when you're back (Account lists them, and keeps the text of any the server turns down).
 - **Account**: light, dark or the phone's setting; reading text size; links to the web; sign out.
@@ -36,4 +37,4 @@ With EAS (`eas.json`): `bunx eas-cli build --profile production --platform all`,
 
 ## Not on the phone yet
 
-Comments and replies, chat, suggestions (track changes), version history, boards, timelines, the graph, the plot grid, sharing and settings. They open on the web from the app. A paragraph you change on the phone is rewritten from its Markdown, so formatting Markdown can't hold (and comments anchored in it) don't carry over to that paragraph; the version before stays in the note's history.
+Comments and replies, chat, accepting or rejecting suggestions, version history, boards, timelines, the graph, the plot grid, sharing and settings. They open on the web from the app. Other people's cursors aren't drawn (their names show above the keyboard), and pictures can't be added from the phone.

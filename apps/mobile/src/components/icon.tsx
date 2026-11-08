@@ -54,6 +54,9 @@ const icons = {
   expandAll: ["arrow.up.and.down.text.horizontal", "unfold_more"],
   collapseAll: ["arrow.down.and.line.horizontal.and.arrow.up", "unfold_less"],
   textSize: ["textformat.size", "text_fields"],
+  undo: ["arrow.uturn.backward", "undo"],
+  redo: ["arrow.uturn.forward", "redo"],
+  people: ["person.2", "group"],
 } as const satisfies Record<string, readonly [SFSymbol, AndroidSymbol]>;
 
 export type IconName = keyof typeof icons;

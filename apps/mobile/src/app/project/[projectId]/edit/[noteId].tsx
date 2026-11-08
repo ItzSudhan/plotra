@@ -1,321 +1,263 @@
-import { router, Stack, useLocalSearchParams, usePreventRemove } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View, type TextInputInstance, type TextInputSelectionChangeEvent } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { KeyboardAvoidingView, Platform, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FormatBar, type Format } from "@/components/format-bar";
+import { useMenu } from "@/components/menu";
+import { NotePicker } from "@/components/note-picker";
+import NoteEditor, { type EditorRef } from "@/components/rich-editor/note-editor";
+import { noteRoom, scriptElements, type EditorCommand, type EditorHorizon, type EditorStatus, type EditorTheme, type Seat } from "@/components/rich-editor/shared";
 import { Loading } from "@/components/ui";
 import { isOffline } from "@/lib/api";
-import { invalidate, keys, readCache, writeCache } from "@/lib/cache";
-import { clearDraft, readDraft, writeDraft } from "@/lib/drafts";
-import { continueList, insert, setLinePrefix, wrap, type Edit, type Selection } from "@/lib/editing";
+import { textSizes, useAppearance } from "@/lib/appearance";
+import { invalidate, keys } from "@/lib/cache";
+import { readDocState, writeDocState } from "@/lib/doc-store";
 import { words } from "@/lib/links";
-import { countWords } from "@/lib/markdown";
 import { useOutbox } from "@/lib/outbox";
 import { useProject } from "@/lib/project";
 import { useClient } from "@/lib/session";
-import { fonts, radius, space, useColors } from "@/lib/theme";
-import type { NoteWithText } from "@/lib/types";
+import { space, useColors, useScheme } from "@/lib/theme";
+import type { Note } from "@/lib/types";
+import { useHorizon } from "@/lib/use-horizon";
 
-// Writing on the phone. The text is Markdown, with a bar of buttons for the
-// usual formatting; [[ suggests notes to link. Everything typed is kept on the
-// phone as a draft until it's saved. Saving checks nobody changed the note in
-// the meantime, and the server keeps the version it replaces in the note's
-// history. Only paragraphs that changed are rewritten, so comments and
-// formatting elsewhere in the note stay put (apps/app/lib/api/note-update.ts).
-// With no connection, the change waits on the phone and goes later.
+// Writing on the phone: the note's own document, live, in the web's editor
+// (components/rich-editor/note-editor.tsx). There's nothing to save: every
+// keystroke goes to the shared document, people writing elsewhere appear as
+// they type, and comments, suggestions and formatting the phone doesn't show
+// are untouched. The document is kept on the phone too, so writing works
+// offline; what's written then is sent when the connection is back, by the
+// editor if it's still open, or by the outbox.
+
+const COLLAB_URL = "plotra.collabUrl";
 
 export default function EditScreen() {
   const { projectId, noteId } = useLocalSearchParams<{ projectId: string; noteId: string }>();
   const c = useColors();
+  const scheme = useScheme();
   const insets = useSafeAreaInsets();
   const client = useClient();
-  const { enqueue } = useOutbox();
+  const showMenu = useMenu();
+  const { textSize } = useAppearance();
+  const { enqueue, settleDoc } = useOutbox();
   const { notes } = useProject(projectId);
+  const { release, horizon } = useHorizon(projectId, notes.data);
+  const note: Note | undefined = notes.data?.find((n) => n.id === noteId);
 
-  const [loaded, setLoaded] = useState<NoteWithText | null>(null);
-  const [failed, setFailed] = useState<string | null>(null);
-  const [base, setBase] = useState("");
-  const [text, setText] = useState("");
-  const [title, setTitle] = useState("");
-  const [saving, setSaving] = useState(false);
-  const selection = useRef<Selection>({ start: 0, end: 0 });
-  const [forced, setForced] = useState<Selection | undefined>(undefined);
-  const [cursor, setCursor] = useState(0);
-  const input = useRef<TextInputInstance>(null);
-  const done = useRef(false);
-  const [leaving, setLeaving] = useState(false);
+  const [boot, setBoot] = useState<{ url: string | null; saved: string | null } | null>(null);
+  const [status, setStatus] = useState<EditorStatus | null>(null);
+  const [picking, setPicking] = useState(false);
+  const editor = useRef<EditorRef>(null);
+  const pickResolve = useRef<((id: string | null) => void) | null>(null);
+  const room = noteRoom(noteId);
 
-  // The note as the server has it, else as last saved on the phone; then any draft.
+  // The collab server's address (asked for once; remembered for offline) and the copy kept on the phone.
   useEffect(() => {
     let live = true;
     (async () => {
-      let note: NoteWithText | undefined;
+      const saved = await readDocState(noteId);
+      let url: string | null = null;
       try {
-        note = await client.note(projectId, noteId);
-        void writeCache(keys.note(projectId, noteId), note);
+        url = (await client.collabSeat(projectId, room)).url;
+        void AsyncStorage.setItem(COLLAB_URL, url);
       } catch (e) {
-        note = await readCache<NoteWithText>(keys.note(projectId, noteId));
-        if (!note) {
-          if (live) setFailed(isOffline(e) ? "You're offline, and this note isn't saved on your phone yet. Open it once while online." : (e as Error).message);
-          return;
-        }
+        if (isOffline(e)) url = await AsyncStorage.getItem(COLLAB_URL);
       }
-      if (!live) return;
-      const markdown = note.markdown ?? "";
-      setLoaded(note);
-      setBase(markdown);
-      setText(markdown);
-      setTitle(note.title);
-      const draft = await readDraft(noteId);
-      if (!live || !draft || (draft.text === markdown && draft.title === note.title)) return;
-      Alert.alert("Pick up where you left off?", "There's writing on this phone that wasn't saved to this note.", [
-        { text: "Start from the note", style: "destructive", onPress: () => void clearDraft(noteId) },
-        {
-          text: "Keep my writing",
-          style: "default",
-          onPress: () => {
-            setBase(draft.base);
-            setText(draft.text);
-            setTitle(draft.title);
-          },
-        },
-      ]);
+      if (live) setBoot({ url, saved });
     })();
     return () => {
       live = false;
     };
-  }, [client, projectId, noteId]);
+  }, [client, projectId, noteId, room]);
 
-  const dirty = !!loaded && (text !== base || title.trim() !== loaded.title);
+  const getSeat = useCallback(async (): Promise<Seat | null> => {
+    try {
+      return await client.collabSeat(projectId, room);
+    } catch {
+      return null;
+    }
+  }, [client, projectId, room]);
 
-  // The draft, a moment after each change.
+  const persist = useCallback(async (state: string) => writeDocState(noteId, state), [noteId]);
+
+  const title = note?.title || "Untitled";
+  const unsent = useRef(false);
+  const onStatus = useCallback(
+    async (next: EditorStatus) => {
+      setStatus(next);
+      // Written offline: queue the document, so it goes even if this screen is closed first.
+      if (next.unsent && !unsent.current) enqueue({ type: "doc", projectId, noteId, title });
+      else if (!next.unsent && next.sync === "synced") settleDoc(noteId);
+      unsent.current = next.unsent;
+    },
+    [enqueue, settleDoc, projectId, noteId, title],
+  );
+
+  // Leaving with changes the server hasn't had: queue the latest copy, which is kept by then.
+  const leave = useRef(() => {});
   useEffect(() => {
-    if (!loaded) return;
-    const timer = setTimeout(() => {
-      if (done.current) return;
-      if (dirty) void writeDraft(noteId, { base, text, title, savedAt: Date.now() });
-      else void clearDraft(noteId);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [text, title, base, dirty, loaded, noteId]);
+    leave.current = () => {
+      if (unsent.current) setTimeout(() => enqueue({ type: "doc", projectId, noteId, title }), 800);
+    };
+  }, [enqueue, projectId, noteId, title]);
+  useEffect(() => () => leave.current(), []);
 
-  const apply = (edit: Edit) => {
-    setText(edit.text);
-    selection.current = edit.selection;
-    setForced(edit.selection);
-    setCursor(edit.selection.end);
-  };
+  const onOpenNote = useCallback(async (id: string) => {
+    router.push({ pathname: "/project/[projectId]/note/[noteId]", params: { projectId, noteId: id } });
+  }, [projectId]);
 
-  const onChangeText = (next: string) => {
-    const list = continueList(text, next);
-    if (list) apply(list);
-    else setText(next);
-  };
+  const pickNote = useCallback(
+    () =>
+      new Promise<string | null>((resolve) => {
+        pickResolve.current = resolve;
+        setPicking(true);
+      }),
+    [],
+  );
 
-  const onSelectionChange = (e: TextInputSelectionChangeEvent) => {
-    selection.current = e.nativeEvent.selection;
-    setCursor(e.nativeEvent.selection.end);
-    if (forced) setForced(undefined);
-  };
+  const run = (command: EditorCommand) => editor.current?.run(command as never);
 
   const format = (f: Format) => {
-    const sel = selection.current;
     switch (f) {
       case "bold":
-        return apply(wrap(text, sel, "**"));
       case "italic":
-        return apply(wrap(text, sel, "*"));
+        return run({ type: "mark", mark: f });
       case "strike":
-        return apply(wrap(text, sel, "~~"));
+        return run({ type: "mark", mark: "strikethrough" });
       case "highlight":
-        return apply(wrap(text, sel, "=="));
-      case "link":
-        return apply(wrap(text, sel, "[[", "]]"));
+        return run({ type: "mark", mark: "highlight" });
       case "heading": {
-        // # → ## → ### → plain text.
-        const lineStart = text.lastIndexOf("\n", sel.start - 1) + 1;
-        const hashes = /^(#{1,6}) /.exec(text.slice(lineStart))?.[1].length ?? 0;
-        if (hashes >= 3) return apply(setLinePrefix(text, sel, "#".repeat(hashes) + " "));
-        return apply(setLinePrefix(text, sel, "#".repeat(hashes + 1) + " "));
+        // Paragraph → heading 1 → 2 → 3 → paragraph. Toggling a heading the text already is turns it back into a paragraph.
+        const block = status?.block ?? "p";
+        return run({ type: "block", block: block === "h1" ? "h2" : block === "h2" ? "h3" : block === "h3" ? "h3" : "h1" });
       }
-      case "bullet":
-        return apply(setLinePrefix(text, sel, "- "));
-      case "numbered":
-        return apply(setLinePrefix(text, sel, "1. "));
-      case "todo":
-        return apply(setLinePrefix(text, sel, "- [ ] "));
       case "quote":
-        return apply(setLinePrefix(text, sel, "> "));
-      case "rule": {
-        const before = text.slice(0, sel.start);
-        const lead = before.length === 0 || before.endsWith("\n\n") ? "" : before.endsWith("\n") ? "\n" : "\n\n";
-        return apply(insert(text, sel, `${lead}---\n\n`));
-      }
+        return run({ type: "block", block: "blockquote" });
+      case "bullet":
+        return run({ type: "list", style: "disc" });
+      case "numbered":
+        return run({ type: "list", style: "decimal" });
+      case "todo":
+        return run({ type: "list", style: "todo" });
+      case "rule":
+        return run({ type: "hr" });
+      case "undo":
+        return run({ type: "undo" });
+      case "redo":
+        return run({ type: "redo" });
+      case "link":
+        return void pickNote().then((id) => id && run({ type: "wikilink", nodeId: id }));
+      case "script":
+        return showMenu({
+          title: "Script element",
+          items: scriptElements.map((e) => ({ label: e.label, onPress: () => run({ type: "block", block: e.type }) })),
+        });
     }
   };
 
-  // [[ before the cursor: suggest notes to link.
-  const linkQuery = useMemo(() => /\[\[([^\]\n|#]*)$/.exec(text.slice(0, cursor))?.[1] ?? null, [text, cursor]);
-  const suggestions = useMemo(() => {
-    if (linkQuery === null) return [];
-    const q = linkQuery.trim().toLowerCase();
-    return (notes.data ?? []).filter((n) => n.id !== noteId && n.kind !== "folder" && (!q || n.title.toLowerCase().includes(q) || n.aliases.some((a) => a.toLowerCase().includes(q)))).slice(0, 8);
-  }, [linkQuery, notes.data, noteId]);
+  const theme: EditorTheme = useMemo(
+    () => ({
+      foreground: c.foreground,
+      background: c.background,
+      muted: c.muted,
+      mutedForeground: c.mutedForeground,
+      border: c.border,
+      ember: c.ember,
+      emberInk: c.emberInk,
+      emberSoft: c.emberSoft,
+      highlight: c.highlight,
+      teal: c.teal,
+      destructive: c.destructive,
+      fontSize: textSizes[textSize].body,
+      lineHeight: textSizes[textSize].line,
+      dark: scheme === "dark",
+    }),
+    [c, textSize, scheme],
+  );
 
-  const pickLink = (linkTitle: string) => {
-    if (linkQuery === null) return;
-    const start = cursor - linkQuery.length;
-    const closes = text.slice(cursor, cursor + 2) === "]]";
-    apply(insert(text, { start, end: cursor + (closes ? 2 : 0) }, `${linkTitle}]]`));
+  const titles = useMemo(() => Object.fromEntries((notes.data ?? []).map((n) => [n.id, n.title])), [notes.data]);
+  const editorHorizon: EditorHorizon = useMemo(
+    () => (horizon && release ? { limit: horizon.order.get(release.id) ?? 0, order: Object.fromEntries(horizon.order) } : null),
+    [horizon, release],
+  );
+
+  const done = () => {
+    run({ type: "blur" });
+    invalidate(keys.note(projectId, noteId));
+    invalidate(keys.notes(projectId));
+    router.back();
   };
 
-  const close = () => {
-    done.current = true;
-    setLeaving(true);
-  };
-
-  // Once nothing holds the screen back any more.
-  useEffect(() => {
-    if (leaving) router.back();
-  }, [leaving]);
-
-  const save = async () => {
-    if (!loaded || saving) return;
-    const newTitle = title.trim();
-    const textChanged = text !== base;
-    const titleChanged = !!newTitle && newTitle !== loaded.title;
-    if (!textChanged && !titleChanged) {
-      void clearDraft(noteId);
-      return close();
-    }
-    setSaving(true);
-    try {
-      if (textChanged) {
-        const current = await client.note(projectId, noteId);
-        if ((current.markdown ?? "") !== base) {
-          setSaving(false);
-          const replace = await new Promise<boolean>((resolve) =>
-            Alert.alert("This note changed while you were writing", "Someone (or you, somewhere else) edited it. Save yours over it? Theirs stays in the note's history on the web.", [
-              { text: "Keep editing", style: "cancel", onPress: () => resolve(false) },
-              { text: "Save mine", style: "destructive", onPress: () => resolve(true) },
-            ]),
-          );
-          if (!replace) return;
-          setSaving(true);
-        }
-        const markdown = await client.writeText(projectId, noteId, "update", text);
-        await writeCache(keys.note(projectId, noteId), { ...loaded, title: titleChanged ? newTitle : loaded.title, markdown, wordCount: countWords(markdown) });
-      }
-      if (titleChanged) await client.updateNote(projectId, noteId, { title: newTitle });
-      await clearDraft(noteId);
-      invalidate(keys.note(projectId, noteId));
-      invalidate(keys.notes(projectId));
-      close();
-    } catch (e) {
-      setSaving(false);
-      if (isOffline(e)) {
-        if (textChanged) enqueue({ type: "text", projectId, noteId, title: newTitle || loaded.title, mode: "update", markdown: text });
-        if (titleChanged) enqueue({ type: "patch", projectId, noteId, title: newTitle, patch: { title: newTitle } });
-        // What's shown meanwhile is what was written.
-        await writeCache(keys.note(projectId, noteId), { ...loaded, title: titleChanged ? newTitle : loaded.title, markdown: text, wordCount: countWords(text) });
-        await clearDraft(noteId);
-        invalidate(keys.note(projectId, noteId));
-        Alert.alert("Saved on your phone", "You're offline. It goes to Plotra by itself when you're back online.", [{ text: "OK", onPress: close }]);
-      } else Alert.alert("Couldn't save", `${(e as Error).message}\n\nYour writing is kept on this phone.`);
-    }
-  };
-
-  const cancel = () => {
-    if (!dirty) {
-      void clearDraft(noteId);
-      return close();
-    }
-    Alert.alert("Leave without saving?", "Your writing stays on this phone, and you can pick it up next time you edit this note.", [
-      { text: "Keep editing", style: "cancel" },
-      {
-        text: "Throw it away",
-        style: "destructive",
-        onPress: () => {
-          void clearDraft(noteId);
-          close();
-        },
-      },
-      { text: "Leave it for later", onPress: close },
-    ]);
-  };
-
-  // A swipe down or the back button asks the same as Cancel.
-  usePreventRemove(dirty && !leaving, cancel);
-
-  const count = useMemo(() => countWords(text), [text]);
+  const line = !status
+    ? "Opening…"
+    : status.sync === "offline"
+      ? status.editable
+        ? "Offline. What you write is kept on this phone and sent later."
+        : "Offline, and this note isn't on your phone yet. Open it once while online."
+      : status.sync === "connecting"
+        ? "Connecting…"
+        : status.role === "viewer" || status.role === "commenter"
+          ? "You can read this note, not change it."
+          : status.peers.length
+            ? `Writing with ${status.peers.join(", ")}`
+            : "Saved as you type";
 
   return (
     <>
       <Stack.Screen
         options={{
-          title: "",
-          headerLeft: () => (
-            <Pressable accessibilityRole="button" onPress={cancel} hitSlop={8} style={{ paddingHorizontal: space.sm }}>
-              <Text style={{ color: c.foreground, fontSize: 17 }}>Cancel</Text>
-            </Pressable>
-          ),
+          title,
+          headerLeft: () => null,
           headerRight: () => (
-            <Pressable accessibilityRole="button" onPress={save} disabled={saving || !loaded} hitSlop={8} style={{ paddingHorizontal: space.sm, opacity: saving || !loaded ? 0.4 : 1 }}>
-              <Text style={{ color: c.emberInk, fontSize: 17, fontWeight: "600" }}>{saving ? "Saving…" : "Save"}</Text>
+            <Pressable accessibilityRole="button" onPress={done} hitSlop={8} style={{ paddingHorizontal: space.sm }}>
+              <Text style={{ color: c.emberInk, fontSize: 17, fontWeight: "600" }}>Done</Text>
             </Pressable>
           ),
         }}
       />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? insets.top + 44 : 0} style={{ flex: 1, backgroundColor: c.background }}>
-        {failed ? (
-          <Text style={{ color: c.mutedForeground, padding: space.xl, fontSize: 16, lineHeight: 23 }}>{failed}</Text>
-        ) : !loaded ? (
+        {!boot ? (
           <Loading />
+        ) : !boot.url ? (
+          <Text style={{ color: c.mutedForeground, padding: space.xl, fontSize: 16, lineHeight: 23 }}>
+            You&apos;re offline, and this note hasn&apos;t been opened for writing on this phone yet. Open it once while online, then you can write in it anywhere.
+          </Text>
         ) : (
-          <>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Title"
-              placeholderTextColor={c.mutedForeground}
-              accessibilityLabel="Title"
-              returnKeyType="next"
-              submitBehavior="submit"
-              onSubmitEditing={() => input.current?.focus()}
-              style={{ color: c.foreground, fontFamily: fonts.serif, fontSize: 26, paddingHorizontal: space.xl, paddingTop: space.sm, paddingBottom: space.sm }}
-            />
-            <TextInput
-              ref={input}
-              value={text}
-              onChangeText={onChangeText}
-              onSelectionChange={onSelectionChange}
-              selection={forced}
-              multiline
-              autoFocus={!base}
-              placeholder="Start writing…"
-              placeholderTextColor={c.mutedForeground}
-              accessibilityLabel="Text"
-              textAlignVertical="top"
-              scrollEnabled
-              style={{ flex: 1, color: c.foreground, fontFamily: fonts.serif, fontSize: 18, lineHeight: 27, paddingHorizontal: space.xl, paddingTop: space.sm, paddingBottom: space.xl }}
-            />
-            {suggestions.length > 0 && (
-              <ScrollView horizontal keyboardShouldPersistTaps="always" showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, backgroundColor: c.muted }} contentContainerStyle={{ padding: space.sm, gap: space.sm }}>
-                {suggestions.map((n) => (
-                  <Pressable key={n.id} accessibilityRole="button" accessibilityLabel={`Link to ${n.title}`} onPress={() => pickLink(n.title)} style={({ pressed }) => ({ paddingHorizontal: space.md, height: 34, justifyContent: "center", borderRadius: radius.pill, backgroundColor: pressed ? c.accent : c.card })}>
-                    <Text style={{ color: c.emberInk, fontSize: 14 }}>{n.title}</Text>
-                  </Pressable>
-                ))}
-              </ScrollView>
-            )}
-            <View style={{ flexDirection: "row", justifyContent: "space-between", paddingHorizontal: space.lg, paddingVertical: 4, backgroundColor: c.card }}>
-              <Text style={{ color: c.mutedForeground, fontSize: 12 }}>{words(count)}</Text>
-              {dirty && <Text style={{ color: c.mutedForeground, fontSize: 12 }}>Draft kept on this phone</Text>}
-            </View>
-            <FormatBar onFormat={format} onDone={() => input.current?.blur()} />
-          </>
+          <NoteEditor
+            ref={editor}
+            room={room}
+            collabUrl={boot.url}
+            savedState={boot.saved}
+            readOnly={note ? !note.canEdit : false}
+            theme={theme}
+            titles={titles}
+            horizon={editorHorizon}
+            getSeat={getSeat}
+            persist={persist}
+            onStatus={onStatus}
+            onOpenNote={onOpenNote}
+            pickNote={pickNote}
+            dom={{ style: { flex: 1, backgroundColor: c.background }, hideKeyboardAccessoryView: true, contentInsetAdjustmentBehavior: "never" }}
+          />
         )}
+        <View style={{ flexDirection: "row", justifyContent: "space-between", gap: space.md, paddingHorizontal: space.lg, paddingVertical: 4, backgroundColor: c.card }}>
+          <Text numberOfLines={1} style={{ flex: 1, color: status?.sync === "offline" ? c.emberInk : c.mutedForeground, fontSize: 12 }}>
+            {line}
+          </Text>
+          {!!status && <Text style={{ color: c.mutedForeground, fontSize: 12 }}>{words(status.words)}</Text>}
+        </View>
+        <FormatBar status={status} onFormat={format} onDone={() => run({ type: "blur" })} />
       </KeyboardAvoidingView>
+      <NotePicker
+        visible={picking}
+        notes={notes.data ?? []}
+        exclude={noteId}
+        onPick={(picked) => {
+          setPicking(false);
+          pickResolve.current?.(picked?.id ?? null);
+          pickResolve.current = null;
+        }}
+      />
     </>
   );
 }

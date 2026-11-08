@@ -83,7 +83,7 @@ export default function Account() {
                   icon={item.error ? "info" : "sync"}
                   iconColor={item.error ? c.destructive : c.mutedForeground}
                   title={item.title || "Untitled"}
-                  subtitle={item.error ? `Couldn't send: ${item.error}` : `${item.type === "create" ? "New note" : item.type === "text" ? "Text" : "Details"} · saved ${ago(item.queuedAt)}`}
+                  subtitle={item.error ? `Couldn't send: ${item.error}` : `${{ create: "New note", text: "Text", doc: "Writing", patch: "Details" }[item.type]} · saved ${ago(item.queuedAt)}`}
                   onPress={item.error ? () => showFailed(item) : () => void flush()}
                 />
               </View>
