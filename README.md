@@ -290,24 +290,6 @@ scripts/      backup.ts, check-licenses.ts
 - `turbo run dev|build|lint|typecheck` from the root.
 - Auth lives only in `apps/app`; the site just links to sign-in and sign-up.
 
-## Roadmap
-
-| Phase | Focus | Status |
-| --- | --- | --- |
-| 0 | Foundation: monorepo, UI kit, database, auth, workspaces | Built and deployed |
-| 1 | Obsidian-style shell and single-user editor | Built |
-| 2 | Linked knowledge: wiki-links, backlinks, properties, graph | Built |
-| 3 | Real-time collaboration and project sharing | Built, waiting for a two-browser test |
-| 4 | Story tools: timeline, storyboard, relationship map, plot grid | Built, waiting for manual testing |
-| 5 | Writer workflow: comments, suggestions, version history | Built, waiting for manual testing |
-| 6 | Script formats and Fountain | Built, waiting for manual testing |
-| 7 | Story worlds: canon, releases, spoiler horizon, modules | Built, waiting for manual testing |
-| 8 | Public launch: testing, import and export, hosted version, self-hosting | Built and deployed. The repo isn't public yet |
-| 9 | AI agent on your own key or a local model, and hosted AI on Pro | Built, barely tested |
-| 10 | Polish: notifications, writing stats, mobile layout, accessibility | Built, not tested |
-
-What is done and what is left is tracked in [the issues](https://github.com/ItzSudhan/plotra/issues).
-
 ## Contributing
 
 Issues, ideas and pull requests are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) first: it covers setup, how the code is organised, and the few rules that matter (the main one: talk before you add a database migration). For anything larger than a small fix, open an issue before you start.
