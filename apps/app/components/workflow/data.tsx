@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Store, useStore } from "@/components/workspace/stores";
-import { useWorkspace } from "@/components/workspace/workspace-provider";
+import { useOptionalWorkspace, useWorkspace } from "@/components/workspace/workspace-provider";
 import type { StoryData } from "@/lib/story-actions";
 import type { CommentThreadRow, Person } from "@/lib/workflow-actions";
 import { read } from "@/lib/read";
@@ -18,7 +18,8 @@ type Entry<T> = { store: Store<T | null>; users: number; timer?: ReturnType<type
 export function sharedResource<T>() {
   const entries = new Map<string, Entry<T>>();
   return function useResource(key: string | null, load: () => Promise<T>, notice: string | null): { data: T | null; refresh: () => void } {
-    const { onNotice } = useWorkspace();
+    // Outside a project (the account menu on the plugin store, say) there are no notices, only the polling.
+    const onNotice = useOptionalWorkspace()?.onNotice;
     const [entry, setEntry] = useState<Entry<T> | null>(null);
 
     useEffect(() => {
@@ -43,7 +44,7 @@ export function sharedResource<T>() {
       e.users++;
        
       setEntry(e);
-      const unsub = notice ? onNotice((n) => n === notice && e.refresh()) : () => {};
+      const unsub = notice && onNotice ? onNotice((n) => n === notice && e.refresh()) : () => {};
       return () => {
         unsub();
         e.users--;

@@ -1422,6 +1422,11 @@ export function useWorkspace() {
   return value;
 }
 
+/** The workspace, or null on a page outside a project (the plugin store, a workspace's home). */
+export function useOptionalWorkspace() {
+  return use(WorkspaceContext);
+}
+
 export function useUi() {
   return useStore(useWorkspace().ui);
 }
