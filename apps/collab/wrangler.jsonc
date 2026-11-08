@@ -1,0 +1,44 @@
+{
+  // Yjs sync for Plotra (plan.md 3). One Durable Object per room.
+  //
+  // The top level is local development (`wrangler dev`). Production is the
+  // `production` environment below: deploy with `bun run deploy`, which is
+  // `wrangler deploy --env production`. A plain `wrangler deploy` would ship the
+  // local APP_URL; the worker's /health answers 503 if that ever happens.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "plotra-collab",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "Document", "class_name": "Document" }]
+  },
+  // SQLite-backed Durable Objects are on the Workers free plan.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Document"] }],
+  "vars": {
+    "APP_URL": "http://localhost:3000"
+  },
+  // Secrets: COLLAB_SECRET, the same value as the app's.
+  //   locally:     apps/collab/.dev.vars
+  //   production:  bunx wrangler secret put COLLAB_SECRET --env production
+  "env": {
+    "production": {
+      // Without this the environment would deploy as "plotra-collab-production".
+      "name": "plotra-collab",
+      // Bindings and vars are not inherited by an environment, so they are repeated.
+      "durable_objects": {
+        "bindings": [{ "name": "Document", "class_name": "Document" }]
+      },
+      "vars": {
+        // The app's public address, without a trailing slash. Tokens are verified
+        // against it (issuer and JWKS), so it must equal the app's BETTER_AUTH_URL.
+        "APP_URL": "https://app.plotra.ink"
+      },
+      // Worker logs in the Cloudflare dashboard (free plan: 200,000 log events a day).
+      "observability": { "enabled": true },
+      // Served from our own domain; its zone is on Cloudflare. The worker is
+      // also reachable at plotra-collab.<account>.workers.dev.
+      "routes": [{ "pattern": "collab.plotra.ink", "custom_domain": true }]
+    }
+  }
+}

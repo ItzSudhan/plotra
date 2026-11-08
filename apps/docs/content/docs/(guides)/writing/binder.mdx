@@ -1,0 +1,240 @@
+---
+title: The binder
+description: "The tree that holds your story: note types, creating, opening, moving and duplicating notes, templates, the trash, and starting from a beat sheet."
+---
+
+Everything your story needs lives in one project, so nothing is left in a file you can't find. A project is a **vault**: a set of notes that link to each other. The **binder** is the tree on the left that holds them all: scenes, chapters, characters, places and every other note.
+
+The rest of the screen around it is on [A tour of the screen](/docs/get-started/the-screen). A note's fields and tags are on [Properties and tags](/docs/writing/properties-and-tags), and the page you write on is [The editor](/docs/writing/editor).
+
+## Note types
+
+Everything in the binder is a note of some type. The type decides its icon, its template and which view opens it.
+
+| Type | For | Opens in |
+| --- | --- | --- |
+| Folder | Grouping. A folder can also stand for a book, an act or a season. | The editor (a folder has a page of its own) |
+| Chapter | A group of scenes. | The editor |
+| Scene | The text of the story. | The editor |
+| Note | Anything else you want to write down. | The editor |
+| Character, Location | The people and places of the story. They start with a sheet of headings to fill in. | The editor |
+| World entry | A page of a type you define: a faction, an object, a magic system. In menus it goes by the name of its type. See [Canon](/docs/canon#the-world-bible). | The editor |
+| Research | A source or a clipped page. It starts with "Summary" and "Notes" headings. | The editor |
+| Canvas | A storyboard. | The canvas |
+| Map | A picture with pins, regions and paths. A map is a canvas made as one. See [Maps](/docs/views/maps). | The map view |
+| Timeline | A timeline. | The timeline |
+| Dialogue | A branching conversation. Only with the **Interactive narrative** module on. | The dialogue view |
+
+Any note can hold other notes, not only folders and chapters. Folders and chapters are the two the binder shows as containers, and the two a new note goes inside when one of them is selected.
+
+A project can use its own names for the note types: "Session" or "Sequence" for a chapter, say. The binder, the menus and the commands then use those names. See **Rename things** in [Project settings](/docs/settings/project).
+
+### Changing a note's type [#changing-a-notes-kind]
+
+Right-click the note and choose **Change type**, or use the **Type** field at the top of the **Properties** panel.
+
+- Folders, chapters, scenes, notes, characters, locations and research notes can be turned into one another. With the **World bible** tool on, the list also has your own note types.
+- A canvas, a timeline or a dialogue can't change type, and a text note can't become one.
+- The text stays as it is. The fields shown become those of the new type; the values of the old type's fields are kept and come back if you change the type back.
+
+## Working in the binder
+
+### Creating
+
+The buttons at the top of the binder:
+
+| Button | What it does |
+| --- | --- |
+| **New** | One menu of every type of note. The ones this kind of project uses most come first: Scene and Chapter for prose and scripts, Chapter (or Session), Location and Character for a campaign or a shared world, Scene, Dialogue and Character for a game, Chapter and Research for non-fiction. Then every other type: Folder, Note, Canvas, Timeline and the rest, Dialogue when its tool is on, and Map. With **World bible** on, your own note types follow under **World entries**. The first item shows its shortcut, `⌘⌥N`. |
+| `⋯` (**More: import, export and beat sheets**) | **Start from a beat sheet…**, **Import…** and **Export project…**. |
+| **Collapse all folders** | Closes every folder in the tree. |
+| **Share project…** | Opens the share dialog. Only for people who manage the project. See [Working together](/docs/collaboration/sharing#sharing-a-project). |
+
+To hide any of these buttons or change their order, open **Customize…** and use **Binder header**. A hidden button's command stays in **All commands**. See [Customize](/docs/settings/customize#what-you-can-change).
+
+![The New menu at the top of the binder, listing every type of note and the world bible types](/shots/binder-new.webp)
+
+Where a new note lands:
+
+1. Inside the selected folder or chapter, at the end.
+2. Otherwise beside the selected note, or the note you have open, in the same folder.
+3. Otherwise at the end of the top level.
+
+To choose the place yourself, right-click any note and use **New inside**.
+
+A new note is called "Untitled" and its type ("Untitled scene"), opens in a new tab, and its name is ready to be typed over in the binder. A new scene is written in the project's format: prose, or the script format of a screenplay project.
+
+There is also a command for each type in **All commands** ("New scene", "New character", "New map", "New timeline", and "New plain note" for a note of no particular type), and **Find a note** creates one from a name that doesn't exist yet. `⌘⌥N` makes the project's main type: a scene in a novel or script, a session in a campaign. `⌘⌥⇧N` makes a folder.
+
+In an empty project the binder offers two links instead of a tree: **Write a scene** and **start a chapter**.
+
+#### A template for new notes
+
+Any note can be the template its type starts from. Right-click it and choose **Start new scenes from this** (or characters, chapters, places…). From then on every new note of that type, made by anyone in the project, starts as a copy of it: its text, its [fields](/docs/writing/properties-and-tags#properties) and its tags. A scene template might hold the questions you answer for every scene; a character template, the headings of your character sheet.
+
+- The template's editor says **Template for new scenes** at the top. Right-click it again and choose **Stop starting new scenes from this** to go back to blank notes.
+- The copy is made when the note is: changing the template later doesn't change notes already made from it.
+- Comments, pending suggestions and version history aren't copied.
+- One template per type. Only people who manage the project can choose one, and the item is only in their menu.
+- Folders, canvases, timelines, maps and dialogues can't be templates.
+- World entries share one template, whatever their type: a template made from a faction is also what a new spell starts from. A type's own fields are set under **Project settings** → **Note types**.
+
+### Filtering
+
+The **Filter…** box at the top of the binder narrows the tree to the notes whose names contain what you type. Case and accents don't matter: "ecrit" finds "Écrit". Each match is shown with the folders above it, opened, and the matching letters are highlighted.
+
+- `↵` opens the first match. `↓` goes from the box into the tree.
+- `Esc`, or the cross in the box, clears the filter. `Esc` in the tree clears it too and keeps your place.
+- When nothing matches, the binder says so ("No notes match …") and offers **Clear filter**.
+
+The filter only changes what the binder shows. To search the text of your notes, use **Search the whole project** (`⌘⇧O`).
+
+### Opening
+
+| Do this | And the note opens |
+| --- | --- |
+| Click | In the current tab, replacing what was there (unless that tab is pinned) |
+| `⌘`-click, or middle-click | In a new tab |
+| `⌘⌥`-click | In a new pane to the right |
+
+Clicking a folder opens and closes it in the tree. `⌘`-click a folder to open its own page.
+
+### Keys
+
+The binder works from the keyboard alone. Click in it, or `Tab` to it, then:
+
+| Keys | What it does |
+| --- | --- |
+| `↑` `↓` | Move the selection |
+| `Home`, `End` | Go to the first or the last note |
+| `→` | Open a folder; once open, go to its first note |
+| `←` | Close a folder; once closed, go to its parent |
+| `↵` or `Space` | Open the note (with `⌘` in a new tab, with `⌘⌥` to the right), or open and close a folder |
+| `F2` | Rename |
+| `⌥↑` `⌥↓` | Move the note up or down among its neighbours |
+| `⌥→` | Move the note into the one just above it, at the end |
+| `⌥←` | Move the note out of its folder, to just after it |
+| `⇧F10`, or the menu key | Open the note's menu, as right-click does |
+| `Delete`, or `⌘⌫` | Move to the trash. **Undo** in the message puts it back. |
+| A letter or a digit | Jump to the next note whose name starts with it |
+
+`⌫` on its own does nothing here, so a stray key can't trash a note.
+
+### Moving
+
+Drag a note in the binder. A line shows where it will go if you drop it above or below another note, and the row is outlined if you drop it inside.
+
+- Drop on the top or bottom edge of a row to put the note **before** or **after** it.
+- Drop on the middle of a row to put it **inside**, at the end. This works on any note, not only folders. The row opens to show it.
+- Drop on the empty space under the tree to move it to the end of the top level.
+- A note can't be dropped into itself or into something inside it.
+
+On a touch screen, drag a note by the grip at the left of its row.
+
+Without dragging, use **Move to…** in the note's menu: **Move up**, **Move down**, or **Into a folder**, which lists **Top of the binder** and every folder and chapter (and any note that holds others) outside the note. `⌥` with the arrow keys does the same from the keyboard.
+
+A move takes everything inside the note with it. You can also drag a note from the binder onto a canvas or a timeline; see [Timeline and canvas](/docs/views/timeline-and-canvas).
+
+### The note's menu
+
+Right-click a note, press `⇧F10` with it selected, or choose the `⋯` button that shows on its row when you point at it (always shown on a touch screen). Which items are there depends on the note.
+
+![The menu on the Characters folder: views that open on a folder, New inside, Rename, Duplicate, Change type, Status, Import, Export and Move to Trash](/shots/binder-context.webp)
+
+| Item | What it does |
+| --- | --- |
+| **Open in new tab** | Not for folders. |
+| **Open to the right** | Opens the note in a new pane beside the current one. Not for folders. |
+| **Graph around this note** (or scene, character…) | Opens the graph around this note, to the right. Not for folders. See [The graph](/docs/writing/links#the-graph). |
+| **Plot grid**, **Corkboard**, **Manuscript**, **Read** | Opens that view on this note and what is inside it. Shown for folders, chapters and any note that has notes inside. With their modules on, **Production**, **Translate** and **Publish** are here too. See [Planning views](/docs/views/planning). |
+| **New inside** | A submenu of note types, with **Map**. The new note goes inside this one, at the end. |
+| **Start new scenes from this** (or characters, chapters…) | Makes this note the template for its type; on the template itself the item reads **Stop starting new scenes from this**. Only for people who manage the project. See [A template for new notes](#a-template-for-new-notes). |
+| **Save as a beat sheet** | Folders and chapters only. Keeps the structure as a beat sheet of your own. See [Your own beat sheets](#your-own-beat-sheets). |
+| **Rename** (`F2`) | Edits the name in place. `Enter` or clicking away keeps it, `Esc` cancels. A name can be 200 characters. |
+| **Duplicate** | Copies the note. See below. |
+| **Move to…** | **Move up**, **Move down**, or into another folder or chapter. See [Moving](#moving). |
+| **Change type** | See [Changing a note's type](#changing-a-notes-kind). |
+| **Status** | Sets the note's status to one of the project's stages. |
+| **Import…** | Imports files into this folder or chapter. See [Import and export](/docs/import-export). |
+| **Export…** | Exports this note and what is inside it. |
+| **Move to Trash** (`⌘⌫` on a Mac, `Del` elsewhere) | See [The trash](#the-trash). |
+
+To take entries off this menu, open **Customize…** and use **Note menu (right-click or ⋯)**. **Rename**, **Move to…** and **Move to Trash** always stay.
+
+**New inside**, **Rename**, **Move to…**, **Change type**, **Status** and **Import…** are greyed out if you can't edit. **Move to Trash** is greyed out if you can't delete. See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+### Duplicating
+
+**Duplicate** makes a copy called "*name* copy" directly below the original, with its name ready to be changed. The copy has the same text, type, status, synopsis, tags, aliases, properties and canon settings, and so does a copy of every note inside it. Notes in the trash are left out. Comments and version history belong to the original and are not copied.
+
+### The trash
+
+**Move to Trash** takes a note, and everything inside it, out of the binder and closes its tabs. Nothing is deleted yet, and a message says "Moved ‘*name*’ to Trash" with **Undo**, which puts it straight back. Links to a trashed note are struck through, and the note is left out of the views and the word count.
+
+The **Trash** is at the bottom of the binder, with a count. Open it to see what is there, newest first. Point at a row, or `Tab` to it, for its two buttons:
+
+| Button | What it does |
+| --- | --- |
+| **Put back** | Puts the note back where it was, with everything inside it. If the folder it was in is itself still in the trash, the note comes back at the end of the top level. |
+| **Delete forever** | Asks first ("Delete ‘*name*’ forever?", with how many notes are inside it), then deletes the note and everything inside it. This can't be undone. |
+
+**Empty trash…** deletes everything in it, after asking and saying how many notes will go. It is for people who may delete in the whole project; anything you aren't allowed to delete stays, and a message says how many items stayed.
+
+A note has to be in the trash before it can be deleted forever. A note that a review stage has locked, or a folder with a locked note inside, can't be trashed by anyone but its approvers; see [Review and editorial](/docs/modules/editorial).
+
+### What a row shows
+
+| Mark | Meaning |
+| --- | --- |
+| A coloured dot at the right | The note's status. Notes in the first stage (Draft, to begin with) show none. |
+| A small coloured square | The note's colour label, set under **Label** in the Properties panel. Point at it for the label's name. |
+| A closed eye, and the row dimmed | Under a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon), the audience hasn't been told about this note yet. |
+| Bold name | The note open in the active tab. |
+
+Which folders are open is remembered per project in your browser. Drag the edge of the binder to make it wider or narrower, from 200 to 520 pixels; the inspector has the same edge. The edge can also be reached with `Tab`, and then `←` and `→` move it.
+
+### Commands for the open note
+
+**All commands** (`⌘P`) has four commands that act on the note in the active tab, so you don't have to find it in the tree first. They name the note by its type: "Rename this scene".
+
+| Command | What it does |
+| --- | --- |
+| **Rename this note** (`F2`) | Opens the binder and starts renaming the note there. |
+| **Show this note in the binder** | Opens the binder and selects the note. |
+| **Duplicate this note** | The same as **Duplicate**. |
+| **Move this note to Trash** | The same as **Move to Trash**. |
+
+## Starting from a structure
+
+A **beat sheet** lays out a known story structure as notes you can fill in. Choose **Start from a beat sheet…** in the binder's `⋯` menu, or run "Start from a beat sheet… (Save the Cat, Hero's Journey…)" from **All commands**.
+
+The beat sheets are grouped by the kind of writing they're for.
+
+| Group | Beat sheets |
+| --- | --- |
+| Novels and film | **Save the Cat** (Blake Snyder's 15 beats), **Hero's Journey** (Vogler's 12 stages), **Three-act structure**, **Story Circle** (Dan Harmon's eight steps), **Seven-point structure** (Dan Wells), **Freytag's pyramid**, **Kishōtenketsu**, **Fichtean curve**, **Heroine's Journey** (Maureen Murdock's ten stages) |
+| Romance and mystery | **Romance beats** (after Gwen Hayes's Romancing the Beat), **Mystery (whodunit)** |
+| Television | **One-hour drama episode** (teaser, four acts, tag), **Half-hour comedy episode** (cold open, two acts, tag) |
+| Short fiction and scenes | **Pulp master plot** (Lester Dent), **Five commandments** (Story Grid's unit of story, for a scene or a book) |
+| Tabletop | **Session prep** (the eight steps of Return of the Lazy Dungeon Master), **Five-room dungeon** |
+| Yours | The structures you saved, below |
+
+The dialog shows the acts and beats of the one you pick, with roughly how far into the story each beat falls. **Add** builds a folder named after the beat sheet, with a chapter for each act and a scene for each beat. Each scene's synopsis says what the beat does, so the corkboard, the outline and the plot grid show the structure straight away. The folder goes inside the selected folder or chapter if you can edit it, and otherwise at the end of the top level. The first beat opens in a tab.
+
+The result is ordinary notes: rename them, reorder them, delete the ones you don't need.
+
+### Your own beat sheets
+
+To reuse a structure of your own, right-click a folder or chapter in the binder and choose **Save as a beat sheet**. Each chapter (or folder) inside it becomes an act, and the notes in it become beats, with their synopses; notes sitting straight inside the folder make an act named after it. The beats are spread evenly through the story. A chapter on its own is one act.
+
+Saved beat sheets are listed under **Yours** in the beat sheet dialog, in every project, and are kept with your account, not the project. Point at one and click the bin to remove it; **Undo** in the message brings it back. You can keep 12, each with up to 120 beats; a synopsis is kept up to 500 characters.
+
+To start a whole project from the shape of another, with its folders, note types and fields but none of its writing, use a project template; see [Project settings](/docs/settings/project).
+
+## Things to know
+
+- **Limits.** A name can be 200 characters, a synopsis 2,000. A note can have 50 tags and 50 aliases.
+- **Who can do what.** Viewers and commenters can open everything and change nothing in the binder. Editors and workspace members can create, move, rename, trash and delete. Sharing the project is for workspace owners and admins. See [Roles and permissions](/docs/reference/roles-and-permissions).
+- **Other people's changes** to the binder show up in yours within a moment, without reloading.
+- **Offline**, the binder can't be changed: a new note, a rename or a move is undone with a message if it can't reach the server. The text of notes you have opened before can still be edited; see [Saving and working offline](/docs/writing/editor#saving-and-working-offline).
+- **Kept in your browser, not your account:** which folders are open, the widths of the sidebars, the open tabs and splits, and pinned tabs. Saved layouts, the ribbon, the inspector's tabs, changed keyboard shortcuts and the look of the page are kept with your account.

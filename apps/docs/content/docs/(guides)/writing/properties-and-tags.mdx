@@ -1,0 +1,79 @@
+---
+title: Properties and tags
+description: The fields every note carries, fields of your own for each note type, and tags that group notes across folders.
+---
+
+Every note carries fields about it, such as a scene's point of view or a character's age, and can carry tags. They are shown in the inspector, on the right of the screen, and the views are built from them.
+
+## The Properties panel
+
+Open a note and look under **Note → Properties** in the inspector. From top to bottom:
+
+![The Properties panel for a scene: its type, status and synopsis, then POV, Location, Story date and Duration, and the tags #draft/second and #needs-research](/shots/writing-properties.webp)
+
+| Field | What it is |
+| --- | --- |
+| **Type** | The note's type. See [Changing a note's type](/docs/writing/binder#changing-a-notes-kind). |
+| **Status** | A stage of the project's workflow. |
+| **Label** | One of the project's colour labels, or **None**. The field is there once the project has labels; they are defined in [Project settings](/docs/settings/project) and are the same for everyone in the project. The label shows as a small coloured square on the note's row in the binder. |
+| **Synopsis** | What happens here, in a line or two. Saved a moment after you stop typing, and when you click away; it says **Saved** quietly. Up to 2,000 characters. |
+| **Fields** | The fields of this type of note. See [Properties](#properties). |
+| **Tags** | See [Tags](#tags). |
+| **Other names** | Other names the note goes by (aliases), for links and mentions. |
+| **Words**, **Characters**, **Reading time**, **Updated** | Counts for the note, a reading time at 230 words a minute, and when it last changed. |
+
+With the **Review & editorial** tool on, the panel also has the note's review controls.
+
+Without edit access the fields can be read but not changed.
+
+## Properties
+
+Every note has properties: fields about it, shown in the inspector under **Properties**, the fields themselves under **Fields**.
+
+- Every note has a status (Draft, Revised, Final to begin with), a synopsis, tags and other names (aliases): the names the note also goes by.
+- Each note type has its own fields. A scene has a point of view, a location, a story date, a duration and plot threads. A character has a role, an age, an arc, a first appearance, and dates of birth and death. A location has a type and a region. A chapter has a target word count. A research note has the fields of a reference: type, authors, publisher, year, URL and so on.
+- You can add your own fields per note type.
+
+Properties are what the other views are built from. The outline and the plot grid can show them as columns, and the corkboard on its cards. The timeline places scenes by their story date.
+
+### Custom fields
+
+The fields belong to the note type, not to one note: add "Mood" to one scene and every scene in the project has it.
+
+1. Open a note of that type and go to **Properties** in the inspector.
+2. Click **Add a field to scenes** (the button names the type).
+3. Give it a name, up to 60 characters ("Field name, like Age"), choose what it holds, and click **Add**.
+
+| Choice | Holds |
+| --- | --- |
+| **Text** | A line of text. |
+| **Number** | A number. |
+| **Date** | A calendar date. |
+| **One choice from a list** | One choice from a list. |
+| **Several choices** | Several choices. Type a new one and press `Enter` or a comma; it joins the list for every note of the type. |
+| **Link to note** | Another note. The link shows under **Mentioned in** and in the graph. |
+| **Yes or no** | A tick box. |
+| **Web link** | A web address, with a button to open it. |
+
+The `⋯` button beside a field's name opens its menu: **Rename**, **Move up**, **Move down** and **Remove field**. Removing a field asks first, saying how many notes have it filled in. It hides the field on every note of the type; the values are kept and return if you add a field with the same name again.
+
+Adding and changing fields needs edit access to the project. For an entity type, the fields are the type's own; they can also be edited where the type is defined, see [Canon](/docs/canon#the-world-bible).
+
+<Callout type="info" title="A list you add here starts with no choices">
+  The inspector has no place to type the choices of a new **One choice from a list** field. Use **Several choices**, which takes new choices as you type them. Entity types are the exception: their choices are set where the type is defined.
+</Callout>
+
+## Tags
+
+Tag a note to group it across folders. Tags can be nested with a slash, like `subplot/romance`.
+
+![The Tags panel in the sidebar: draft with first and second nested inside it, and needs-research, each with how many notes carry it](/shots/writing-tags.webp)
+
+There are two ways to tag a note:
+
+- In the inspector, under **Tags**: type a tag and press `Enter` or a comma.
+- In the text: write `#subplot` anywhere. See [Tags in the text](/docs/writing/editor#tags-in-the-text).
+
+A tag is stored in lower case, with spaces turned into hyphens. A note can have 50 tags.
+
+The **Tags** tab at the top of the left sidebar, beside **Binder**, lists every tag in the project with the number of notes that carry it. Nested tags are shown as a tree, and a parent counts the notes of its children. Click a tag to list its notes underneath; click a note to open it, `⌘`-click for a new tab. The command "Show tags" opens the pane.

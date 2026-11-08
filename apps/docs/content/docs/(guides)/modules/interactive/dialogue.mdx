@@ -1,0 +1,221 @@
+---
+title: Branching dialogue
+description: Draw a conversation as cards joined by jumps, give lines string IDs, keep variables, then play it through the way a game would and check it for dead ends.
+---
+
+A branching conversation is a **Dialogue** note: cards for lines, choices and conditions, joined by jumps. This page covers drawing one, playing it through and checking it. Conditions and assignments are on [Conditions and variables](/docs/modules/interactive/expressions).
+
+## Dialogue notes
+
+A dialogue is a note in the binder, like a canvas or a timeline. It opens in the **Dialogue view** instead of the editor.
+
+To make one, choose **Dialogue** from the binder's **New…** menu, or run "New dialogue" from **All commands**. It lands where any new note lands; see [Creating](/docs/writing/binder#creating).
+
+Things that hold for a dialogue note:
+
+- It can't change type, and a text note can't become a dialogue.
+- Everyone who has it open edits it live, and you see the other people's pointers with their names. Two people changing different cards both keep their change. Two people changing the same card at the same moment: the later change wins for that card.
+- Search finds the words in its lines and choices. Its word count is the words that are said, not the conditions or the speakers' names.
+- A line whose speaker is a character note counts as a link to that character, with the context "Speaks in the dialogue". It shows in the character's backlinks and in the graph.
+- [Version history](/docs/collaboration) keeps versions of it. A version is described as a count of cards and connections; restore it to see it.
+- There are no comments or suggestions inside a dialogue.
+- File exports and EPUB leave dialogues out, because they are not prose. The read-only public link shows a placeholder in their place. Use the dialogue's own **Export** menu.
+- The AI agent can't create a dialogue.
+
+## The Dialogue view
+
+The view is a canvas. Cards are joined by arrows called **jumps**. A jump leaves a card from the dot on its right and arrives at the dot on its left, so a conversation reads from left to right.
+
+![A dialogue on its canvas: the toolbar of card kinds, then line, choice, condition and set cards joined by arrows, each line card with its speaker and string ID](/shots/mod-dialogue.webp)
+
+### The toolbar
+
+| Button | What it does |
+| --- | --- |
+| **Line**, **Choice**, **Condition**, **Set**, **Random**, **Call**, **Return**, **End** | Adds a card of that type. |
+| **Start** | Only shown if the dialogue has no Start card. Adds it. |
+| **Variables** | Opens and closes the variables panel. The button shows how many there are. |
+| **Play** | Opens and closes the play-through panel. |
+| **Check** | A menu of the problems found without playing. The button shows how many. See [Checking a dialogue](#checking-a-dialogue). |
+| **Export** | A menu of five file formats. See [Exporting a dialogue](/docs/modules/interactive/files#exporting-a-dialogue). |
+| **Import** | Brings in an Ink, Yarn Spinner or Twine file. See [Importing a dialogue](/docs/modules/interactive/files#importing-a-dialogue). |
+| **Fit everything** | Zooms so that every card is on screen. |
+
+The zoom buttons are at the bottom left and a minimap is at the bottom right. You can drag and zoom the minimap.
+
+### The nine kinds of card
+
+| Card | What it is | What it holds |
+| --- | --- | --- |
+| **Start** | Where a play-through begins. A new dialogue has one, and it can't be deleted. | Nothing |
+| **Line** | Something a character says. | A speaker, the text, a note, a String ID |
+| **Choice** | An option the player picks. A choice marked **Offer only once** is headed "Choice · once". | The text, a note, a String ID, whether it's offered only once |
+| **Condition** | Goes one way when it is true and another when it is false. The card is headed **If** and has two dots: **true** and **false**. | An expression such as `gold >= 5` |
+| **Set** | Changes one or more variables. | Assignments such as `gold += 5` |
+| **Random** | Goes on along one of its jumps, picked at random, each as likely as the others. For barks that vary: "Halt!", "Who goes there?" | Nothing: draw a jump for each way it can go |
+| **Call** | Plays a shared branch and comes back: play goes to the card it calls, and when that branch reaches a **Return** card, it goes on along the Call card's own jump. The card shows what it calls; click that to go to it. | The card it calls |
+| **Return** | Goes back to the Call card that called this branch. Nothing can jump out of it. | Nothing |
+| **End** | The dialogue stops here, inside a call or not. Nothing can jump out of it. | Nothing |
+
+### Adding cards
+
+There are three ways.
+
+1. **With a card selected**, click a button in the toolbar. The new card is placed to the right of the selected one and joined to it. From a Condition, the first card you add this way takes the **true** side and the next takes the **false** side. Nothing can be added after an End or a Return card.
+2. **Drag from a card's dot to empty space.** A small menu offers Line, Choice, Condition, Set, Random, Call, Return and End. The card appears where you let go, already joined.
+3. **With nothing selected**, click a button in the toolbar. The card lands in the middle of the view, not joined to anything.
+
+A new dialogue shows a hint: "Select Start and add a line from the toolbar, or drag from a card's dot to empty space. A line followed by several choices offers those choices."
+
+### Drawing jumps
+
+Drag from the dot on a card's right and let go anywhere on another card. On a Condition, drag from **true** or from **false**. The true jump is drawn in teal and the false jump in rose.
+
+A jump is refused when it would:
+
+- go into the Start card;
+- leave an End or a Return card;
+- go from a card to itself;
+- repeat a jump that is already there (for a Condition, the same jump from the same side).
+
+Any number of jumps may arrive at a card, and any number may leave one. A dialogue may loop back on itself.
+
+### Editing a card
+
+- **On the card**: double-click the text, or select the card and press `↵` or `F2`. Click away or press `⌘↵` to keep the change; `Esc` drops it.
+- **In the side panel**: select one card and a panel opens at the top right with every field of that card. See [The card panel](#the-card-panel).
+
+To move a card, drag it. To delete cards or jumps, select them and press `⌫` or `Delete`, or use **Delete** in the card panel. Deleting a card removes the jumps into and out of it. There is no confirmation, but **Undo** in the message that appears puts the cards and jumps back.
+
+### String IDs
+
+Every Line and Choice has a **String ID**, shown in small type on the card, such as `d3f9_0007`: the ID the game's code uses to find the line. Click it to copy it. The first part is taken from the dialogue note's own id and is the same for every card in that dialogue. The number counts up.
+
+- The ID is given once, when the card is made. Editing the text never changes it.
+- A number is never used twice in a dialogue, even after the card that had it is deleted.
+- If two people add a card at the same instant and are handed the same number, one of the two is renumbered as soon as the dialogue syncs.
+- Click the ID to copy it.
+
+String IDs are what the exports carry, and what [translations](/docs/modules/localization#translating-strings-and-dialogue) are attached to.
+
+### The card panel
+
+Select a single card to open it.
+
+| Card | Fields |
+| --- | --- |
+| Line | **Speaker**, **Line**, **Note for translators and actors**, the String ID |
+| Choice | **Option**, **Offer only once**, **Note for translators and actors**, the String ID |
+| Condition | **Condition**, with a reminder of the operators or, if it can't be read, what is wrong |
+| Set | **Assignments**, with the same |
+| Call | **Calls**: the card it calls, picked from a list of every card but Start, in reading order. A button beside it shows that card. If the card it called is deleted, the list reads "The card it called is gone" and the card gets a red border. |
+| Start, Random, Return, End | A short description |
+
+Every card but Start has **Delete** at the bottom.
+
+**Speaker.** Type a name. The field suggests the project's character notes. If what you type is the title of a character note (capitals don't matter), the line is linked to that note: rename the character and the speaker's name changes with it, and a button beside the field opens the character. Any other name is kept as plain text, up to 80 characters. A card with no speaker reads "No speaker". If the linked character is in the trash or you can't see it, the card reads "Unknown speaker".
+
+**Showing a variable.** In a line or an option, `{$name}` shows the variable's value when the dialogue plays: `You have {$gold} gold.` reads "You have 10 gold." A name that isn't a variable is shown as written, and the [Check menu](#checking-a-dialogue) lists it. In the string table, the CSV and the Translate view the text keeps `{$gold}` as it is, so translators can move it.
+
+**Offer only once.** A choice with this switched on is offered until the player picks it, and never again in that play-through, even when the dialogue loops back to it.
+
+**Note for translators and actors.** Tone, who is listening, where the text is shown. Up to 500 characters. It travels with the string as its context in the CSV and JSON exports and in the Translate view. A Choice with no note gets a context made for it: "Reply to:" and the line it answers.
+
+Limits: a line or an option holds up to 2,000 characters; a condition or a set of assignments up to 500.
+
+### Variables
+
+Variables remember things during a play-through: how much gold the player has, whether they have met someone. Conditions test them and Set cards change them.
+
+**Variables** in the toolbar opens a panel at the top left. Each row has a name, a type, a starting value and a delete button. A deleted variable can be brought back with **Undo**.
+
+| Type | Starting value |
+| --- | --- |
+| **Number** | A number. `0` to begin with. |
+| **Text** | Up to 200 characters. Empty to begin with. |
+| **Yes/no** | `false` or `true`. `false` to begin with. |
+
+**Add a variable** makes a Number called `variable` (then `variable_2`, and so on) starting at 0. Changing a variable's type resets its starting value.
+
+A name starts with a letter or an underscore and holds letters, digits and underscores, up to 40 characters. When you type a name, spaces become underscores and anything else that isn't allowed is dropped. The words `true`, `false`, `and`, `or` and `not` are refused. Two variables with the same name are both marked in red; the play-through and the exports use the first.
+
+Variables belong to one dialogue. Another dialogue in the same project has its own.
+
+## Playing a dialogue
+
+**Play** opens the **Play-through** panel on the right and walks the dialogue from Start, as a game would. Anyone who can open the dialogue can play it. Nothing about a play-through is saved.
+
+![The play-through panel beside the canvas: the ferryman's first line, two numbered choices, and the variables coins and trusted with their values](/shots/mod-dialogue-play.webp)
+
+How a dialogue plays:
+
+- A **Line** is shown, with its speaker. If nothing but another card follows, press **Continue**.
+- If a card jumps to **Choices**, they are offered as numbered buttons, together with the line they answer. They are listed top to bottom, as drawn on the canvas. Pick one and the play-through carries on from it.
+- A **Condition** between a line and its choices decides which choices are offered. Put the choice on the condition's **true** side and it is only offered when the condition holds.
+- A **Set** card changes its variables and reports the result, such as `gold = 15`, or "Nothing changed".
+- A **Condition** on the path reports its expression and whether it came out `true` or `false`, then follows that side. A jump from a Condition's side that has nothing joined to it ends the dialogue.
+- At an **End** card the panel says "The end." Where a card simply has nothing after it, it says "The dialogue stops here: nothing follows."
+
+- A **Random** card goes on along one of its jumps, picked at random, each as likely as the others. The transcript says which, such as "Random: took way 2 of 3". **Step back** and carrying on picks the same again; **Restart** draws anew.
+- A **Call** card goes to the card it calls. When that branch reaches a **Return** card, play comes back and goes on along the Call card's own jump. A called branch may call another one; each Return goes back to the latest call still open. An **End** card inside a called branch ends the whole dialogue.
+- A Random or Call card that lands on a Choice offers that choice.
+
+If a card other than a Condition, a Random or a Call has several jumps and none of them leads to a choice, only the topmost is followed.
+
+A choice marked **Offer only once** isn't offered again after it's been picked. When nothing is left on offer, the play-through goes on to the topmost jump from the card that isn't a choice, as it does when conditions hide every choice. With no such jump, the dialogue stops there. `{$name}` in a line or a choice shows the variable's value as it is at that moment.
+
+The panel's controls:
+
+| Control | What it does |
+| --- | --- |
+| **Step back** | Undoes one step: the last Continue or the last choice, and whatever variables changed with it. |
+| **Restart** | Begins again from Start with the variables at their starting values. |
+| **Close the preview** | Closes the panel. |
+| **Play again** | Shown once the dialogue has ended. The same as Restart. |
+
+Click any entry in the transcript to show that card on the canvas. The card the play-through is standing on has a teal ring. The **Variables** list at the bottom shows every variable's value now; a value that differs from its starting value is in bold teal. With no variables it reads "None declared."
+
+You can keep editing while the panel is open. The play-through uses the dialogue as it is at each step.
+
+### Problems the play-through reports
+
+Problems appear in the transcript in red. Click one to go to the card.
+
+| Message | What happened |
+| --- | --- |
+| Took “…” as false. | A Condition couldn't be read or worked out. The reason follows. The play-through takes the false side. |
+| Skipped “…”. | A Set card couldn't be read or worked out. The reason follows. No variable is changed. |
+| This goes round in a loop without ever showing a line. | The path passed 500 cards without reaching a line or a choice. The play-through stops with "The play-through can't go on." |
+| There's no Start node to begin from. | The dialogue has no Start card. Add it with **Start** in the toolbar. |
+| This Call card doesn't call any card, so it's passed by. | A Call card with no card picked, or whose card was deleted. Play goes on along its own jump. |
+| More than 32 calls inside one another, so the play-through stops. | Calls made inside calls, 32 deep, without coming back: usually a branch that calls itself. |
+| A Return with no Call to go back to, so the dialogue ends here. | A Return reached without a call open. The dialogue ends, as at an End card. |
+
+A Condition that can't be read and sits in front of choices offers none of them.
+
+## Checking a dialogue
+
+**Check** in the toolbar lists what can be found wrong without playing the dialogue, card by card in reading order. The button shows how many problems there are, and turns red when one of them is an error. A problem about a card names the card above it. Click a problem to show its card on the canvas. With nothing to report it reads "No problems found."
+
+Errors, which the play-through or an exported script will trip on:
+
+- There's no Start card.
+- A Condition or Set card that can't be read, with what is wrong.
+- A variable that is used, in an expression or as `{$name}` in a line or a choice, but never declared, and never set with `=` on any Set card.
+- A variable whose name isn't allowed, or two variables with the same name.
+- A Random card with no jumps.
+- A Call card with no card picked, or whose card has been deleted.
+
+Warnings, which are probably not what you meant:
+
+- A card that Start never leads to.
+- A line or a choice with no text.
+- A card that nothing follows and that isn't an End or a Return card, or a side of a Condition with nothing joined to it.
+- A Random card with only one jump, which it always takes.
+- A Call card whose branch never reaches a Return card, so play never comes back to it.
+- A Call card that can end up calling itself, since a play-through stops after 32 calls inside one another.
+- A Return card Start reaches without going through a Call, where the dialogue ends.
+
+Cards that are only reached through a Call count as reached.
+
+The check doesn't know the values variables will have, so it can't find what only playing finds, such as dividing by zero.

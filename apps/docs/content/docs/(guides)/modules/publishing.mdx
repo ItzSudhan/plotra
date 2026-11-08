@@ -1,0 +1,268 @@
+---
+title: Publishing
+description: "The Publish view: an EPUB of the manuscript, manuscript and script PDFs, a series bible, and a public wiki that holds only what your audience has been told."
+---
+
+The **Publishing** module turns a project into things you can hand to other people: an e-book, a printable manuscript, a pitch document, and a small website about your world that gives away nothing your readers have not reached yet. Everything is built by Plotra and saved to your computer as a file. Nothing is sent anywhere else.
+
+For plain files of your text (Word, Markdown, plain text), see [Import and export](/docs/import-export). Those work without this module.
+
+## Switching it on
+
+Publishing is off in a new project of every type. Switch it on in [Project settings](/docs/settings/project#tools), under **Tools**. That takes the right to manage the project. Once on, it is on for everyone in the project.
+
+The module adds one view, **Publish**. Open it:
+
+- from the ribbon, under **More**, in the **Read and publish** group;
+- from **All commands**, with "Open publish";
+- by right-clicking a folder or a chapter in the binder and choosing **Publish**.
+
+Anyone who can read the project can use the view, viewers and commenters included. Each person's files hold only the notes that person can read.
+
+## The Publish view
+
+At the top are two choices that apply to the outputs below them.
+
+![The Publish view: what to publish and as of which release at the top, then EPUB, Manuscript or script PDF, Series bible and Public wiki](/shots/module-publish.webp)
+
+| Field | Choices | Applies to |
+| --- | --- | --- |
+| **What** | **The whole project**, or any folder or chapter. It starts on the folder the view was opened on. | EPUB, the Read view, the series bible. Not the wiki. |
+| **As of** | **Everything, spoilers included**, or one of your releases: "(release): only what's revealed by then". It starts on the [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) you have set in this project. With no releases it reads "No releases to choose from". | EPUB, the series bible, the wiki |
+
+Under them a line counts what the manuscript holds: "42 chapters and scenes with text, 81,204 words".
+
+<Callout type="info" title="The count follows the canon box">
+While **Only canon pages and passages** is ticked on the wiki card (it starts ticked), this line counts only chapters and scenes whose status is Canon. The EPUB is not narrowed that way: it includes every chapter and scene. Untick the box to see the full count.
+</Callout>
+
+Below are four cards, one for each output. A button reads "Building…" while its file is made, then your browser saves it and a message names the file.
+
+All outputs use the text as last saved, which can be a few seconds behind what is on screen. Notes in the trash are never included.
+
+If the project has no chapter or scene with text and no world pages, the view says "Nothing to publish yet", with a **New scene** button for people who can edit.
+
+## EPUB
+
+**Download .epub** saves an EPUB 3 e-book of the manuscript, named after the project or folder: `the-long-night.epub`. It opens in any e-reader or app that reads EPUB, and is ready for Kindle: send it with Send to Kindle, or upload it to Kindle Direct Publishing, Apple Books, Kobo or Google Play Books.
+
+### A cover
+
+**Cover** on the EPUB card lists the pictures attached anywhere in the project. To add one, attach it to a note first (for example in a research note's **Files**), then choose it here. It starts on **No cover**; with no pictures in the project, the list reads "No pictures in the project yet". The picture you choose becomes the book's cover picture and its first page. Stores ask for about 1600 × 2560 pixels; the picture can be up to 5 MB, as PNG, JPEG, GIF or WebP.
+
+### Opening pages
+
+**Opening pages: copyright, dedication, epigraph** on the EPUB card opens the project's [opening pages](/docs/import-export/export#front-matter-pages). It says "(none yet)" until some are written. Whatever is filled in goes into every EPUB, each a page of its own after the title page, marked as front matter for e-readers.
+
+### Ready for stores and e-readers
+
+Besides the contents page, the book carries what Kindle and the stores look for: landmarks (the cover, the contents and where the text starts), an NCX contents file for older readers, and each page marked as the cover, the title page, a part, a chapter or the references.
+
+### What goes in
+
+- With **The whole project**: folders, chapters and scenes. Characters, research and other notes are left out.
+- With a folder chosen: every text note inside it, whatever its type.
+- Canvases, timelines and dialogue trees are never included.
+
+### How the book is laid out
+
+| In the binder | In the book |
+| --- | --- |
+| A folder | A part: its own page with the title large and centred, then any text the folder has |
+| A chapter | Starts a new page under its centred title, then any text the chapter has |
+| Scenes inside a chapter or folder | Run on in order, without their titles, with `* * *` between them |
+| A scene directly under what you chose (the top level of the project, or of the chosen folder), or one that comes before any chapter | Its own chapter, under its title |
+| A chapter with no text anywhere in it | Left out |
+| A part with nothing under it | Left out |
+
+The book opens with a title page (the title and your name) and a **Contents** page that lists every part and chapter.
+
+Paragraphs are set as in a printed book: no space between them, first lines indented, and no indent after a heading or a scene break. Script elements keep their layout: scene headings, character names, dialogue and parentheticals are placed as in a script, and comic pages and panels are numbered.
+
+### Metadata
+
+The book's details are taken from the project. There is no form to fill in.
+
+| Field | Comes from |
+| --- | --- |
+| Title | The project's title, or the folder's when one is chosen |
+| Author | The name on the account of the person downloading |
+| Language | The project's source language; English when none is set |
+| Description | The project's description, when it has one |
+| Identifier | The project's own id, the same in every download |
+
+There is no field for a publisher, a series or an ISBN. Add those in an e-book editor such as Calibre if a store asks for them in the file; most ask for them in their own upload form instead.
+
+### What changes on the way
+
+- **Pictures are packed inside the book**, those uploaded to Plotra and those added by web address, so it works offline: up to 200, 5 MB each and 40 MB together. One that can't be fetched is left out.
+- **Links to other notes become plain words**: the display text, or the note's title.
+- **An embedded note** is printed as its title only.
+- **Citations** are printed in the project's citation style, and a reference list is added as a last chapter.
+- **Writer's notes** in a script are not printed.
+- Comments are not part of the text and are never included.
+
+If there is nothing to put in the book, you see "There's nothing to export here yet: no chapters or scenes with text."
+
+### With a release chosen
+
+Notes the audience does not know by that release are left out, and so are passages tagged for a later release. A folder or chapter that is not itself revealed loses its heading; revealed scenes inside it join the chapter before them.
+
+Passages tagged **Never** are left out of every EPUB, with or without a release chosen. So are passages tagged with a release that has been deleted.
+
+<Callout type="warn" title="Names in links are not hidden">
+In an EPUB, a link to a note that is not revealed yet still prints that note's title. If a name is itself a spoiler, give the link a display text, or tag the passage.
+</Callout>
+
+## Manuscript or script PDF
+
+**Open the Read view** opens the [Read view](/docs/views/planning#read) on the folder chosen under **What**. There you pick a layout and print:
+
+| Layout | For |
+| --- | --- |
+| **Submission format (Courier)** | Standard manuscript format: monospaced, double-spaced, a running header with your surname, the title and the page number |
+| **Book** | A typeset page, justified, with the title along the top |
+| **Screenplay**, **Stage play**, **Comic script**, **Audio script** | The script's own layout. Offered when part of the folder is written in that format, or when it is the project's format. |
+
+Click **Print / PDF** and choose "Save as PDF" in your browser's print dialog. Pages are US Letter, or A4 if you chose it under **Paper** in [Customize → Opening and printing](/docs/settings/customize#what-you-can-change). The choice is yours alone.
+
+The Read view follows the workspace's spoiler horizon, not the **As of** field of the Publish view. With no horizon on, it prints everything, passages tagged **Never** included.
+
+The Read view does not need this module. The card is a shortcut to it. For a Word file in manuscript format, use [Export](/docs/import-export/export#word-docx).
+
+## Series bible
+
+**Download .html** saves a pitch document as one web page, named `the-long-night-bible.html`. Open it in a browser to read it, send the file as it is, or print it to PDF from the browser. When printed, each section starts a new page on US Letter paper.
+
+### What is in it
+
+| Section | Contents |
+| --- | --- |
+| Cover | The project's title; its description as the logline; the project type, the format and "N words so far"; your name, today's date and, with a release chosen, "as of (release)" |
+| **The story** | An outline three levels deep: folders, chapters and scenes by title, each with its synopsis |
+| **Plot threads** | The names of the project's threads |
+| **Characters** | One entry each. Characters whose **Role** starts with "protag" come first, then "antag", then "support", then everyone else by name. |
+| **Places** | One entry for each location |
+| One section for each of your entity types | Under the type's plural name, such as "Factions" |
+| **Release plan** | A table of every release: its name, kind, date and notes |
+| References | Added when the entries cite sources |
+
+An entry holds the note's title with its aliases in brackets, a line of its filled-in properties ("Age: 34 · Role: Protagonist"), its synopsis in italics, and then the full text of the note.
+
+Pictures are put inside the file itself, those uploaded to Plotra and those added by web address, so it shows them offline and when sent on: up to 200, 5 MB each and 40 MB together. A picture on the web that can't be fetched is still shown from its address, when there is a connection; an uploaded one that can't be packed is left out.
+
+Sections with nothing in them are left out. An empty project gives a page that says "Nothing to show yet: add characters, places and chapters."
+
+### What narrows it
+
+- **What**: with a folder chosen, the outline starts at that folder and only the characters, places and world entries inside that folder are listed. The cover still carries the project's title. To get the whole cast, leave it on **The whole project**.
+- **As of**: notes not revealed by that release are left out of the outline and the entries, and so are passages tagged for later.
+- **Only canon pages and passages** does not apply to the bible.
+
+<Callout type="warn" title="The bible is for insiders">
+A series bible is a document for a producer, a publisher or a co-writer. Even with a release chosen, the **Release plan** lists every release with its notes, **Plot threads** lists every thread, and links and properties print the titles of notes that are otherwise left out. For something safe to give readers, use the public wiki.
+</Callout>
+
+## Public wiki
+
+**Download .zip** saves a small website about your world: a page for every character, place and world entry, linked to each other, holding only what your audience has been told. It is the thing to give to readers of a serial, or to the players at your table.
+
+### What you get
+
+A zip named `the-long-night-wiki.zip` with plain files in it:
+
+- `index.html`, the front page;
+- one `.html` file for each page, named after its title (`verona.html`; two pages with the same title become `verona.html` and `verona-2.html`);
+- `style.css`;
+- an `images` folder with the pictures the pages show.
+
+**The front page** has the project's title and description, then every page as a card with its title and the start of its synopsis, grouped under **Characters**, **Places** and one heading for each of your entity types, in alphabetical order. With more than eight pages there is a "Find a page…" box that filters the cards as the reader types.
+
+**Each page** has:
+
+- its type (Character, Location, or the name of the entity type) and its aliases ("also Captain Vale");
+- the title, and the synopsis as an opening line;
+- a box of its filled-in properties;
+- the text of the note;
+- **Mentioned in**: the other published pages that link to it.
+
+The foot of every page reads "Made with Plotra.", with "As of (release)." before it when a release was chosen. The pages follow the reader's light or dark setting and work on a phone.
+
+The manuscript is not in the wiki. Chapters, scenes, plain notes and research never become pages.
+
+### Which pages are published
+
+A character, place or world entry gets a page when all of these are true:
+
+1. You can read it, and it is not in the trash.
+2. If the project has releases, some release reveals it. A note is revealed by its own reveal tag, or else by the nearest folder above it that has a tag or is what a release ships. A project with no releases publishes every page. See [Releases and reveals](/docs/canon/releases-and-reveals#a-release).
+3. If you chose a release under **As of**, the note is revealed by that release or an earlier one.
+4. If **Only canon pages and passages** is ticked, the note's status is **Canon**.
+
+The card says how many pages pass: "12 of 40 world pages would be published", followed by ", none of them revealed after the release you picked" or ": the ones a release reveals". When none pass, the button is greyed out and the card tells you what to do: mark pages as canon, or tag pages with the release that reveals them, in the inspector's **Story** tab or in the roadmap.
+
+<Callout type="info" title="New notes are Draft, not Canon">
+**Only canon pages and passages** starts ticked, and every note starts as Draft. Until you mark pages as Canon, the wiki is empty. In a project that does not use [canon status](/docs/canon), untick the box.
+</Callout>
+
+The wiki always covers the whole project. **What** does not narrow the download, although the count on the card is taken from the folder chosen there. Leave **What** on **The whole project** to see the true number.
+
+### What is hidden inside a page
+
+| Passage | In the wiki |
+| --- | --- |
+| Tagged **Never** | Always left out |
+| Tagged with a release after the one chosen | Left out |
+| Tagged with a release that has been deleted | Left out |
+| Tagged with a canon status other than Canon | Left out when **Only canon pages and passages** is ticked |
+| Not tagged | Published with its page |
+
+Anything that is not published leaves no trace:
+
+- A link to an unpublished note is removed from the sentence. If you gave the link a display text, those words stay, as plain text.
+- An embed of an unpublished note disappears.
+- A property that points at other notes lists only the published ones. If none are left, the property is not shown.
+- **Mentioned in** lists only published pages.
+
+<Callout type="warn" title="What is not filtered">
+A published page's title, aliases, synopsis and property values are published whole. Reveal tags hide notes and passages, not fields. Keep a secret in a tagged passage of the text, not in the synopsis or a property.
+
+With **Everything, spoilers included**, passages tagged for any release are published, future ones too, and so is every page that some release reveals. Choose a release before you hand the wiki to readers.
+</Callout>
+
+### Other details
+
+- Links between published pages work as links. Web links are kept.
+- An embed of a published page becomes a link to that page, not a copy of its text.
+- Pictures are copied into the zip's `images` folder, those uploaded to Plotra and those added by web address: up to 200, 5 MB each and 40 MB together. A picture on the web that can't be fetched is shown from its address instead; an uploaded one that can't be copied is left out. Pictures in passages that are hidden are not copied.
+- Checkbox properties read "Yes" or "No". Web-address properties are links.
+- Citations are printed in the project's citation style. No reference list is added.
+
+### Putting it online
+
+Plotra does not host the wiki. Unzip the file and upload the folder to any host that serves plain files, such as GitHub Pages, Netlify, Cloudflare Pages or your own web space. It needs no database and no server code, and it also opens straight from a folder on your computer.
+
+The wiki is a copy made at the moment you download it. It does not change when the project does. After a new release, choose that release under **As of**, download again and replace the files.
+
+## A published wiki or a read-only link
+
+A project can also be opened to readers with a [read-only link](/docs/collaboration/sharing#read-only-links). The two are for different readers.
+
+| | Public wiki | Read-only link |
+| --- | --- | --- |
+| What it shows | Characters, places and world entries | The whole project, manuscript included |
+| Spoilers | Filtered by release, canon status and passage tags | Filtered the same way when the link is set to show the project as of a release (and canon only); a link for everything shows everything, passages tagged **Never** included |
+| Up to date | A copy from the moment you downloaded it | Always the project as it is now |
+| Where it lives | On a host you choose | On Plotra, at an address made for the project, and in the [public gallery](/docs/collaboration/sharing#the-public-gallery) if you list it |
+| Switching it off | Take the files down | Switch the link off in the Share dialog |
+| Needs | The Publishing module, and the right to read the project | The right to manage the project |
+
+Use the wiki for a host of your own, and a link as of a release for an audience on Plotra. Use a link for everything for someone you would let read everything, such as an agent or a beta reader.
+
+## Limits and edge cases
+
+- **Nothing here is held back by a plan limit.** Like every export, these files can always be made. See [Quotas](/docs/settings/limits).
+- **A release deleted while the view is open.** The **As of** field goes back to **Everything, spoilers included**. A download started with a release that no longer exists fails with "That release no longer exists."
+- **You can read only part of the project.** The files hold only your part. Ask someone with full access to build the file you mean to publish.
+- **Switching the module off** removes the Publish view. Nothing is deleted, and files you already downloaded are not affected.
+- **A connection is needed.** The files are built on the server.

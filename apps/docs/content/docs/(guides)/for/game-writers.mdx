@@ -1,0 +1,77 @@
+---
+title: Game writers
+description: "For games and interactive stories: branching dialogue with variables, quests, short strings with character limits, localization, and import from and export to Ink, Yarn Spinner and Twine."
+---
+
+A game's writing is not one text. It is conversations that branch, quests that unlock each other, and hundreds of short strings that have to fit a button. Plotra gives each of those its own tool, beside the world bible they all draw on. A dialogue is drawn as cards joined by jumps and tested by playing it. Every line, choice and string has a stable String ID, so the game, a voice session and a translation all point at the same text. Dialogues come in from and leave as Ink, Yarn Spinner or Twine files.
+
+![A branching dialogue on its canvas: line, choice, condition and set cards joined by arrows](/shots/mod-dialogue.webp)
+
+<StartWriting />
+
+## Set up
+
+1. **Start the project.** In [the cold open](/docs/get-started/first-project#the-cold-open), choose **Something else** under "What are you making?" and pick **Game / interactive**. Or use **New project** and choose the type there.
+2. **Switch on the rest of the tool set.** A game project starts with **Interactive narrative** on. The others are under **More → More tools**:
+
+| Module | What it gives a game |
+| --- | --- |
+| **World bible** | Factions, items, species and types of your own, canon status and continuity checks |
+| **Localization** | The Translate view, a glossary, and CSV and XLIFF files for translators |
+| **Releases & reveals** | Releases, called patches in a game project, and what the player has learned by each |
+
+3. **Set the languages** if you will translate: **Project settings → Reveals & languages**, under **Written in** and **Translated into**. Pick each language from the list by its name.
+
+Only the workspace's owner and admins can switch tools on, in **Project settings → Tools**. See [Modules](/docs/modules).
+
+## Typical workflow
+
+1. **Build the world first.** Give characters, places and factions their own pages and link them with `[[`. A dialogue line whose speaker is a character note counts as a link to that character.
+2. **Write a dialogue.** Choose **Dialogue** from the binder's **New** menu. It opens as a canvas with a Start card. Add **Line**, **Choice**, **Condition**, **Set** and **End** cards and draw jumps between them, left to right. See [The Dialogue view](/docs/modules/interactive/dialogue#the-dialogue-view). A dialogue already written in Ink, Yarn Spinner or Twine comes in with **Import** in its toolbar; see [Importing a dialogue](/docs/modules/interactive/files#importing-a-dialogue).
+3. **Add variables.** A variable is a Number, a Text or a Yes/no with a starting value. Condition cards test them and Set cards change them. See [Variables](/docs/modules/interactive/dialogue#variables) and [The expression language](/docs/modules/interactive/expressions).
+4. **Play it.** **Play** walks the dialogue from Start as a game would, offers the choices as buttons and reports each condition and each change to a variable. It also reports the problems it meets. See [Playing a dialogue](/docs/modules/interactive/dialogue#playing-a-dialogue).
+5. **Chain the quests.** In the **Quests** view, press **New quest** and drag from the dot on a quest's right to the quest it unlocks. A quest is a page with a giver, prerequisites, objectives, a reward, the notes it reveals and a state you can use as design status. See [The Quests view](/docs/modules/interactive/quests-and-strings#the-quests-view).
+6. **Write the strings.** The **Strings** view holds button labels, item descriptions, captions and alt text, in categories. Give a string a character limit and the count turns red when you go over. See [The Strings view](/docs/modules/interactive/quests-and-strings#the-strings-view).
+7. **Translate.** Fill in the glossary with the names that must stay the same, then open **Translate** on the scope **Strings and dialogue lines**. Export CSV or XLIFF, send it to a translator, and import what comes back. A translator needs no Plotra account. See [The round trip](/docs/modules/localization#the-round-trip).
+8. **Catch what went stale.** When a source line changes after it was translated, its row shows **Source changed**. Filter on it before each build.
+9. **Export for the engine.** Each dialogue's **Export** menu saves Ink, Yarn Spinner, Twine (Twee 3), JSON or a CSV of its strings. **Export CSV** in the Strings view saves the whole string table: every short text, then the lines and choices of every dialogue.
+10. **Track patches.** Add a release for each patch in the Release roadmap and tag what each one reveals. The Quests view then leaves out quests the player has not reached under a spoiler horizon. See [Releases](/docs/canon/releases-and-reveals#releases).
+
+## Working with a team
+
+| Who | Give them | They can |
+| --- | --- | --- |
+| Another writer or narrative designer | Workspace member, or **Editor** on the project | Edit dialogues live with you, create quests and strings |
+| A producer or a lead who reviews | **Commenter** | Read everything, play every dialogue, export, and comment on text notes |
+| An engineer who needs the files | **Viewer** | Open, play and export dialogues and the string table |
+| A translator | Nothing: send the CSV or XLIFF file | Work outside Plotra |
+
+Everyone who has a dialogue open edits it live and sees the others' pointers. See [Working together](/docs/collaboration).
+
+## What to read next
+
+| For | Read |
+| --- | --- |
+| The nine kinds of card and what each holds | [The nine kinds of card](/docs/modules/interactive/dialogue#the-nine-kinds-of-card) |
+| How String IDs are made and kept | [String IDs](/docs/modules/interactive/dialogue#string-ids) |
+| What Ink, Yarn and Twine files keep and leave out | [Exporting a dialogue](/docs/modules/interactive/files#exporting-a-dialogue) |
+| What an Ink, Yarn or Twine file brings in, and what it skips | [Importing a dialogue](/docs/modules/interactive/files#importing-a-dialogue) |
+| The string table file, column by column | [Exporting the string table](/docs/modules/interactive/quests-and-strings#exporting-the-string-table) |
+| Translation statuses and the "Source changed" flag | [The Translate view](/docs/modules/localization#the-translate-view) |
+| The term base | [The glossary](/docs/modules/localization#the-glossary) |
+| CSV and XLIFF, column by column | [Files for translators](/docs/modules/localization#files-for-translators) |
+| Lore pages and entity types | [The world bible](/docs/canon#the-world-bible) |
+| What the player knows by each patch | [The spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) |
+| A world shared with a novel or a show | [Shared worlds](/docs/writing/links#shared-worlds) |
+
+## Things to know
+
+- **Import brings in what a dialogue can hold.** Ink, Yarn and Twine files come in as dialogues, but functions, threads, once-only choices, custom commands and macros beyond the basics are left out, with a list of what was skipped. Plotra's JSON and CSV can't be imported. See [What is skipped](/docs/modules/interactive/files#what-is-skipped).
+- **A character limit does not stop you typing.** It tells you when you are over; the toolbar counts how many strings are.
+- **A dialogue is not prose.** It has no comments or suggestions, file exports and the EPUB leave it out, and a read-only link shows a placeholder in its place. Version history does keep versions of it.
+- **Two people on the same card:** changes to different cards are both kept. If two people change the same card at the same moment, the later change wins for that card.
+- **Sizes.** A dialogue line holds 2,000 characters and an expression 500. A string holds 5,000 characters, with an ID of up to 80.
+- **Quests without the World bible.** The Quest note type is made by the Interactive narrative tool, but it is listed in the binder's **New** menu only when World bible is on. Without it, create quests with **New quest** in the view.
+- **The glossary is not in the translators' files.** Send it separately.
+- **Subtitles are not made from branching dialogue.** Subtitle export (SRT or WebVTT) reads the dialogue of script-format scenes only.
+- **The AI agent can't create a dialogue.**

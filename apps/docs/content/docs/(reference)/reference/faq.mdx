@@ -1,0 +1,387 @@
+---
+title: FAQ
+description: Short answers to the questions people ask most, and the things Plotra does not do yet with what to do instead.
+---
+
+Short answers, each with a link to the page that covers the subject in full. Some of the questions are about things Plotra does not have. Those are answered plainly, with a way round where there is one.
+
+Words you don't recognise are in the [Glossary](/docs/reference/glossary).
+
+Something not working? See [Troubleshooting](/docs/reference/troubleshooting).
+
+## Getting started
+
+### Is Plotra free?
+
+The hosted version has a Free plan with every view and every module, no time limit and no card. Pro is $10 a month, or $96 a year, for a whole workspace, and adds room, more people and hosted AI. A Plotra you host yourself is free and has no plans. See [Plans and billing](/docs/settings/plans).
+
+### Do I have to install anything?
+
+No. Plotra runs in the browser. If you'd like it in its own window, with an icon, you can install it from the browser, and it then starts without a connection too. See [Installing Plotra as an app](/docs/writing/editor#installing-plotra-as-an-app).
+
+There is also a desktop app for macOS, Windows and Linux. It opens Plotra Cloud, or keeps your projects in a folder on your own computer with no account and no internet. See [The desktop app](/docs/desktop). If you would rather run the servers yourself, see [Self-hosting](/docs/self-hosting).
+
+### Does it work on a phone?
+
+It opens in a phone's browser, in a narrower layout: one pane at a time, the binder and the inspector as drawers over the page, and the ribbon as a bar across the top with a **Views and commands** menu. Split panes come back when the window is wide enough. There is no phone app. See [The screen](/docs/get-started/the-screen).
+
+### Can I keep my work only on my own computer?
+
+Yes, in the desktop app: choose **On this computer** and pick a folder. Your projects live in that folder, with a readable Markdown copy and daily snapshots beside them, and nothing goes to a server. Writing with others, sharing and sync between devices need Plotra Cloud. See [The desktop app](/docs/desktop).
+
+### What is the difference between a workspace and a project?
+
+A workspace is you, or you and your team: its members can open every project in it, and the plan belongs to it. A project is one story or one world. See [Workspaces and projects](/docs/get-started/first-project#workspaces-and-projects).
+
+### Which project type should I pick?
+
+The one closest to what you are making. The type is a preset: it picks the modules that start on, the format of new scenes and what a release is called. It locks nothing, and you can change it later in the project settings. See [Project types](/docs/reference/project-types).
+
+### Can I look around before I write anything?
+
+Yes. Open a sample project: Romeo and Juliet, or a tabletop campaign. A sample is a copy of your own, and it counts as one project in the workspace. See [Sample projects](/docs/get-started/sample-projects).
+
+### The guide says ⌘. I am on Windows.
+
+Use `Ctrl` where the docs say `⌘`, and `Alt` for `⌥`. See [Keyboard shortcuts](/docs/reference/keyboard-shortcuts).
+
+### Where are all the views? I only see five.
+
+The ribbon starts with five. Every other view is under **More**, and you choose which ones stay in your ribbon. A view that belongs to a module is listed only while that module is on. See [The ribbon](/docs/get-started/the-screen#the-ribbon) and [A view is missing](/docs/reference/troubleshooting#a-view-or-a-command-is-missing).
+
+## Your account and sign-in
+
+### I forgot my password.
+
+Click **Forgot password?** on the sign-in page, type your email and click **Send me a link**. The email holds a link to choose a new password; it works for an hour, once. If you signed up with **Continue with Google**, sign in that way: that account has no password. On a server someone hosts themselves, the email is only sent if the server has a mail server set up. See [Forgot your password](/docs/settings/account#forgot-your-password).
+
+### Can I change my password, name, email address or picture?
+
+Your name, email address and password, yes: **Your settings → Profile and account**. A new email address is confirmed by a link sent to it before it takes over. There you can also connect Google to a password account, or set a password on a Google account. Your picture can't be changed: it is the one from Google if you signed in with it; otherwise Plotra shows your initials. See [Profile and account](/docs/settings/account#profile-and-account).
+
+### Can I delete my account?
+
+Yes: **Delete account…** at the bottom of **Your settings → Profile and account**. Your account goes for good, with every workspace you're alone in. If you are the only owner of a workspace other people share, make someone else an owner, or delete the workspace, first. See [Deleting your account](/docs/settings/account#deleting-your-account).
+
+### Sign-in says I have tried too many times.
+
+Sign-in is limited to 5 attempts a minute, and creating an account, asking for a password reset link and changing your email to 5 an hour each. Wait and try again. See [Signing in](/docs/settings/account#signing-in).
+
+### How long do I stay signed in?
+
+Seven days, renewed while you keep using Plotra in that browser. **Sign out** signs out the browser you are in. There is no list of your sessions and no way to sign out your other devices. See [Signing in](/docs/settings/account#signing-in).
+
+### Can I rename, delete or leave a workspace?
+
+Yes, under **Settings → General** in the workspace.
+
+- **Rename:** owners and admins change the **Workspace name**, and the **Web address**. Changing the address asks first: old links to the workspace and its projects stop working.
+- **Leave:** **Leave this workspace** takes away your access to its projects at once. To come back you need a new invitation.
+- **Delete:** only the owner, by typing the workspace's name. Every project in it goes, for everyone, and it can't be undone. A workspace on Pro has to cancel its plan first.
+
+See [General](/docs/settings/account#general).
+
+### Can I delete or archive a project?
+
+A project can be deleted, by the workspace's owners and admins: **Project settings → General → Delete project…**, then type its title. Everything in it goes, for everyone, and it can't be undone. There is no archive and no way to move a project to another workspace; export it as a `.plotra` project file and import it there instead. See [Deleting a project](/docs/settings/project#deleting-a-project).
+
+### The invitation page says "Invitation not available".
+
+The invitation expired (they last 48 hours), was cancelled, was already used, or was sent to a different address than the one you are signed in with. Ask for a new one to the address you use, or sign in with the other address. See [Accepting an invitation](/docs/collaboration/sharing#accepting-an-invitation).
+
+### A shared project says "This was shared with a different address".
+
+The project was shared with another address than the one you are signed in with. Sign in with that address, or ask for the project to be shared with the one you use. See [Opening a shared project](/docs/collaboration/sharing#opening-a-shared-project).
+
+## Writing and the editor
+
+### Where is the save button?
+
+There isn't one. Every change is saved as you make it, and the status bar says **Saved** when it has reached the server. See [Saving and working offline](/docs/writing/editor#saving-and-working-offline).
+
+### Can I upload a picture into a note?
+
+Yes. Choose **Image** in the block menu, and in **Add a picture** choose **Upload from computer** (PNG, JPEG, GIF, WebP or AVIF), or **Paste a link** to a picture on the web. An uploaded picture is stored in Plotra and counts towards the workspace's storage. An image file pasted or dropped straight into the text is not inserted: use **Image** instead. See [Images](/docs/writing/editor#images).
+
+### I deleted a note by mistake.
+
+It is in the **Trash** at the bottom of the binder. Point at its row and click **Put back**. Right after you trash a note, **Undo** in the message at the bottom of the screen does the same. A note is only gone once someone chooses **Delete forever** or **Empty trash**, and that can't be undone. See [The trash](/docs/writing/binder#the-trash).
+
+### How do I get back an earlier version of a note?
+
+Open **Review → History** in the inspector, click a version, and choose **Restore this version**. The current text is saved as a version first, so a restore can itself be undone. Automatic snapshots are taken while a note is being edited, every half hour unless the project's [Automatic versions](/docs/settings/project#automatic-versions) setting says otherwise, and the latest 40 are kept. See [Version history](/docs/collaboration/version-history).
+
+### Can I change the font?
+
+Yes, for yourself. Open **Customize** from **More** in the ribbon and go to **The page**: typeface, text size, line width, line spacing and paragraphs. A note in a script format keeps its own layout. See [How the page looks](/docs/writing/editor#how-the-page-looks).
+
+### Can I call a chapter an "episode"?
+
+Yes. In **Project settings → Rename things**, type your own word for Folder, Chapter, Scene, Note, Character, Location or Research. See [Rename things](/docs/settings/project#rename-things).
+
+### Can I make a template for new scenes?
+
+Yes. Right-click a note and choose **Start new scenes from this** (or characters, chapters…). Every new note of that type then starts as a copy of its text, fields and tags, for everyone in the project. See [A template for new notes](/docs/writing/binder#a-template-for-new-notes).
+
+### Typing [[ just types brackets.
+
+**A list of notes on [[** is switched off in **Customize → Typing**. Switch it back on to get the list of notes to link. See [What you can change](/docs/settings/customize#what-you-can-change).
+
+### My tabs and splits are gone on another computer.
+
+Open tabs, splits, pinned tabs, open folders and sidebar widths are kept in your browser. Changed keyboard shortcuts, your ribbon and the rest of **Customize** follow your account. To carry an arrangement with you, save it as a layout (`⌘⇧L`): saved layouts are kept with your account. See [Saved layouts](/docs/get-started/the-screen#saved-layouts).
+
+### The word count in the status bar is behind.
+
+**words in project** counts notes as last saved, so it follows a little behind your typing. The count for the open note is live. See [Word counts](/docs/writing/editor#word-counts).
+
+### I added a Select property and it has no choices.
+
+The inspector has no place to type the choices of a new **Select** field. Use **Multi-select**, which takes new choices as you type them. The fields of a world-entry type are the exception: their choices are set where the type is defined. See [Custom fields](/docs/writing/properties-and-tags#custom-fields).
+
+### Is there a code block?
+
+No. The editor has inline code only. A fenced code block in an imported Markdown file becomes one paragraph in code type. See [Blocks](/docs/writing/editor#blocks).
+
+## Links, canon and the spoiler horizon
+
+### A link reads "Restricted note".
+
+The note it points at was deleted for good, or you are not allowed to open it. This also happens to links into a shared world when you can't open the world project, or when the shared world was set back to **None**. See [Renaming, trash and broken links](/docs/writing/links#renaming-trash-and-broken-links).
+
+### A link is struck through.
+
+The note it points at is in the trash. Restore the note and the link works again.
+
+### Does renaming a note break links to it?
+
+No. A link points at the note, not at its name, so every link shows the new name at once. A link to a heading is different: headings are matched by their text, so after renaming a heading, make the link again. See [Renaming, trash and broken links](/docs/writing/links#renaming-trash-and-broken-links).
+
+### I made a link and it isn't in Mentioned in yet.
+
+Links are indexed a few seconds after you stop typing, and the Links tab refreshes every ten seconds. Block tags lag the same way in the roadmap and the Story tab. See [How fresh the lists are](/docs/writing/links#how-fresh-the-lists-are).
+
+### The Story tab is missing from the inspector.
+
+It appears when **World bible**, **Releases & reveals** or **Research & sources** is on. Someone who manages the project switches tools on in **Project settings → Tools**. See [The Story tab](/docs/canon#the-story-tab).
+
+### Does the spoiler horizon hide things from the people I share with?
+
+No. The horizon filters what you see while you work, and what goes into an export or a wiki. It is not a permission. A viewer reads the whole project, and so does anyone with the read-only link, passages marked "Never" included. To keep unrevealed material from someone, give them a wiki or an export made at the horizon, or keep the secrets in a separate project. See [The spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon).
+
+### I set a horizon and still see everything in some views.
+
+The Corkboard, Plot grid, Manuscript, Relationships and Canvas views show everything, and so do search, **Find a note**, the link picker and the Links tab. Opening a dimmed note also shows its text. See [What it does not hide](/docs/canon/releases-and-reveals#what-it-does-not-hide).
+
+### My horizon is gone on another device.
+
+The horizon is remembered in your browser, for each project. Each device and each co-writer sets their own.
+
+### A passage tagged "Never" is in my PDF.
+
+A PDF is printed from the Read view, and with no horizon on, the Read view shows every passage. Set a horizon before printing a copy for someone else. File exports, EPUB and the wiki always leave "Never" passages out. See [Passages marked Never](/docs/canon/releases-and-reveals#passages-marked-never).
+
+### The Continuity view finds nothing.
+
+The checks read what you have recorded: story dates, durations, points of view, locations, birth and death dates, links, who knows what, setups. They do not read your prose. The line under the toolbar says how many scenes have a story date. See [What the checks read](/docs/canon/secrets-and-continuity#what-the-checks-read).
+
+### The public wiki comes out empty.
+
+**Only canon pages and passages** starts ticked, and every note starts as Draft. Mark pages as Canon, or untick the box. In a project with releases, a page also has to be revealed by some release. See [Which pages are published](/docs/modules/publishing#which-pages-are-published).
+
+## Working with others
+
+### Should I invite someone to the workspace or share a project?
+
+Invite them to the workspace when they should work on everything in it. Share a project when they should see only that project, or only read or comment. See [Working together](/docs/collaboration#who-can-do-what).
+
+### Can I hide one folder or one note from someone?
+
+No. There are no permissions on single notes or folders: everything in a project follows the project. Put what must stay hidden in a separate project. See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+### I can't find the Share button.
+
+Only the workspace's owners and admins can share a project. The button is not shown to members, editors or anyone else. See [Sharing a project](/docs/collaboration/sharing#sharing-a-project).
+
+### I removed someone and they can still see the note.
+
+Removing access takes effect on their next request. A note they already have open stops receiving and sending live changes within ten minutes. The read-only link is different: switching it off or resetting it works at once. See [When access changes](/docs/reference/roles-and-permissions#when-access-changes).
+
+### The workspace or the project is full.
+
+| Limit | Free | Pro | Self-hosted |
+| --- | --- | --- | --- |
+| Workspace members, counting the owner and open invitations | 3 | 25 | No limit |
+| People one project is shared with | 5 | 200 | 200 |
+
+To let one more person into one project when the workspace is full, share the project with them instead of inviting them. See [Members](/docs/settings/limits#members) and [Guests](/docs/settings/limits#guests).
+
+### I can't mention someone with @.
+
+You can mention the workspace's members and anyone the project is shared with who has accepted; guests are marked **Guest** in the list. Someone whose invitation or share hasn't been taken up yet isn't in it, and typing their name notifies nobody. See [Mentions](/docs/collaboration/comments-and-suggestions#mentions).
+
+### Why does a comment say "Former member"?
+
+The comment's author is no longer in the workspace or the project. Names come from the people who can open the project now. See [Comments](/docs/collaboration/comments-and-suggestions#comments).
+
+### A note says Locked and I can't edit it.
+
+The note is in a workflow stage ticked **Locked**. Only its approvers can change it: its required reviewers and the people who manage the project. You can still read and comment. Ask an approver to change it, or to move it back to an earlier stage. See [Locked content](/docs/modules/editorial#locked-content).
+
+### How do I leave a project that was shared with me?
+
+You can't remove yourself from a project shared with you on its own. Ask an owner or an admin of that workspace to do it. If you are a member of the workspace, **Leave this workspace** under **Settings → General** takes you out of it and its projects.
+
+### Is the read-only link safe to post?
+
+Treat it like a public page. Anyone with the link can read what it shows without an account: everything, unrevealed notes and "Never" passages included, unless the link is set to show the project as of a release. Switch it off, reset it or set what it shows in the Share dialog. See [A read-only link](/docs/collaboration/sharing#read-only-links).
+
+### What happens if two of us edit the same paragraph?
+
+Both edits are kept. Text is merged as you type; nobody takes turns and nothing is locked. See [Writing at the same time](/docs/collaboration#writing-at-the-same-time).
+
+## Import, export and publishing
+
+### Can I import a zip?
+
+Two kinds: a Scrivener project zipped up, and a World Anvil export. Any other zip, unzip first and use **Choose a folder…** in the import dialog, which takes a folder and everything under it. This is also how an Obsidian vault and a Plotra "file per note" export come back in. See [What you can import](/docs/import-export/import#what-you-can-import).
+
+### Which files can I import?
+
+Markdown (`.md`, `.markdown`, `.mdown`), Word (`.docx`), rich text (`.rtf`), plain text (`.txt`, `.text`), a Scrivener project, a Plottr file (`.pltr`), a World Anvil world, and a Plotra project file (`.plotra`). An old `.doc` file is refused: save it as `.docx` first. Fountain and dialogue scripts have their own commands; see below.
+
+### Where is Fountain import and export?
+
+Not in the import and export dialogs. With the **Script formats** module on, **All commands** has "Import Fountain…" and "Export as Fountain". See [Fountain](/docs/modules/scripts#fountain).
+
+### How do I get a PDF?
+
+Choose **PDF** in the export dialog, or click **Print / PDF** in the Read view, then choose "Save as PDF" in your browser's print dialog. The paper is US Letter or A4, chosen under **Paper** in **Customize → Opening and printing** (see [What you can change](/docs/settings/customize#what-you-can-change)), and the Read view holds up to 400 notes at a time. See [Printing and PDF](/docs/import-export/export#printing-and-pdf).
+
+### Is an export a full backup?
+
+**Plotra project (.plotra)** is: one file with every note and its text, links, story tools, timelines, version history, comments, pictures and files, and the shared world. Importing it makes a new project. Who it was shared with, chat, notifications and writing statistics are not in it. The other formats keep the text and lose most of the rest. See [Plotra project files](/docs/import-export/import#plotra-project-files) and [Out and back in](/docs/import-export#out-and-back-in).
+
+### My pictures are missing from the export.
+
+Word, Markdown and the other file exports don't put images inside the file. Markdown keeps the address of an image that was added by web address; an image uploaded to Plotra has no address outside Plotra, so it is left out. The EPUB, the series bible and the public wiki do pack pictures in, uploaded ones included. A `.plotra` project file keeps them all. See [How the text is written](/docs/import-export/export#how-the-text-is-written).
+
+### Can my project be kept in GitHub?
+
+Yes. **Project settings → GitHub** commits the project to a repository of yours as Markdown files, a few minutes after each change. Only people who manage the project see it. When something goes wrong, the error shows under the repository's name and the next sync tries again. See [A copy kept in GitHub](/docs/import-export/export#a-copy-kept-in-github).
+
+### Does Plotra host my wiki?
+
+No. The public wiki is a zip of plain HTML files that you download. Unzip it and upload the folder to any host that serves static files, such as GitHub Pages, Netlify or Cloudflare Pages. It is a copy from the moment you downloaded it, so download again after a new release. To show a live, spoiler-safe project without hosting anything, use a [read-only link](/docs/collaboration/sharing#read-only-links) set to show it as of a release. See [Putting it online](/docs/modules/publishing#putting-it-online).
+
+### Can I import Ink, Yarn or Twine?
+
+Yes, with the **Interactive narrative** module on: "Import dialogue (Ink, Yarn Spinner, Twine)…" in **All commands** makes a new dialogue from the file. JSON and CSV can't be read back in. See [Importing a dialogue](/docs/modules/interactive/files#importing-a-dialogue).
+
+### The import says it is too large.
+
+One import can hold 10 MB, 3,200 files and 1,500 notes. A `.plotra` project file has its own limit: 66 MB on Free, 256 MB on Pro. On the hosted version a single request is also held to about 4.5 MB, so import a larger manuscript in parts. See [Limits](/docs/import-export/import#limits).
+
+### Can a viewer export my project?
+
+Yes. Export and publishing need only the right to read, so a viewer can take the whole project away as a file. Share as viewer only with people you would hand the file to. See [Who can import and export](/docs/import-export#who-can-import-and-export).
+
+## AI
+
+### I don't see any AI.
+
+AI is off until three things are true: the workspace's owner has switched it on for the workspace, someone who manages the project has switched on **AI agent** under **Project settings → Tools**, and you can edit the project and have a model. Viewers and commenters never see it. See [Turning it on](/docs/ai#turning-it-on).
+
+### Do I need an API key?
+
+On Free, yes: your own key, or a model running on your own computer. A Pro workspace on the hosted version also has hosted AI with 1,500 credits a month, so nobody in it needs a key. See [Whose model it runs on](/docs/ai/models-and-privacy#whose-model-it-runs-on).
+
+### Is my writing used to train a model?
+
+Not by Plotra, which has no model. Nothing leaves Plotra until someone runs the agent or an inline action. Then the text goes to the provider of the person who ran it, and what that provider does with it is between them and the key's owner. See [What is sent, and where](/docs/ai/models-and-privacy#what-is-sent-and-where).
+
+### Can I undo what the agent did?
+
+Yes. Under an answer that changed something, **Undo run** takes back everything that run changed. In Suggest mode the text edits are suggestions, so you can also reject them one by one. See [Undoing a run](/docs/ai#undoing-a-run).
+
+### My local model behaves as if it had no tools.
+
+Ollama's default context is 4,096 tokens, which is smaller than the agent's own instructions. Set `OLLAMA_CONTEXT_LENGTH=16384` or more. The model also has to support tool calling, and the model server has to allow requests from the app's address. See [A local model](/docs/ai/models-and-privacy#a-local-model).
+
+### "This workspace has used its 1,500 AI credits for this month."
+
+Hosted credits are used up until the date in the message. Runs on your own key or a local model carry on. See [When credits run out](/docs/settings/plans#when-credits-run-out).
+
+The other messages the agent can show are listed under [Messages you may see](/docs/ai#messages-you-may-see).
+
+## Plans, limits and billing
+
+### What happens when I reach a limit?
+
+You get a message that says what the limit is, and you can't add more of that thing. Nothing is deleted, nothing becomes read-only, and export always works. See [What happens when you reach one](/docs/settings/limits#what-happens-when-you-reach-one).
+
+### "A workspace can hold 10 projects on the Free plan."
+
+A Free workspace holds 10 projects, samples included. An owner or admin can [delete one](/docs/settings/project#deleting-a-project), or you can start another workspace, or move to Pro. See [Projects](/docs/settings/limits#projects).
+
+### "Files can be up to 10 MB."
+
+On the hosted version an uploaded file can be 10 MB on Free and 100 MB on Pro. For a larger image, add it by its web address instead of uploading it. A Plotra you host yourself allows 100 MB a file with a file store and 10 MB without. See [Uploaded files](/docs/settings/limits#uploaded-files).
+
+### "This workspace's 50 MB of storage is full."
+
+Storage is the uploaded files and version snapshots of every project in the workspace. When it is full, the oldest automatic versions make room first. Past that, uploads and named versions are refused, automatic versions stop being kept, and the AI agent can't edit text. Writing carries on. Remove files or old versions, or move the workspace to Pro, which has 50 GB. See [Storage](/docs/settings/limits#storage).
+
+### Who can upgrade or cancel?
+
+Only an owner of the workspace. Admins can see **Plan & billing** and can't change the plan. Cancelling is done under **Manage billing**, and the workspace keeps Pro to the end of the period already paid for. See [Who can manage billing](/docs/settings/plans#who-can-manage-billing).
+
+### Can I get a refund?
+
+A first payment is refunded in full if you ask within 14 days, and so is a yearly renewal. A monthly renewal is not. See [Refunds](/docs/settings/plans#refunds).
+
+### Do I lose anything if I go back to Free?
+
+No. The workspace keeps every project, note, file and version. You can't add beyond the Free limits until you are under them, and hosted AI stops. See [Going back to Free](/docs/settings/plans#going-back-to-free).
+
+### Is the price per person?
+
+No. The price is per workspace, whatever the number of members.
+
+## Self-hosting
+
+### Is a self-hosted Plotra limited?
+
+It has every feature and module, no plans, and no limit on projects, storage or workspace members. A project can be shared with 200 people, and the rate limits still apply. Backups, upgrades and TLS are yours to do. See [How it differs from the hosted version](/docs/self-hosting#how-it-differs-from-the-hosted-version).
+
+### The editor stays on "Connecting…".
+
+The browser can't reach the collab server at `NEXT_PUBLIC_COLLAB_URL`, or that value changed and the app image was not rebuilt, or `BETTER_AUTH_URL` is not the address in the browser's address bar. See [Troubleshooting](/docs/self-hosting/troubleshooting).
+
+### Signing in fails or doesn't stick.
+
+`BETTER_AUTH_URL` has to match the browser's address exactly: `https` against `http`, the host and the port.
+
+### Creating a note does nothing.
+
+You are on plain HTTP at an address other than `localhost`. Browsers switch off features Plotra relies on there. Use `localhost` or put the instance behind HTTPS. See [Quick start](/docs/self-hosting#quick-start).
+
+### No email arrives.
+
+Without `SMTP_URL` no email is sent. Each invitation and sharing link is written to the app's log, and you pass it on yourself. The daily digest also needs a scheduler that you set up by hand. See [Sign-in and email](/docs/self-hosting/configuration#sign-in-and-email) and [The daily digest](/docs/self-hosting/configuration#the-daily-digest).
+
+### How do I keep strangers from signing up?
+
+Anyone who can reach the instance can create an account. They get their own workspace and see nothing of yours. To keep them out, don't expose the instance to the internet, or put your reverse proxy's access control in front of it. See [Sign-in and email](/docs/self-hosting/configuration#sign-in-and-email).
+
+### An upload is refused with a 413.
+
+The reverse proxy's request body limit is smaller than the file. Raise it. See [Reverse proxy and TLS](/docs/self-hosting/running#reverse-proxy-and-tls).
+
+### How do I back up and upgrade?
+
+Dump the database with `pg_dump`, archive the file store's volume, and keep your `.env`. To upgrade, back up, then `git pull` and `docker compose up -d --build`. See [Backups](/docs/self-hosting/running#backups) and [Upgrading](/docs/self-hosting/running#upgrading).
+
+## Asking a question
+
+If your question isn't here, ask it on [the Plotra Discord](https://discord.gg/PxXr7Y4QrU), which **Join the Discord** in the account menu also opens. To report something broken, choose **Report a bug** in the same menu. See [Reporting a problem](/docs/reference/troubleshooting#reporting-a-problem). It is also the place to talk an idea through before it becomes a feature request.

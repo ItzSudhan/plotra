@@ -1,0 +1,323 @@
+/* Script formats (plan.md 2.3): how script elements are laid out, in the editor,
+   in static previews and on the Read view's pages alike. Elements carry
+   `.script-el .script-<type>`; the container says which format it is with
+   `.script-doc[data-script-format]`. Indents are industry measurements on a
+   six-inch text block, and shrink in proportion in a narrower pane. */
+
+.script-doc {
+  /* Comic pages and panels number themselves (see the comic rules below). */
+  counter-reset: comic-page comic-panel;
+}
+
+.script-doc[data-script-format]:not([data-script-format="prose"]) {
+  font-family: "Courier Prime", "Courier New", Courier, ui-monospace, monospace;
+  font-size: 12pt;
+  line-height: 1.3;
+  font-variant-ligatures: none;
+}
+
+/* On paper: six lines to the inch. */
+.script-doc.script-paged[data-script-format] {
+  line-height: 1;
+}
+/* Prose paragraphs in a script are set like action; nothing leaves a gap at the head of a sheet. */
+.script-paged .script-page > p {
+  margin-top: 1em;
+  padding: 0;
+}
+.script-paged .script-page > :first-child {
+  margin-top: 0;
+}
+
+/* ---- Elements (screenplay layout, and the fallback outside a script document) ---- */
+
+.script-el {
+  position: relative;
+  margin: 1em 0 0;
+  padding: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.script-scene_heading,
+.script-character,
+.script-transition,
+.script-shot,
+.script-act_heading,
+.script-sfx,
+.script-music_cue {
+  text-transform: uppercase;
+}
+
+.script-scene_heading {
+  margin-top: 2em;
+  font-weight: 700;
+}
+.script-character {
+  margin-left: min(2.2in, 36.7%);
+}
+.script-parenthetical {
+  margin-top: 0;
+  margin-left: min(1.6in, 26.7%);
+  width: min(2in, 33.3%);
+}
+.script-dialogue {
+  margin-top: 0;
+  margin-left: min(1in, 16.7%);
+  width: min(3.5in, 58.3%);
+}
+.script-transition {
+  text-align: right;
+}
+.script-act_heading {
+  margin-top: 2em;
+  text-align: center;
+  text-decoration: underline;
+}
+.script-el[data-align="center"] {
+  text-align: center;
+}
+
+/* Sound and music cues announce themselves. */
+.script-sfx::before {
+  content: "SFX: ";
+}
+.script-music_cue::before {
+  content: "MUSIC: ";
+}
+.script-sfx,
+.script-music_cue {
+  font-weight: 700;
+}
+
+/* A writer's note: seen while writing, never printed. */
+.script-note {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.script-note::before {
+  content: "[[";
+}
+.script-note::after {
+  content: "]]";
+}
+.script-paged .script-note {
+  display: none;
+}
+
+/* What an empty element is, while it's still empty. */
+.script-el[data-placeholder]::after {
+  content: attr(data-placeholder);
+  position: absolute;
+  color: var(--faint);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+.script-transition[data-placeholder]::after {
+  right: 0;
+}
+.script-act_heading[data-placeholder]::after {
+  left: 0;
+  right: 0;
+}
+
+/* ---- Stage play: cues centred, speech across the page, directions set to the right ---- */
+
+.script-doc[data-script-format="stageplay"] .script-scene_heading {
+  text-align: center;
+  font-weight: 400;
+  text-decoration: underline;
+}
+.script-doc[data-script-format="stageplay"] .script-scene_heading[data-placeholder]::after {
+  left: 0;
+  right: 0;
+}
+.script-doc[data-script-format="stageplay"] .script-character {
+  margin-left: 0;
+  text-align: center;
+}
+.script-doc[data-script-format="stageplay"] .script-character[data-placeholder]::after {
+  left: 0;
+  right: 0;
+}
+.script-doc[data-script-format="stageplay"] .script-dialogue {
+  margin-left: 0;
+  width: auto;
+}
+.script-doc[data-script-format="stageplay"] .script-parenthetical {
+  margin-left: min(1in, 16.7%);
+  width: auto;
+  font-style: italic;
+}
+.script-doc[data-script-format="stageplay"] .script-action {
+  margin-left: min(2.5in, 41.7%);
+  font-style: italic;
+}
+
+/* ---- Comic script: numbered pages and panels, balloons indented under them ---- */
+
+.script-comic_page {
+  counter-increment: comic-page;
+  /* Panels start again from one on every page. */
+  counter-set: comic-panel 0;
+  margin-top: 2em;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+.script-comic_page::before {
+  content: "PAGE " counter(comic-page) " ";
+}
+.script-comic_panel {
+  counter-increment: comic-panel;
+}
+.script-comic_panel::before {
+  content: "PANEL " counter(comic-panel) ". ";
+  font-weight: 700;
+}
+.script-comic_caption::before {
+  content: "CAPTION: ";
+  font-weight: 700;
+}
+.script-doc[data-script-format="comic"] .script-character {
+  margin-left: min(1.5in, 25%);
+  font-weight: 700;
+}
+.script-doc[data-script-format="comic"] .script-dialogue {
+  margin-left: min(1.5in, 25%);
+  width: auto;
+  max-width: 3.5in;
+}
+.script-doc[data-script-format="comic"] .script-comic_caption,
+.script-doc[data-script-format="comic"] .script-sfx {
+  margin-left: min(1.5in, 25%);
+}
+
+/* ---- Audio script: cue at the margin, the line and its delivery note set in ---- */
+
+.script-doc[data-script-format="audio"] .script-scene_heading {
+  text-decoration: underline;
+}
+.script-doc[data-script-format="audio"] .script-character {
+  margin-left: 0;
+  font-weight: 700;
+}
+.script-doc[data-script-format="audio"] .script-dialogue {
+  margin-left: min(1.5in, 25%);
+  width: auto;
+}
+.script-doc[data-script-format="audio"] .script-parenthetical {
+  margin-left: min(1.5in, 25%);
+  width: auto;
+  font-style: italic;
+}
+.script-doc[data-script-format="audio"] .script-sfx,
+.script-doc[data-script-format="audio"] .script-music_cue {
+  text-decoration: underline;
+}
+/* Read aloud from the page: the lines are double-spaced. */
+.script-doc.script-paged[data-script-format="audio"] .script-dialogue {
+  line-height: 2;
+}
+
+/* The editor's prose prompt: a script shows what each empty element is instead. */
+.script-doc [data-slate-placeholder] {
+  display: none !important;
+}
+
+/* Lyrics, from Fountain's "~": sung, so in italics. */
+.script-el[data-lyric] {
+  font-style: italic;
+}
+
+/* ---- Dual dialogue: two speeches side by side (Fountain's "^") ----
+   Two ways in. Outside the editor (Read view, previews, shared pages) the pair
+   is wrapped in `.script-dual` with a `.script-dual-col` per speech. The editor
+   keeps the document's blocks flat, so each block of a pair carries
+   `data-dual="left|right|last"` and the box it sits in at the top of the
+   editor (the drag handle's wrapper, or the element itself when read-only)
+   floats left for the first speech or steps over for the second. */
+
+.script-dual {
+  display: flex;
+  gap: 4%;
+  align-items: flex-start;
+  margin-top: 1em;
+}
+.script-dual-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.script-dual-col > .script-el:first-child {
+  margin-top: 0;
+}
+
+/* The column boxes in the editor. */
+.script-doc[data-script-format] > :is([data-dual="left"], :has([data-dual="left"])) {
+  float: left;
+  clear: left;
+  width: 48%;
+}
+.script-doc[data-script-format] > :is([data-dual="right"], [data-dual="last"], :has([data-dual="right"]), :has([data-dual="last"])) {
+  margin-left: 52%;
+}
+/* What follows the pair starts below the longer speech. */
+.script-doc[data-script-format] > :has([data-dual="last"])::after,
+.script-doc[data-script-format] > [data-dual="last"]:not([data-placeholder], [data-dual-cue])::after {
+  content: "";
+  display: block;
+  clear: left;
+}
+.script-doc[data-script-format] > :is([data-dual="last"], :has([data-dual="last"])) + * {
+  clear: left;
+}
+
+/* Inside a column the speech is set on the column's width: the line across it, the cue and parenthetical set in. */
+.script-doc[data-script-format] :is(.script-dual-col > .script-el, .script-doc > :has([data-dual]) .script-el[data-dual]) {
+  margin-left: 0;
+  margin-right: 0;
+  width: auto;
+  max-width: none;
+}
+.script-doc[data-script-format] :is(.script-dual-col > .script-character, .script-doc > :has([data-dual]) .script-character[data-dual]) {
+  margin-left: 30%;
+}
+.script-doc[data-script-format] :is(.script-dual-col > .script-parenthetical, .script-doc > :has([data-dual]) .script-parenthetical[data-dual]) {
+  margin-left: 15%;
+  margin-right: 15%;
+}
+/* Read-only, the element is its own column box: the same set-ins as padding on the column's share of the page. */
+.script-doc[data-script-format] > .script-el[data-dual] {
+  box-sizing: border-box;
+  max-width: none;
+  padding-left: 0;
+}
+.script-doc[data-script-format] > .script-el[data-dual="left"] {
+  margin-left: 0;
+  width: 48%;
+}
+.script-doc[data-script-format] > .script-el:is([data-dual="right"], [data-dual="last"]) {
+  width: auto;
+}
+.script-doc[data-script-format] > .script-character[data-dual] {
+  padding-left: 14.4%;
+}
+.script-doc[data-script-format] > .script-parenthetical[data-dual] {
+  padding-left: 7.2%;
+  padding-right: 7.2%;
+}
+/* Outside a screenplay a cue keeps its own place: centred in a play, at the margin in comics and audio. */
+.script-doc[data-script-format]:not([data-script-format="screenplay"]) :is(.script-dual-col > .script-character, .script-doc > :has([data-dual]) .script-character[data-dual]) {
+  margin-left: 0;
+}
+.script-doc[data-script-format]:not([data-script-format="screenplay"]) > .script-character[data-dual] {
+  padding-left: 0;
+}
+
+/* While writing, a cue marked dual says so, paired or not. */
+[data-slate-editor] .script-character[data-dual-cue]:not([data-placeholder])::after {
+  content: " ^";
+  color: var(--faint);
+  user-select: none;
+}

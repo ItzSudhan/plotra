@@ -1,0 +1,1 @@
+ALTER TABLE "user_pref" ADD COLUMN "getting_started" jsonb DEFAULT '{}'::jsonb NOT NULL;

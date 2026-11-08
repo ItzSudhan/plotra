@@ -1,0 +1,250 @@
+---
+title: The AI agent
+description: "An assistant that works inside your story and stays under your control: turning it on, the three modes, every tool it has, and undoing what it did."
+---
+
+Plotra works without AI. The agent is off until someone turns it on, and with it off no AI control is shown anywhere.
+
+When it is on, it works inside a project like a collaborator: it can answer questions about the story, draft and rewrite, and change the binder, properties, timeline and the rest. It does all of that as **you**: every step it takes goes through the same permission checks as your own clicks, so it can open and change only what you can.
+
+<Callout title="Which model, and what is sent">
+  Whose model the agent runs on, which models work, exactly what leaves Plotra and the rate limits are on [Models, privacy and limits](/docs/ai/models-and-privacy).
+</Callout>
+
+## Turning it on
+
+Three things have to be true before you see any AI control. The first two are switches, and both are off by default.
+
+![The AI tab of the workspace settings with "Allow AI in this workspace" switched off, and the three things that follow from switching it on](/shots/workspace-ai.webp)
+
+1. **The workspace switch.** The workspace's owner opens **Workspace settings → AI** and turns on the switch. While it is off, no AI control is shown in any of the workspace's projects.
+2. **The project switch.** In [Project settings](/docs/settings/project), under **Tools**, turn on **AI agent**. No project type starts with it, and it has no effect until the workspace switch is on.
+3. **You can edit the project, and you have a model.** Only people who can edit a project can use AI in it. Viewers and commenters never see it. A guest with the editor role can use it, on their own model.
+
+With both switches on and no model, the AI tab shows **Connect your AI account**: Plotra's AI runs on your own account with an AI company, such as Anthropic, OpenAI or OpenRouter, which you pay directly. Under **How to get a key** it lists the three steps: sign in to the company's website and find its API keys page, create a key and copy it, paste it into Plotra's AI settings. **Open AI settings** takes you there. Press **I've added it** when you are done and the chat appears.
+
+### A promise of no AI
+
+For a workspace whose writers want no AI at all, its owner can make it a promise rather than a switch. In **Workspace settings → AI**, under **A promise of no AI**, the owner presses **Promise no AI** and confirms.
+
+- AI is switched off at once, and nobody can switch it on again: not admins, not the owner, until the promise is lifted. The AI module disappears from every project's settings, which say "No AI".
+- Everyone in the workspace sees it at the top of the workspace's home page: "No AI in this workspace", who promised it and when.
+- Only the owner can lift it, with **Lift the promise…**. Lifting it is never quiet: AI stays off for seven more days, and for 30 days the home page says who lifted the promise and when AI may come back. After the seven days the owner can switch AI on as usual.
+
+On a self-hosted server, whoever runs it can take AI out of the whole server instead: see `PLOTRA_NO_AI` in [Self-hosting](/docs/self-hosting/configuration#ai).
+
+## Where to find it
+
+- **The AI tab** in the right sidebar, or **AI** as a view in any pane (the ribbon, or the command **Open AI chat**): a chat, with every step the agent takes listed as it happens.
+- **In the editor:** select some text, or put the caret on an empty line, and press `⌘J`. The same menu opens from the **AI** button in the floating toolbar, and **Continue writing** is in the `/` menu, in its **AI** group after the blocks. **Hide AI for me**, in the same group, takes the AI button off your floating toolbar and AI out of your `/` menu, for you alone; **Undo** puts it back, and so does **Customize → Formatting toolbar**.
+- **All commands (`⌘P`):** five commands in the **AI** group.
+
+| Command | What it does |
+| --- | --- |
+| **Ask AI…** | Opens the AI tab with the caret in the message box. |
+| **AI: Draft this scene or chapter** | Puts "Draft @note from its synopsis and what comes before it." in the box, pointing at the open note. |
+| **AI: Check this chapter** | Puts "Read @note like an editor: comment on what doesn't work, and run the continuity checks on it." in the box. |
+| **AI: Carry a change through the project…** | Puts "Change this everywhere it appears, and tell me which notes you changed:" in the box for you to finish. |
+| **AI: Build the project from a premise…** | Puts a request to plan the project as a long job in the box, for you to add the premise. |
+
+Each of the last four only fills the box. Nothing is sent until you press Enter.
+
+## The chat
+
+The box at the bottom takes your message. **Enter** sends it and **Shift+Enter** starts a new line. While the agent is working, the send button becomes **Stop**.
+
+- **`@` points at a note.** Type `@` and a few letters, pick a note from the list, and the agent is told which note you mean. A message can point at up to 12 notes.
+- **Steps.** Every tool the agent uses shows as one line while it runs and after: "Searched for “letter”", "Read Chapter 3", "Edited The Lighthouse". A step that failed shows why when you hover over it.
+- **Notes used.** Under an answer, the notes the agent drew on are listed as chips that open them. Links inside the answer open notes too.
+- **Tokens.** The latest answer shows what it used, as "12,300 tokens in · 840 out": how much text it sent to your model and got back, counted in tokens (about ¾ of a word each). Your AI company bills by these; Plotra doesn't charge.
+- When a run stops with an error, the reason is shown with **Try again**, which answers your last message again.
+- A message can be up to 8,000 characters. For anything longer, put it in a note and point at the note.
+
+While the agent is working in a mode that can write, it appears in the project like another collaborator, with a cursor in the note it is writing.
+
+### Chats
+
+Each chat is a separate conversation. Chats belong to you and to the project: nobody else can see yours, not even the workspace owner. The menu at the top left of the panel lists **Your chats in this project**, newest first, each named after the first words of its first message. The bin icon deletes one, after asking; what the AI already changed in your notes stays. The **New chat** button starts another.
+
+In a long conversation, only the most recent 60 messages are shown and sent back to the model.
+
+## The three modes
+
+The mode menu at the top of the panel, **What the AI may do**, has three settings. A project opens in **Suggest**, and your browser remembers the last one you picked for each project.
+
+| Mode | What it may do |
+| --- | --- |
+| **Ask** | Reads what you can read. Changes nothing: it is given no tools that write. |
+| **Suggest** | Edits to a note's text arrive as suggestions (tracked changes) for you to accept or reject in the Comments tab, shown as "AI, for your name". Comments it leaves and a long job it plans need no asking either. Anything else, such as creating or moving notes or changing properties, asks you first. |
+| **Auto** | Changes apply straight away. It still asks before moving anything to the trash, before changing canon status, and once when a run has already changed five notes. |
+
+### When it asks
+
+When the agent has to ask, the run stops and shows a box titled **Allow this change?** with one line per change, such as "Move The Lighthouse", each with **Don't** and **Allow**. With several changes waiting there are also **Allow none** and **Allow all**. The run carries on when every line is answered, in the mode it started in, even if you have changed the menu since.
+
+- Sending another message without answering counts as "no".
+- If you say no, the agent is told not to try the same thing again.
+- A run can make at most 16 calls to the model in Ask, 30 in Suggest and 40 in Auto. A run that reaches the limit stops where it is.
+
+### What it can never do
+
+In any mode, the agent has no tool to: change who a project is shared with or who is in the workspace, change project or workspace settings, read or change API keys, delete anything permanently or empty the trash, restore from the trash, export, or publish. If you ask for one of these, it tells you to do it yourself.
+
+It also can't write to a [locked note](/docs/modules/editorial): a lock is read-only for the agent as it is for editors.
+
+## What the agent can do
+
+These are all of the agent's tools. Ask mode has the ones that read. Suggest and Auto have all of them.
+
+### Tools that read
+
+| Step shown in the chat | What it reads |
+| --- | --- |
+| **Looked at the binder** | The binder as an outline, in reading order: each note's type, word count and the first 140 characters of its synopsis. Up to 250 lines at a time; it can look inside one folder. |
+| **Searched for …** | Full-text search over every note's title, synopsis and text. Ten results unless it asks for more, 30 at most. |
+| **Read …** | A note's text, block by block. Long notes come in pages of about 6,000 characters. |
+| **Read the comments on …** | The open comment threads on a note (resolved ones on request): what was quoted and who said what. Up to 30 threads; reactions are left out. |
+| **Looked up …** | A note as a record, without its text: type, status, canon status, reveal, aliases, tags, synopsis and every typed property. |
+| **Listed …** | Every note of one type, built-in or from the world bible, up to 150, with ids and synopses. |
+| **Followed links of …** | The notes that link to this one (its **Mentioned in** list), each with the sentence the link sits in, and the notes this note links to. Up to 80. |
+| **Read the timeline** | Every scene with a story date and a timeline's own events, in the order they happen. |
+| **Read relationships** | The relationship map, or one character's relationships. |
+| **Listed releases** | The project's releases in shipping order. |
+| **Checked who knows what** | What a character knows or wrongly believes and where they learn it, or who knows a fact. It can ask for what they know by a given scene. |
+| **Listed setups and payoffs** | Setups, where each is planted and paid off, and whether it is still open. |
+| **Listed plot threads** | The plot grid's threads and the scenes each runs through. |
+| **Read the shared world** | The [shared world](/docs/writing/links#shared-worlds) the project draws on, when it has one and you can open it. Its entries (up to 200, or those whose name or alias matches a word), or one entry's page: aliases, synopsis, properties and text, in pages of about 6,000 characters. It can't change anything in the shared world. |
+| **Ran the continuity checks** | The rule-based [continuity checks](/docs/canon/secrets-and-continuity#continuity-checks), for the project or for one note. Up to 80 issues. |
+| **Built the continuity sheet of …** | A character's [continuity sheet](/docs/canon/secrets-and-continuity#continuity-sheets). |
+| **Checked what it changed** | The continuity checks on every note this run touched, and whether a note it wrote links to something a later release reveals: a summary for the whole run. |
+
+Reading follows the same rules you do. Notes in the trash are left out. When you ask about the story "as of" a release, the agent passes that release to its tools and they leave out what the [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) would hide.
+
+### Tools that write
+
+| Step shown in the chat | What it changes | In Suggest | In Auto |
+| --- | --- | --- | --- |
+| **Edited …** | Parts of a note's text, by block: rewrite a block, insert after one, or delete one. Up to 60 edits in one step. | A suggestion | Applies |
+| **Wrote …** | A note's text: adds to the end, or replaces all of it. Up to 60,000 characters in one step. | A suggestion | Applies |
+| **Commented on …** | Leaves a comment on a passage or on the note as a whole, the way an editor would. | Applies | Applies |
+| **Planned the job …** | Saves a [long job](#long-jobs) as a list of steps. Nothing changes until you start it. | Applies | Applies |
+| **Created …** | A new note in the binder: folder, chapter, scene, character, location, research note, plain note, world entry, canvas or timeline, with text if it has some. It can't create a dialogue. | Asks | Applies |
+| **Updated …** | A note's title, synopsis, status, tags and aliases. | Asks | Applies |
+| **Set properties of …** | A note's typed properties: a scene's point of view and story date, a character's age and role, a world entry's fields. | Asks | Applies |
+| **Moved …** | A note, with everything inside it, to another place in the binder. | Asks | Applies |
+| **Moved to the trash: …** | A note and everything inside it. You can restore it from the trash. | Asks | Asks |
+| **Changed the canon status of …** | Canon, draft, speculative, retconned or non-canon. Retconning needs a reason and keeps the old text as a version. | Asks | Asks |
+| **Added the plot thread …** | A new row of the plot grid. | Asks | Applies |
+| **Filled the plot grid for …** | What happens to a thread in a scene, or takes the scene out of the thread. | Asks | Applies |
+| **Set a relationship of …** | Adds or changes a relationship on the relationship map. | Asks | Applies |
+| **Removed a relationship** | Removes one. | Asks | Applies |
+| **Changed the timeline** | Adds, changes or removes a standalone event on a timeline. A scene moves by its story date instead. | Asks | Applies |
+| **Added cards to …** | Cards on a canvas, showing a note or free text, laid out in a row below what is there. | Asks | Applies |
+| **Recorded what is known by …** | That a character knows a fact, and the scene they learn it in. | Asks | Applies |
+| **Recorded the setup …** | A setup, with the scene that plants it and the scene that pays it off. | Asks | Applies |
+
+"Applies" in Auto still stops once to ask when the run has already changed five notes.
+
+### Checks after each change
+
+Every tool that writes, except **Planned the job …**, runs the continuity checks and the spoiler check on the notes it has just changed, as soon as the change lands. What they find is added to that step's result, and the agent is told to fix it or to tell you what it left and why. When nothing is found, nothing is added. This happens whatever the model does; **Checked what it changed** is the same check over the whole run.
+
+A text edit goes through the live document, so anyone with the note open sees it land, and a note nobody has open is updated just the same. Rewriting a block changes only the words that differ, inside the paragraph, with any bold, italics and links the agent writes: someone typing elsewhere in that paragraph keeps their keystrokes, and formatting the agent can't write (underline, a highlight) stays on the words it left alone. A citation or a web link inside the words it changed becomes the plain text it wrote there; outside them, it stays.
+
+## In the editor
+
+The inline actions are for a passage, not for the project. They use your **model for inline actions**, have no tools, and change nothing until you accept the result.
+
+Press `⌘J` and pick one:
+
+| Action | Needs | What it does |
+| --- | --- | --- |
+| **Continue writing** | A caret, or a selection | Writes what comes next. |
+| **Rewrite** | A selection | Says the same thing again, differently. |
+| **Shorten** | A selection | Cuts it down. |
+| **Expand** | A selection | Adds to it. |
+| **Change tone** | A selection | Opens a second list: warmer, darker, funnier, more formal, more casual, more tense, more lyrical, plainer. |
+
+The text streams into a small panel beside the selection, not into the note. When it is done:
+
+- **Insert** (after Continue) or **Replace** puts it in as one ordinary edit, which is one step of undo.
+- **Suggest** puts it in as a tracked change, to accept or reject from the Comments tab.
+- **Try again** runs the same action again. **Discard** closes the panel. **Stop** ends it while it is still writing.
+
+A selection can be up to 12,000 characters; past that you are told "That's too much text at once. Select a shorter passage." The model is sent the selection, up to 6,000 characters before it and 1,500 after it, the note's title and the story brief. If the text changed while the model was writing, accepting says "The text this was for has changed. Try again."
+
+You have to be able to edit the note, and a locked note refuses the inline actions.
+
+## Undoing a run
+
+- The first time a run changes a note's text, that note is saved as a version named "Before AI · for your name". These versions count against the workspace's storage. When storage is full, the workspace's oldest automatic versions are dropped to make room (each note keeps its latest one; named versions and "Before AI" versions are never dropped). If that still isn't enough, the edit is refused rather than made without a way back.
+- Under an answer that changed something, the changes are listed, with **Undo run**. It takes back everything that run changed, newest first: text, properties, moves, new notes, relationships and the rest. The answer then shows **Undone**.
+- When a run ends, each note it wrote gets a version named "AI, for your name", so the [history](/docs/collaboration) shows what was the agent's. Old automatic versions make room for it in the same way; if there still isn't room, it is skipped.
+
+Only the person the agent worked for can undo its run, and not while it is still going: stop it first. The undo runs as you, through the same checks as your own edits. A change that can no longer be taken back, because the note was deleted since or someone locked it, is reported in a message ("Undone, except 1 change: …") and the rest are still undone.
+
+In Suggest mode the text edits are suggestions, so you can also reject them one by one in the Comments tab.
+
+## The story brief
+
+A top-level note called **Story brief** is sent with every run and every inline action. A project without one shows **Add a story brief: voice, tense, rules, things to avoid** in the AI panel. Pressing it makes the note at the top of the binder from a template with these headings: What this is, Voice, Tense and point of view, Rules of the world, Things to avoid, How to work with me. Replace the line under each with your own and delete what you don't need.
+
+A note you make by hand works just as well, as long as it sits at the top level and is called "Story brief". Only its first 6,000 characters are sent.
+
+It is the most useful thing you can write for the agent; without it the agent takes the voice, tense and point of view from whatever text it happens to read.
+
+## What it knows about your story
+
+The agent doesn't load the whole project. It looks things up with the tools above, and is told to read enough to answer and stop.
+
+It is told to respect [canon](/docs/canon): to treat retconned and non-canon notes as not part of the story, to keep to the spoiler horizon when you ask for something "as of" a release, and to write only what the point-of-view character knows at that point in the story. After each change it writes, it is shown what the continuity checks found in the notes it touched (see [Checks after each change](#checks-after-each-change)). It is also told to link every note it relies on and never to answer from what a story like yours usually contains.
+
+These are instructions to a model, not guarantees: a weaker model ignores them more often. The checks that don't depend on the model are the ones on the server: the mode, your permissions, locks, and what has to wait for your yes.
+
+## Searching the project
+
+**Search project** (`⌘⇧O`, or the command of that name) searches the text of every note, not only its title. It uses the same search the agent does, but no model, so it is there whether or not AI is on.
+
+- Words are all required. Put a phrase in "quotes". Put `-` in front of a word to leave it out. `or` between words finds either.
+- Each result shows a passage with the matched words marked. Notes in the trash are left out.
+- Pick a result to open the note. `⌘↵` opens it in a new tab, and `⌘⌥↵` opens it in a split.
+
+## Long jobs
+
+Drafting an act is too long for one request. Ask for it and the agent saves a list of up to 40 steps instead of starting. The job appears at the top of the AI panel with its steps.
+
+- **Start** runs the steps one at a time, one request each. **Pause** stops after the step that is running. **Resume** picks up at the first step that isn't done.
+- A dropped connection or a closed tab costs at most the step in flight. That step is run again on **Resume**, and the agent is told to look at what already exists before carrying on.
+- A step that fails pauses the job and shows the reason on that step.
+- A step that made or changed a note links to it.
+- Starting the job is your approval of its list, so steps create and change notes without asking. Nothing is moved to the trash and canon is not changed inside a job: the agent is refused and told to report what it would have done.
+- A job runs in the mode it was planned in. Planned in Suggest, its text edits to existing notes arrive as suggestions. A job never runs in Ask.
+- **Undo all** takes back every step, newest first. **Remove** takes the job off the list.
+
+The panel shows up to four jobs: the ones not yet done and the two most recent. Long jobs need a model the server can reach, so they are not available on a [browser-called local model](/docs/ai/models-and-privacy#a-local-model).
+
+## Messages you may see
+
+| Message | What it means |
+| --- | --- |
+| "AI is switched off for this workspace." / "AI is switched off for this project." | One of the two switches was turned off. |
+| "Only people who can edit this project can use AI in it." | Your role changed to viewer or commenter. |
+| "Add your AI key in Settings → AI first." | You have no model. Add one in **Your settings**. |
+| "To use AI here, add your own AI key in Settings → AI, or have the workspace's owner upgrade to Pro, which includes AI." | The same, on the hosted version in a Free workspace. |
+| "This workspace has used its 1,500 AI credits for this month. They come back on …" | Hosted credits are used up. Your own key still works. |
+| "Your AI key was rejected. Check it in Settings → AI." | The key is wrong, revoked, or not allowed to use that model. |
+| "The AI company couldn't find that model. Check its name in Settings → AI." | Check the model's name, or the endpoint's address. |
+| "The AI company turned the request down." | The company refused the request, and says why after a colon when it gives a reason. |
+| "Your account with the AI company is out of credit." / "The AI company is limiting how often this key can be used, or the account is out of credit. Try again in a moment." | A limit on the AI company's side. |
+| "The provider had an error on its side. Try again in a moment." | The provider failed. Nothing was changed by the failed step. |
+| "That was too much text for the model at once." | The conversation or a note is past the model's context. Start a new chat or use a model with a larger one. |
+| "The model took too long to answer." / "The AI took too long to answer. Try again." | The call timed out. |
+| "This model doesn't support tool calling, which the agent needs. Choose another model." | Use it for inline actions only, or pick another for the agent. |
+| "Nothing is answering at that URL. Is the model server running?" | A local or custom endpoint is down. |
+| "That address leads to a private network, which this server can't call." | A public name that resolves to a private address. For a model on your machine, enter its local address so your browser calls it. |
+| "Your model runs on your own machine, so your browser has to call it… Reload the page and try again." | You switched to a local model with the project already open. Reload. |
+| "The saved key can't be read any more. Enter it again." | The server's encryption secret changed. Paste the key again. |
+| "The live document server couldn't be reached, so nothing was changed. Try again in a moment." | The collaboration server was unreachable when the agent tried to edit. |
+| "That message is too long. Shorten it, or point at a note with @ instead of pasting it." | A message is over 8,000 characters. |
+| "That run can't be continued. Send a new message instead." | You answered a question from a run that was undone or is no longer yours to continue. |
+| "Sign in again to use AI here." | Your session ended. |

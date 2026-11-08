@@ -1,0 +1,26 @@
+{
+  "name": "@plotra/auth",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./email": "./src/email.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@plotra/db": "workspace:*",
+    "better-auth": "^1.7.7",
+    "nodemailer": "^10.0.13",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@plotra/config": "workspace:*",
+    "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "^19",
+    "typescript": "^5"
+  }
+}

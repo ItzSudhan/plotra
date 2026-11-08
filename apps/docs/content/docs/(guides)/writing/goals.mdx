@@ -1,0 +1,101 @@
+---
+title: Writing goals
+description: Keep the draft moving. Words per day, streaks, a daily and a session goal, and targets for the project and for single chapters.
+---
+
+A daily goal and a streak are the simplest way to keep a draft moving, and Plotra does the counting for you.
+
+Open **Stats** from the ribbon (it is under **More**, in **Team and progress**, until you pin it), or run "Open writing stats and goals" from **All commands**. Clicking the session count in the status bar opens it too. The view needs no tool, and anyone who can open the project can see it.
+
+## The Stats view
+
+Four tiles along the top, then the chart, the goals and the notes with a target.
+
+![The Stats view: today, the streak, the project and this session along the top, the words-per-day chart, and the daily, session and project goals](/shots/writing-stats.webp)
+
+| Tile | What it shows |
+| --- | --- |
+| **Today** | Words added today: to the project by anyone, or by you, as the **Project / You** switch above the chart says. With a daily goal, a bar towards it. |
+| **Streak** | Days in a row with writing. Under it, your longest streak when that is longer than the current one. |
+| **Project** | Every word in the project that isn't in the trash. With a project target, a bar towards it. |
+| **This session** | Words you have typed in this tab. With a session goal, a bar towards it. **Start over** resets it to zero. |
+
+A tile whose goal is met says **Reached** and its bar turns from orange to teal.
+
+## What is counted
+
+There are three counts, and they measure different things. The switch above the chart, **Project** or **You**, picks which of the first two drives **Today**, the chart and the streak.
+
+**Your words per day.** What you typed, counted in your browser while your cursor is in the note that is changing, and sent to Plotra about once a minute. It adds up across your browsers and devices, and only you can see it. Pasting, dropping text in and restoring a version don't count. A co-writer typing in the very note your cursor is in is counted as you.
+
+**The project's words per day.** Everyone's typing added together: the same count as **You**, for every person who can edit the project. Everyone in the project sees the total, not who wrote what. Before 19 October 2026 the project's count was taken from each save instead, so days before then include pastes and restored versions.
+
+**Your session.** The same kind of count, for this browser tab since you opened the project.
+
+A few things follow from counting this way:
+
+- Pasting text, importing into an open note, restoring an earlier version and the AI agent's edits don't count as writing, in any of the three.
+- Words you delete are counted separately as "cut". The chart shows words added, so a day spent trimming still shows the new words you wrote.
+- Only text notes are counted: folders, chapters, scenes, notes, characters, locations, research notes and world entries. Canvases, timelines and dialogue trees are not.
+- Days end at midnight in your own time zone, taken from your browser. The line under the chart names the zone. Two people in different time zones can see the same hour's words on different days.
+- The numbers follow a minute or so behind your typing, because your browser sends them about once a minute. Typing in a browser that is closed before then is lost from the stats, though never from the note.
+- What counts as a word is in [Word counts](/docs/writing/editor#word-counts).
+
+## How a session works
+
+- A session starts at zero when you open the project in a tab.
+- Reloading the page keeps it. Opening the project in a new tab or window starts a new one, and closing the tab ends it.
+- It is a net count: words you delete while your cursor is in the note come off. It is never shown below zero.
+- **Start over** in the Stats view resets it whenever you like.
+- The status bar shows it as "N this session", or "N / goal this session" with a session goal, and a tick once you get there. It appears once you have typed something or set a goal. See [The status bar](/docs/get-started/the-screen#the-status-bar).
+
+The session itself is kept in your browser tab. What you type is also added to your own words per day, which only you can see.
+
+## Goals
+
+Set these under **Goals** in the Stats view. Type a number and press `↵` or click away. Clear a field to remove the goal.
+
+| Goal | Whose | What it does | Limit |
+| --- | --- | --- | --- |
+| **Daily goal** | Yours, in every project | **Today** shows a bar towards it, the chart draws a line at it, and the streak counts days that reached it | 100,000 words |
+| **Session goal** | Yours, in every project | **This session** and the status bar show your session's words against it | 100,000 words |
+| **Project target** | The project's, the same for everyone | **Project** shows the total word count against it | 10,000,000 words |
+
+Anyone who can edit the project can set the project target. For everyone else the field is greyed out and reads "Set by the project's editors."
+
+Because **Today** counts the whole project, a daily goal in a shared project is met by everyone's words together.
+
+## Streaks
+
+A streak is the number of days in a row that reached your daily goal. Without a daily goal, it counts days with any words added at all.
+
+- A streak is not broken by today until today is over: if you wrote yesterday and haven't yet today, it still stands.
+- Changing your daily goal changes the streak, because every past day is measured against the new number.
+- Streaks look back one year. **Longest** is the longest run in that year.
+- Like **Today**, a streak is built from the project's words, so each project has its own.
+
+## Targets for chapters
+
+A chapter has a **Target words** property. Open the chapter, go to **Properties** in the inspector, and enter a number. The Stats view then lists it under **Notes with a target**, with its count, its target and a bar. Click a row to open the note in a new tab.
+
+A note's count includes everything inside it that isn't in the trash, so a chapter counts its scenes.
+
+To give another type of note a target, add a number field called "Target words" to that type in the same panel. See [custom fields](/docs/writing/properties-and-tags#custom-fields). You can also show **Target words** as a column in the [Outline](/docs/views/planning#outline).
+
+## The chart
+
+**Words added per day** shows one bar for each of the last 30 or 90 days; the two buttons switch between them. Beside the heading is the total for the period and the number of days with writing.
+
+- Point at a bar for the day's number, the date, and the words cut that day.
+- The dashed line at the top is labelled with a round number at or above the best day. With a daily goal, a second line marks the goal.
+- **Table** shows the same days as a table, newest first, with **Added**, **Cut** and, with a daily goal, whether the goal was reached. It is also the version a screen reader can read day by day.
+
+## Where goals are stored
+
+| What | Where | Who sees it |
+| --- | --- | --- |
+| Daily goal, session goal | Your account | Only you, in every project and on every device |
+| Project target | The project's settings | Everyone in the project |
+| Target words | A property of the note | Everyone who can see the note |
+| Words per day | The project, as hourly totals | Everyone in the project |
+| Your session | Your browser tab | Only you, until the tab closes |

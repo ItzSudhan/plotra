@@ -1,0 +1,19 @@
+---
+title: Developers
+description: "Use Plotra from outside the app: API tokens, the REST API, Plotra as an MCP server for AI assistants, webhooks and plugins."
+---
+
+Plotra can be used from outside the app: a script that files your research, an automation that drafts notes, or an AI assistant such as Claude or Cursor that reads your world and writes into it. They all sign in with an **API token** you make in your settings, and act as you.
+
+A token can do what you can, in the projects you can open, and nothing more. Every request goes through the same permission checks as the app: a token of a viewer can't edit, and a token can't see a project you weren't let into.
+
+<Cards>
+  <Card title="API tokens and the REST API" href="/docs/developers/api" description="Make a token, then read and write projects and notes over HTTP." />
+  <Card title="MCP server" href="/docs/developers/mcp" description="Let Claude, Cursor and other assistants read your world and write into it." />
+  <Card title="Webhooks" href="/docs/developers/webhooks" description="Tell a service when something changes, signed so it can trust the call." />
+  <Card title="Plugins" href="/docs/developers/plugins" description="Your own scripts that add commands, panels and export formats inside the app." />
+</Cards>
+
+## Contributing to Plotra
+
+Plotra is open source. To work on the code itself, start with [CONTRIBUTING.md](https://github.com/ItzSudhan/plotra/blob/master/CONTRIBUTING.md) on GitHub.

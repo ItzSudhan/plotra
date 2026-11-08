@@ -1,0 +1,39 @@
+{
+  "name": "plotra",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@plotra/web",
+    "dev:app": "turbo run dev --filter=@plotra/app --filter=@plotra/collab",
+    "dev:docs": "turbo run dev --filter=@plotra/docs",
+    "build": "turbo run build",
+    "build:web": "turbo run build --filter=@plotra/web",
+    "build:app": "turbo run build --filter=@plotra/app",
+    "build:docs": "turbo run build --filter=@plotra/docs",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "icons": "bun run --filter @plotra/icons build:icons",
+    "db:generate": "bun run --filter @plotra/db db:generate",
+    "db:migrate": "bun run --filter @plotra/db db:migrate",
+    "db:studio": "bun run --filter @plotra/db db:studio"
+  },
+  "devDependencies": {
+    "turbo": "^2"
+  },
+  "packageManager": "bun@1.4.2",
+  "ignoreScripts": [
+    "sharp",
+    "unrs-resolver"
+  ],
+  "trustedDependencies": [
+    "sharp",
+    "unrs-resolver"
+  ]
+}

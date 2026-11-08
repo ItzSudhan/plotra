@@ -1,0 +1,251 @@
+/* Plotra theme. Apps import Tailwind themselves, then this file:
+ *   @import "tailwindcss";
+ *   @import "tw-animate-css";
+ *   @import "@plotra/ui/globals.css";
+ */
+
+/* Shared components live here, so every app that imports this file scans them. */
+@source "../components";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Plotra palette: warm paper in light mode, warm ink in dark mode. */
+:root {
+  --radius: 0.625rem;
+
+  --background: #f7f6f3;
+  --foreground: #161412;
+  --card: #ffffff;
+  --card-foreground: #161412;
+  --popover: #ffffff;
+  --popover-foreground: #161412;
+  --primary: #161412;
+  --primary-foreground: #f7f6f3;
+  --secondary: #f3f1ec;
+  --secondary-foreground: #161412;
+  --muted: #f3f1ec;
+  --muted-foreground: #5e5a54;
+  /* Small secondary text. Dark enough for 4.5:1 on every surface it sits on (WCAG AA), in both themes. */
+  --faint: #6c6761;
+  --accent: #ebe8e1;
+  --accent-foreground: #161412;
+  --destructive: #c8322b;
+  --border: rgb(22 20 18 / 0.1);
+  --input: rgb(22 20 18 / 0.14);
+  --ring: rgb(226 96 42 / 0.55);
+  --ember: #e2602a;
+  --gold: #b98021;
+  --rose: #d5467f;
+  --violet: #7556d6;
+  --teal: #109a82;
+  /* Accent colours as text. The fills above are too light for small text on
+     paper (about 3.2:1); these reach 4.5:1 (WCAG AA). Use text-ember-ink, not text-ember. */
+  --ember-ink: #b5461a;
+  --gold-ink: #8a5e12;
+  --rose-ink: #b52f66;
+  --violet-ink: #6447c4;
+  --teal-ink: #0b7a67;
+
+  --sidebar: #f3f1ec;
+  --sidebar-foreground: #161412;
+  /* The selected row in the binder: clearly darker than the sidebar. */
+  --sidebar-accent: #e4dfd5;
+  --sidebar-accent-foreground: #161412;
+  --sidebar-border: rgb(22 20 18 / 0.07);
+}
+
+.dark {
+  --background: #141311;
+  --foreground: #ece9e3;
+  --card: #1b1a17;
+  --card-foreground: #ece9e3;
+  --popover: #1f1d1a;
+  --popover-foreground: #ece9e3;
+  --primary: #ece9e3;
+  --primary-foreground: #161412;
+  --secondary: #23211e;
+  --secondary-foreground: #ece9e3;
+  --muted: #23211e;
+  --muted-foreground: #a39e95;
+  --faint: #948f87;
+  --accent: #2a2824;
+  --accent-foreground: #ece9e3;
+  --destructive: #e5564e;
+  --border: rgb(255 255 255 / 0.08);
+  --input: rgb(255 255 255 / 0.12);
+  --ring: rgb(240 122 72 / 0.6);
+  --ember: #f07a48;
+  --gold: #d6a24a;
+  --rose: #e8689b;
+  --violet: #9b83ec;
+  --teal: #3cbfa5;
+  /* On dark surfaces the fills already read well as text. */
+  --ember-ink: var(--ember);
+  --gold-ink: var(--gold);
+  --rose-ink: var(--rose);
+  --violet-ink: var(--violet);
+  --teal-ink: var(--teal);
+
+  --sidebar: #181715;
+  --sidebar-foreground: #ece9e3;
+  --sidebar-accent: #2c2a26;
+  --sidebar-accent-foreground: #ece9e3;
+  --sidebar-border: rgb(255 255 255 / 0.06);
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ember: var(--ember);
+  --color-gold: var(--gold);
+  --color-rose: var(--rose);
+  --color-violet: var(--violet);
+  --color-teal: var(--teal);
+  --color-ember-ink: var(--ember-ink);
+  --color-gold-ink: var(--gold-ink);
+  --color-rose-ink: var(--rose-ink);
+  --color-violet-ink: var(--violet-ink);
+  --color-teal-ink: var(--teal-ink);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-prose: var(--font-newsreader), Georgia, serif;
+  --font-display: var(--font-instrument-serif), Georgia, serif;
+
+  /* The interface's type scale. Nothing in the app is smaller than text-meta
+     (12px); use these instead of text-[13px] and the like. They're in rem, so
+     the Interface size setting scales them with everything else. */
+  --text-ui: 0.875rem;
+  --text-ui--line-height: 1.35rem;
+  --text-ui-sm: 0.8125rem;
+  --text-ui-sm--line-height: 1.25rem;
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1.1rem;
+}
+
+/* Motion. Emil Kowalski's rules: fast (under 300ms for anything you wait on),
+ * eased out so it answers at once, scaled from where it came from and never
+ * from nothing, and exits quicker than entrances. Things that settle into
+ * place use springs, sampled from SwiftUI's (response, bounce) model as CSS
+ * linear() easings, so they slow down the way Apple's do. Exits stay plain
+ * curves: a spring's long tail would hold up the unmount. The app turns all of
+ * it off with <html data-motion="off"> (apps/app/lib/motion.ts). */
+/* `static`: always written out, since the press script reads them (apps/app/lib/press.ts). */
+@theme static {
+  /* Stronger than Tailwind's own curves, which barely ease at all. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  /* iOS's sheet curve, for things that slide in from an edge. */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  /* response 0.4s, no bounce: settles without overshooting. Runs 560ms. */
+  --ease-spring: linear(0, 0.0209, 0.0725, 0.1419, 0.2201, 0.3008, 0.3801, 0.4553, 0.5249, 0.5883, 0.6452, 0.6957, 0.74, 0.7788, 0.8123, 0.8412, 0.8661, 0.8873, 0.9053, 0.9206, 0.9336, 0.9445, 0.9537, 0.9615, 0.968, 0.9734, 0.9779, 0.9817, 0.9848, 0.9875, 0.9896, 0.9914, 0.9929, 0.9942, 0.9952, 0.996, 0.9967, 0.9973, 0.9978, 0.9982, 1);
+  /* response 0.35s, bounce 0.15: a touch past, then back. Runs 470ms. */
+  --ease-spring-snappy: linear(0, 0.0197, 0.0698, 0.1393, 0.2199, 0.3052, 0.3906, 0.473, 0.5501, 0.6207, 0.6841, 0.7402, 0.7891, 0.8311, 0.8667, 0.8966, 0.9213, 0.9415, 0.9578, 0.9707, 0.9809, 0.9887, 0.9946, 0.9989, 1.0019, 1.004, 1.0053, 1.006, 1.0063, 1.0062, 1.006, 1.0056, 1.0051, 1.0045, 1.004, 1.0035, 1.003, 1.0025, 1.0021, 1.0017, 1);
+  /* response 0.45s, bounce 0.3: a visible bounce, for a released press. Runs 700ms. */
+  --ease-spring-bouncy: linear(0, 0.0266, 0.0945, 0.1882, 0.2957, 0.4074, 0.5166, 0.6185, 0.71, 0.7897, 0.8568, 0.9117, 0.9551, 0.9882, 1.0123, 1.0288, 1.0391, 1.0444, 1.046, 1.0448, 1.0417, 1.0373, 1.0324, 1.0273, 1.0222, 1.0176, 1.0133, 1.0097, 1.0066, 1.0041, 1.0021, 1.0005, 0.9994, 0.9987, 0.9982, 0.998, 0.9979, 0.9979, 0.9981, 0.9983, 1);
+}
+
+@theme {
+  /* Entrances fill `backwards`, not `both`: a `scale` or `translate` held after
+     the animation makes the element the containing block for its `fixed`
+     children, and a submenu positioned inside its menu is then clipped away.
+     Exits fill `both` so nothing flashes back before Radix unmounts it. */
+  /* Menus, selects and popovers grow out of their trigger (Radix sets the origin). */
+  --animate-pop-in: pop-in 200ms var(--ease-out) backwards;
+  --animate-pop-out: pop-out 130ms var(--ease-out) both;
+  /* Dialogs rise into the middle of the screen. */
+  --animate-dialog-in: dialog-in 560ms var(--ease-spring) backwards;
+  --animate-dialog-out: dialog-out 160ms var(--ease-out) both;
+  /* A palette opened from the keyboard many times a day: quick, and barely moves. */
+  --animate-palette-in: palette-in 160ms var(--ease-out) backwards;
+  --animate-fade-in: fade-in 220ms var(--ease-out) backwards;
+  --animate-fade-out: fade-out 160ms var(--ease-out) both;
+  /* Side drawers, on the iOS sheet curve. */
+  --animate-sheet-left: sheet-left 420ms var(--ease-drawer) backwards;
+  --animate-sheet-right: sheet-right 420ms var(--ease-drawer) backwards;
+
+  /* Individual `scale` and `translate`, never `transform`, so they add to the
+     position utilities (`translate-x-[-50%]`) rather than replacing them. */
+  @keyframes pop-in {
+    from { opacity: 0; scale: 0.95; }
+  }
+  @keyframes pop-out {
+    to { opacity: 0; scale: 0.97; }
+  }
+  @keyframes dialog-in {
+    from { opacity: 0; scale: 0.94; }
+  }
+  @keyframes dialog-out {
+    to { opacity: 0; scale: 0.97; }
+  }
+  @keyframes palette-in {
+    from { opacity: 0; scale: 0.98; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+  @keyframes fade-out {
+    to { opacity: 0; }
+  }
+  @keyframes sheet-left {
+    from { translate: -100% 0; }
+  }
+  @keyframes sheet-right {
+    from { translate: 100% 0; }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  /* Interface size (Customize → Look). Everything in rem scales with it. */
+  html[data-ui-size="compact"] {
+    font-size: 93.75%;
+  }
+  html[data-ui-size="large"] {
+    font-size: 112.5%;
+  }
+  html[data-ui-size="larger"] {
+    font-size: 125%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  ::selection {
+    background: rgb(255 138 76 / 0.3);
+  }
+}

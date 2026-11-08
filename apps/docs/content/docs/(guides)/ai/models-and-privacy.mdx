@@ -1,0 +1,130 @@
+---
+title: Models, privacy and limits
+description: Whose model the AI agent runs on (your own key, a local model or hosted AI), which models work, exactly what is sent where, and the rate limits.
+---
+
+The agent needs a model to think with. This page covers where that model comes from, what Plotra sends it, and the limits on how much it can do. How to use the agent is on [The AI agent](/docs/ai).
+
+![The AI tab of the workspace settings with Allow AI in this workspace switched off, and the three things that follow from switching it on](/shots/workspace-ai.webp)
+
+## Whose model it runs on
+
+The agent needs a model. There are four ways to give it one.
+
+| | Who pays | Where the text goes |
+| --- | --- | --- |
+| **Your own key** | You, on your provider's bill | The provider you chose |
+| **A local model** | Nobody | Your own machine |
+| **Hosted AI** (Pro workspaces on the hosted version) | The workspace's monthly credits | The provider Plotra uses |
+| **The instance's key** (self-hosted) | Whoever runs the server | The provider they chose |
+
+When more than one is available, your own settings always win. Then comes hosted AI, if the workspace is on Pro and has credits left this month. On a self-hosted server with no plans, the instance's model is used by everyone who hasn't added their own.
+
+### Your own key
+
+Open your account menu, choose **Your settings**, and find **Your model**.
+
+| Field | What goes in it |
+| --- | --- |
+| **Provider** | Anthropic, OpenAI, OpenRouter, OpenAI-compatible endpoint, or Ollama (local model). |
+| **Web address of the model** | Only for an OpenAI-compatible endpoint or Ollama: its API address, usually ending in `/v1`. Empty for Ollama means `http://localhost:11434/v1`. |
+| **API key** | Required for Anthropic, OpenAI and OpenRouter. Optional for the other two. |
+| **Model for the agent** | The model that runs the chat and long jobs. It has to be able to use tools (tool calling), as most large recent models can. |
+| **Model for inline actions** | The model for Continue, Rewrite, Shorten, Expand and Change tone in the editor. A smaller, cheaper one is fine. Empty uses the agent's model. |
+
+**Test** makes one tiny call on each model and tells you what the provider said. **Save** stores the settings. **Remove** deletes your key and models from Plotra; nothing changes at your provider.
+
+The key is yours alone. It is encrypted before it is stored (AES-256-GCM, tied to your account, so a copy of the row doesn't decrypt on anyone else's), used only on the server for your own runs, and never shown again: the page only ever shows its last four characters. It is never shared with collaborators. A collaborator who runs the agent uses their own key.
+
+On the hosted version, the URL of an OpenAI-compatible endpoint has to lead to the public internet or to your own machine (see below). A URL with a username or password in it is refused: the key goes in the key field.
+
+### A local model
+
+Choose **Ollama (local model)**, or **OpenAI-compatible endpoint** with a local address such as LM Studio's or llama.cpp's. The agent needs a model that supports tool calling; a model without it can still do the inline actions.
+
+- **On a self-hosted Plotra** the server calls the model. Whoever runs the server sets `AI_ALLOW_PRIVATE_URLS=true` so that addresses on the local network are allowed.
+- **On the hosted version** the server can't reach your computer, so **your browser calls the model directly**. The settings page says so as soon as you type a local address. What the model is sent and what it writes go between your browser and that model, and to no provider. A key for the endpoint, if it needs one, is kept in that browser's local storage and never sent to Plotra, so you enter it again in each browser you use.
+
+When the browser calls the model, the loop that asks the model, runs the tools it asks for and asks again runs in your browser tab. Everything else stays on the server: it builds the instructions, runs each of the agent's tools as you, decides what the mode allows and what has to wait for your yes, and stores the conversation. Nothing the browser or the model sends can stand in for your answer to a question the agent asked.
+
+Two things have to be set on the model server, or it won't work:
+
+- **Allow the app's address.** A model server refuses requests from web pages it doesn't know. With Ollama, set `OLLAMA_ORIGINS` to the app's address, for example `OLLAMA_ORIGINS=https://app.plotra.com ollama serve`. Another server needs to allow requests from that address (CORS).
+- **Give it a larger context.** Ollama's default context is 4,096 tokens and it cuts off what doesn't fit without saying so. The agent's instructions and tools alone are about 7,000 tokens, so on the default the model behaves as if it had no tools. Set `OLLAMA_CONTEXT_LENGTH=16384` or more; the settings page suggests 32768. **Test** warns you when Ollama is running the model with less than 16,000. This applies to a self-hosted Plotra calling Ollama as well.
+
+Limits of a browser-called model:
+
+- Long jobs are not available: each step is run by the server, which can't reach your model. **Start** is greyed out. Ask for the work in the chat instead, a few notes at a time.
+- The model has to be at `localhost` or behind https. A page served over https may not call plain http on your network.
+- Closing the tab in the middle of a run loses the answer being written. What the run had already changed stays changed; the next time you send a message in that chat, a line appears saying the run was interrupted, with its changes listed and **Undo run** under it.
+- After switching to or from a local model, reload any project you have open.
+
+### Hosted AI
+
+On the hosted version, a workspace on Pro has 1,500 credits a month and nobody in it needs a key. One credit is 1,000 input tokens; output tokens count five times. If you have your own key or a local model, your runs use it and spend no credits. When the credits run out, people without a model of their own see a message saying when the credits come back. The details are in [Plans and billing](/docs/settings/plans#hosted-ai-and-credits).
+
+### The instance's key
+
+Whoever runs a self-hosted server can give everyone on it a model with the `AI_PROVIDER`, `AI_MODEL_AGENT`, `AI_MODEL_FAST`, `AI_API_KEY` and `AI_BASE_URL` settings. **Your settings** then shows "This server provides a model for everyone" with its name. Your own settings, if you save any, are used instead.
+
+Saving a personal key needs `AI_KEY_SECRET` to be set on the server (at least 16 characters); without it the page says "This server isn't set up for personal AI keys yet" and to ask whoever runs it to switch them on. See [Self-hosting](/docs/self-hosting).
+
+## Which models
+
+The agent runs on any model from these providers:
+
+| Provider | Models | Examples |
+| --- | --- | --- |
+| **Anthropic** | Any model your key can use, by the name in Anthropic's documentation. | `claude-sonnet-4-5` for the agent, `claude-haiku-4-5` for inline actions |
+| **OpenAI** | Any chat model your key can use, by the name in OpenAI's documentation. | `gpt-5`, `gpt-5-mini` |
+| **OpenRouter** | Any model OpenRouter lists, written as provider/model. | `anthropic/claude-sonnet-4.5`, `google/gemini-2.5-flash` |
+| **OpenAI-compatible endpoint** | Any server that speaks the OpenAI chat completions API: a gateway, vLLM, LM Studio, llama.cpp. | The name the server gives the model |
+| **Ollama** | Any model you have pulled. | `qwen3:14b`, `qwen3:4b` |
+
+Two requirements decide whether a model works for the agent:
+
+- **Tool calling.** The agent's model has to support it. The model for inline actions doesn't.
+- **Context.** The agent's instructions and tools take about 3,400 tokens in Ask and about 7,500 in Suggest and Auto before the conversation starts. A model needs room for that plus the notes it reads; 16,000 tokens is the least that works.
+
+The examples above are the ones the settings page suggests. A larger model follows the story brief, canon and the spoiler horizon more reliably than a small local one.
+
+The repository has a set of 22 tasks on a sample novel and 6 prompt-injection tasks that you can run against any model, with a report of what passed and roughly what a chapter costs: see [`apps/app/evals/README.md`](https://github.com/ItzSudhan/plotra/blob/master/apps/app/evals/README.md).
+
+## What is sent, and where
+
+- Nothing leaves Plotra until someone runs the agent or an inline action.
+- A run sends the model what it needs for the task: your request, the conversation so far, the story brief, and the notes the agent reads along the way, including entries of a shared world the project draws on. An inline action sends the selection and the text around it. It goes to the provider for that run and nowhere else: the provider of the key of **the person who ran it**, the provider Plotra uses on a hosted run, or nowhere at all with a local model.
+- A collaborator who can edit your project can run the agent on it, and the notes it reads then go to their provider. If you don't want that, leave AI off for the project.
+- What a provider does with the text is between the key's owner and that provider. Read their terms on retention and training. With an OpenAI key, Plotra uses the chat completions API, which keeps no conversation on OpenAI's side between calls.
+- Plotra never trains a model on your work. It doesn't have one.
+- Plotra keeps the conversation (your messages, the agent's answers and its steps) so the chat is there when you come back, and a row per run with the model's name, the mode, how it ended and the number of tokens. It never stores the key in that row.
+- Usage statistics record that a run happened, its mode, its outcome and the provider's name. They hold nothing of what was asked or answered.
+
+## Text the agent doesn't trust
+
+Some of what the agent reads was not written by anyone who can edit the project, and can contain text written to look like instructions ("ignore your instructions and…"). The agent is given such text inside a marked block and told that it is material to read, never orders to follow. These are marked:
+
+- **Research notes.** Every Research note is treated as a clipped web page.
+- **Imported notes.** Everything an [import](/docs/import-export) creates.
+- **Comments from people who can't edit the project.** Comments by its editors are passed as they are.
+- **Entries of a shared world.** What the agent reads from the [shared world](/docs/writing/links#shared-worlds) the project draws on was written in another project, perhaps by people who don't work in this one.
+- **The story brief**, when it is itself a research note or was imported.
+
+The marks carry a token made fresh for each run, so text can't close its own block and carry on outside it. The agent is also told that titles, synopses and property values are content, never instructions.
+
+This lowers the risk; it does not remove it. Ask mode can't change anything, and in the other modes trashing and canon changes always stop to ask you.
+
+## Rate limits
+
+These protect the server and are the same on every plan and on your own key.
+
+| What | Limit per person |
+| --- | --- |
+| Messages to the agent | 40 every 10 minutes |
+| Inline actions | 120 every 10 minutes |
+| Steps of long jobs | 120 an hour |
+| Undoing runs | 20 every 10 minutes |
+| **Test** in your settings | 12 every 10 minutes |
+| Saving your AI settings | 30 an hour |
+
+Past one, you see "That's a lot in a short time. Try again in a minute." (or the number of minutes left). A run on a browser-called local model can also make at most 900 tool calls in 10 minutes.

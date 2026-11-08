@@ -1,0 +1,12 @@
+{
+  "title": "Work together",
+  "description": "Sharing, comments, suggestions, versions and notifications",
+  "pages": [
+    "index",
+    "sharing",
+    "comments-and-suggestions",
+    "chat",
+    "version-history",
+    "notifications"
+  ]
+}

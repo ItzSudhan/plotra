@@ -1,0 +1,109 @@
+---
+title: Self-hosting with Docker
+description: Run your own Plotra with one docker compose command, the app, Postgres, the collab server and file storage included.
+---
+
+Plotra is open source (AGPL-3.0) and everything in it runs on your own machine. One compose file starts the whole thing:
+
+| Service | What it is | Published on |
+| --- | --- | --- |
+| `app` | The Plotra web app (Next.js) | port 3000 |
+| `collab` | The live-editing server browsers hold a WebSocket to | port 8787 |
+| `postgres` | The database (Postgres 18) | not published |
+| `minio` | S3-compatible storage for uploads and version snapshots | not published |
+| `migrate`, `minio-init` | One-shot jobs: apply database migrations, create the bucket | |
+
+A self-hosted Plotra is free. It has no plans and no limits on projects or storage, needs no account anywhere, and sends no email unless you set that up. The Free and Pro plans exist only on the hosted version: no billing code runs here unless you set it up yourself, as described under [Plans and billing](/docs/self-hosting/configuration#plans-and-billing).
+
+To keep your work on your own computer without running a server, use the [desktop app](/docs/desktop) instead: it keeps a library in a folder you choose, with no account, no Docker and no internet.
+
+<Callout title="Just want to write?">
+  Running Plotra yourself means running a server: Docker, a domain, TLS, backups and upgrades are yours to do, and yours to fix when they break. On the [hosted version](https://app.plotra.ink/sign-up) there is nothing to install or look after, the Free plan has every feature, and Pro is $10 a month for a whole workspace. See [Plans and billing](/docs/settings/plans).
+</Callout>
+
+## How it differs from the hosted version
+
+Every feature and every module is the same. What differs is what surrounds them:
+
+| | Your own server | The hosted version |
+| --- | --- | --- |
+| Plans | None. No Free or Pro, no checkout, no **Plan & billing** tab | Free and Pro. See [Plans and billing](/docs/settings/plans) |
+| Projects, storage, workspace members | No limit | The plan's limits. See [Limits on the hosted version](/docs/settings/limits) |
+| People one project is shared with | 200 | 5 on Free, 200 on Pro |
+| One uploaded file | 100 MB with a file store, 10 MB without | 10 MB on Free, 100 MB on Pro |
+| One project's attachments together | 2 GB with a file store, 100 MB without | 2 GB on Free. Pro has no such cap |
+| Sign-in | Email and password. Google when you add your own Google client | Email and password, and Google |
+| Email | None until you set `SMTP_URL`. Links are written to the app's log instead | Sent |
+| Daily notification digest | Off until you [schedule it](/docs/self-hosting/configuration#the-daily-digest) | Sent once a day |
+| AI | Each person's own key, or one model you give the whole server, or a local model the server calls itself | Each person's own key, or hosted AI credits on Pro |
+| Files | The bundled MinIO, any S3 store, or Postgres | Cloudflare R2 |
+| Live editing | The collab worker under `workerd`, in one container | The collab worker on Cloudflare |
+| Backups, upgrades, TLS | Yours to do | Done for you |
+
+Rate limits apply on both: they protect the server, not a plan. The numbers are in [Limits on the hosted version](/docs/settings/limits).
+
+## Requirements
+
+- Docker with Compose v2.20 or newer (`docker compose version`).
+- About 2 GB of free memory to build the app image, and 1 GB to run the stack.
+- `git` and `openssl`.
+- For anything other than `http://localhost`: a domain name and a reverse proxy that does TLS. See [Reverse proxy and TLS](/docs/self-hosting/running#reverse-proxy-and-tls).
+
+## Quick start
+
+```bash
+git clone https://github.com/ItzSudhan/plotra.git
+cd plotra/docker
+cp .env.example .env
+```
+
+Generate the secrets. This fills every empty secret in `.env`, and leaves filled ones alone if you run it again:
+
+```bash
+for name in POSTGRES_PASSWORD BETTER_AUTH_SECRET COLLAB_SECRET S3_SECRET_ACCESS_KEY AI_KEY_SECRET; do
+  sed -i.bak "s|^$name=\$|$name=$(openssl rand -hex 32)|" .env
+done && rm -f .env.bak
+```
+
+Start it, with the published images:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+Or build the three images from your checkout instead, which takes a few minutes and about 2 GB of memory:
+
+```bash
+docker compose up -d --build
+```
+
+The published images (`ghcr.io/itzsudhan/plotra-app`, `-migrate` and `-collab`, for amd64 and arm64) are built from each tagged release; `PLOTRA_VERSION` in `.env` picks which one. They read the collab server's address from `NEXT_PUBLIC_COLLAB_URL` when the app starts. The other settings marked **Build** below are compiled into the app, so to use them, build the images yourself. The services start in order: Postgres, then `migrate`, then the app, then the collab server, which waits for the app to be healthy. When `docker compose ps` shows `app` and `collab` as healthy, open [http://localhost:3000](http://localhost:3000) and sign up with an email and a password. The first account is an ordinary account: there is no admin user to set up.
+
+To check the instance from the command line:
+
+```bash
+curl http://localhost:3000/api/health
+curl http://localhost:8787/health
+```
+
+The first answers like this, with status 200, or 503 when the app can't reach its database:
+
+```json
+{"ok":true,"database":"ok","services":{"objectStore":true,"email":false,"googleSignIn":false,"collab":true,"errorTracking":false},"warnings":[],"commit":null}
+```
+
+`services` says which optional services are configured, as true or false and never a value. The second is the collab server, and answers `{"ok":true}`.
+
+<Callout type="warn" title="Use localhost or HTTPS">
+  Over plain HTTP on any address other than `localhost`, such as `http://192.168.1.20:3000`, browsers switch off features Plotra relies on. Creating notes and the copy buttons stop working. To use Plotra from other devices, put it behind HTTPS.
+</Callout>
+
+## Next
+
+<Cards>
+  <Card title="Configuration" href="/docs/self-hosting/configuration" description="Every setting in docker/.env: addresses, secrets, files, limits, sign-in, email, AI and billing." />
+  <Card title="Running your server" href="/docs/self-hosting/running" description="A reverse proxy and TLS, backups, upgrades, another Postgres and the collab server." />
+  <Card title="Troubleshooting" href="/docs/self-hosting/troubleshooting" description="What a message means and what to change." />
+  <Card title="The desktop app" href="/docs/desktop" description="Plotra on your own computer, in a folder you choose, with no server to run." />
+</Cards>

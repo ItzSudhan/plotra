@@ -1,0 +1,195 @@
+---
+title: Dialogue files
+description: "Export a dialogue to Ink, Yarn Spinner or Twine, as JSON or as a CSV of strings, and import one back: what maps to what and what is left out."
+---
+
+A dialogue goes into a game engine as a file. This page covers what each export holds and how an imported script becomes cards.
+
+## Exporting a dialogue
+
+**Export** in the toolbar saves the dialogue as a file. Anyone who can open the dialogue can export it. The file is named after the note: "The Gate" becomes `the-gate.ink`.
+
+| Format | File | What it is |
+| --- | --- | --- |
+| **JSON** | `.json` | The whole dialogue as data. |
+| **CSV of strings** | `.csv` | Every line and choice, one per row. |
+| **Ink** | `.ink` | A script for Inkle's Ink. |
+| **Yarn Spinner** | `.yarn` | A script for Yarn Spinner. |
+| **Twine (Twee 3)** | `.twee` | A Twee 3 story in the SugarCube format, which Twine imports. |
+
+Speakers that are character notes are exported by their current name.
+
+Ink, Yarn and Twee files can be read back in; see [Importing a dialogue](#importing-a-dialogue). JSON and CSV can't.
+
+### How the three scripts are laid out
+
+Ink, Yarn and Twine are written from the same outline, so they branch the same way as the play-through.
+
+- The dialogue is cut into **passages** (an Ink knot, a Yarn node, a Twine passage). A passage starts wherever jumps meet. A run of cards that only follow one another stays in one passage, so the file reads like a script.
+- A passage is named after the type and String ID of its first card, such as `line_d3f9_0001`.
+- A Condition that only decides which choices are offered is not a passage of its own. It becomes a test on each choice.
+- When every choice on offer sits behind a condition, the script says where to go if none holds: the topmost jump, as in the play-through. In Ink that is a fallback choice (`+ -> passage`), in Yarn a `<<jump>>` after the options, and in Twine a link shown only when none of the conditions holds.
+- A variable that a Set card makes with `=` without it being declared is declared at the top, with an empty value of its kind (`0`, `""` or `false`).
+- Cards that Start never reaches are still written out, after the rest, so no text is lost.
+
+### What maps to what
+
+| In Plotra | Ink | Yarn Spinner | Twine (SugarCube) |
+| --- | --- | --- | --- |
+| A variable and its starting value | `VAR gold = 0` | `<<declare $gold = 0>>` in the first node | `<<set $gold to 0>>` in `StoryInit` |
+| A line | `Anna: Hello. # id:d3f9_0001` | `Anna: Hello. #line:d3f9_0001` | `Anna: Hello. /* id:d3f9_0001 */` |
+| A choice | `+ [Text # id:…]` and a divert | `-> Text #line:…` and a `<<jump>>` | `[[Text->passage]]` |
+| A choice behind a condition | `+ {gold >= 5} [Text]` | `-> Text <<if $gold >= 5>>` | `<<if $gold >= 5>>[[Text->passage]]<</if>>` |
+| A choice offered only once | `* [Text]` | `-> Text <<once>>` (`<<once if …>>` behind a condition) | `<<if !$picked_d3f9_0002>>[[Text->passage][$picked_d3f9_0002 to true]]<</if>>` |
+| A variable shown in text | `{gold}` | `{$gold}` | `<<print $gold>>` |
+| A Condition card | `{ gold >= 5:` … `- else:` … `}` | `<<if>>` … `<<else>>` … `<<endif>>` | `<<if>>` … `<<else>>` … `<</if>>` |
+| A Set card | `~ gold += 5` | `<<set $gold to $gold + 5>>` | `<<set $gold += 5>>` |
+| A jump | `-> passage` | `<<jump passage>>` | A **Continue** link, or `<<goto>>` if no line has been shown yet |
+| An End card, or nothing following | `-> END` | `<<stop>>` | A passage called `TheEnd` that reads "The end.", reached by a **Continue** link or a `<<goto>>` |
+| A Random card | A shuffle of diverts: `{~-> a\|-> b\|-> c}` | `<<if dice(3) == 1>>` … `<<elseif dice(2) == 1>>` … `<<else>>` … `<<endif>>`, a `<<jump>>` in each | `<<set _pick to either("a", "b", "c")>><<goto _pick>>` |
+| A Call card | A tunnel, `-> passage ->`, then a divert to what follows | `<<detour passage>>`, then a `<<jump>>` to what follows | `<<run $plotra_calls.push("next")>><<goto "passage">>` |
+| A Return card | `->->` | `<<return>>` | `<<set _back to $plotra_calls.length ? $plotra_calls.pop() : "TheEnd">><<goto _back>>` |
+| The String ID | An `id:` tag | A `#line:` tag | An `id:` comment |
+| Where the card sits | Not kept | `position:` on each node | `position` on each passage |
+
+Format by format:
+
+- **Ink.** A Random card is a shuffle (`~`). Ink's shuffle plays every way once, in a random order, before it starts again, so over a few visits it repeats less than the play-through does. Choices are written sticky (`+`), so a choice can be offered again when the dialogue loops back, as in the play-through. A choice offered only once is written `*`; when every choice on offer is once-only or behind a condition, a fallback choice says where to go once none is left. `!` is written `not`. Ink can't hold a double quote inside a text value, so one is turned into a single quote. A variable whose name Ink keeps for itself, such as `temp` or `else`, gets `_var` added to its name. Ink divides two whole numbers as whole numbers, so `5 / 2` is `2` in Ink and `2.5` in the play-through.
+- **Yarn Spinner.** A choice offered only once uses `<<once>>`, and a Call card uses `<<detour>>` and `<<return>>`; both need Yarn Spinner 3. In Yarn a `<<jump>>` inside a detour forgets where to return to, so in every node a call can reach, a jump is written `<<detour node>>` followed by `<<return>>`, which goes there and still comes back. A Random card is a chain of `dice()` tests that gives each way the same chance: the first 1 in 3, the second 1 in 2 of what's left, and so on. The file opens with a node called `Start` that declares the variables and jumps to the first passage. Yarn wants every `#line:` tag to be unique, so a choice that is offered from two places is tagged the first time and marked with a comment the second.
+- **Twine.** The story's `StoryData` names the format as SugarCube 2.37.3 and uses the dialogue note's id as its IFID. A choice whose text holds brackets, a pipe, an arrow or markup is written as a `<<link>>` macro instead of `[[ ]]`. Text that SugarCube would read as markup is wrapped in `<nowiki>`. `==` and `!=` are written `===` and `!==`, so a number never equals a text, as in the play-through. SugarCube has no once-only links, so each choice offered only once gets a variable named `picked_` and its String ID, set to `false` in `StoryInit` and to `true` when the link is clicked; the link is shown while it is `false`. SugarCube has no calls either, so a dialogue with Call or Return cards gets a story variable `$plotra_calls`, set to `[]` in `StoryInit`: a call puts the passage to come back to on it, and a Return takes the last one off and goes there, or to `TheEnd` when it's empty. When a Random, Call or Return card follows a line, the line's **Continue** link leads to a small passage named after the line's passage with `_next`, which does it.
+
+In all three, characters the format would read as markup are escaped, so your text shows as written. That includes a line that begins like a choice, an option or the end of a passage, such as `-> left` or `===`.
+
+### What is not exported
+
+| What | Ink, Yarn, Twine | JSON | CSV of strings |
+| --- | --- | --- | --- |
+| The note for translators and actors | No | Yes | Yes, as `context` |
+| Line breaks inside a line or a choice | Ink and Yarn turn them into spaces. Twine keeps them in a line and turns them into spaces in a choice. | Yes | Yes |
+| Card positions | Yarn and Twine only | Yes | No |
+| The link from a speaker to a character note | The name only | The name and the note's id | The name only |
+| Conditions, Set cards and variables | Yes | Yes | No |
+
+Other things to expect in a script file:
+
+- A Condition or Set card that can't be read becomes a comment starting `TODO: couldn't read this`. A condition is then taken as false, as in the play-through.
+- A line with no text becomes a comment in Ink and Yarn ("An empty line").
+- A choice with no text is written as `…`, so there is something to click.
+
+### JSON
+
+The file has `"format": "plotra-dialogue"` and `"version": 1`, then:
+
+| Key | What it holds |
+| --- | --- |
+| `title` | The note's title |
+| `start` | The id of the Start card |
+| `variables` | Each variable's `name` and starting `value` |
+| `nodes` | Every card in reading order: `id`, `type`, and where they apply `stringId`, `speaker`, `speakerId`, `text`, `expression`, `note`, `target` (the id of the card a Call card calls), then `x` and `y` |
+| `edges` | Every jump: `id`, `from`, `to`, and `branch` (`true` or `false`) for a jump out of a Condition |
+| `strings` | The lines and choices, as in the CSV |
+
+Reading order follows the jumps from Start, each branch to its end before the next, then any card Start doesn't reach. A branch a Call card calls comes right after the Call card.
+
+### CSV of strings
+
+One row per line or choice, in reading order, with the columns `id`, `speaker`, `text`, `kind` and `context`.
+
+- `id` is the String ID.
+- `speaker` is empty for choices and for lines with no speaker.
+- `kind` is `line` or `choice`.
+- `context` is the card's note. For a choice with no note it is "Reply to:" and the line it answers, cut at 120 characters.
+
+The file is UTF-8 with a byte-order mark, so spreadsheet apps open it with accents intact. To export every dialogue in the project at once, use [Export CSV in the Strings view](/docs/modules/interactive/quests-and-strings#exporting-the-string-table).
+
+## Importing a dialogue
+
+An Ink, Yarn Spinner or Twine file can become a dialogue: cards for its lines and choices, conditions and assignments, joined the way the file branches and laid out from Start, left to right.
+
+![The message after importing an Ink file: one thing couldn't be brought in as written, because no character note is called Ferryman, so that speaker stays a typed name](/shots/mod-dialogue-import.webp)
+
+**Import** in the toolbar has two entries:
+
+- **Replace this dialogue…** puts the file's cards in place of everything in the open dialogue: cards, jumps and variables. Plotra asks first, then saves a version called "Before import" in [Version history](/docs/collaboration), so you can restore what was there. If that version can't be saved, for instance because storage is full, Plotra says why and asks whether to replace the dialogue anyway. Everyone who has the dialogue open sees the new cards at once.
+- **As a new dialogue…** makes a new dialogue note in the same folder as the open one and opens it in a new tab.
+
+The command "Import dialogue (Ink, Yarn Spinner, Twine)…" in **All commands** makes a new dialogue at the top of the binder. It is there when the module is on and you can edit the project.
+
+A new dialogue is named after the story's title in a Twine file, and after the file name otherwise (up to 200 characters).
+
+The format is told by the file's extension. A file with any other extension, such as a `.txt`, is recognised by what is in it: Yarn by its `title:`, `---` and `===` lines, Twee by passages starting `::`, Ink by its knots, diverts or choices, Twine HTML by its story data.
+
+| Format | Files | What is read |
+| --- | --- | --- |
+| **Ink** | `.ink` | The top of the story, knots and stitches, text, glue (`<>`) between two lines of text, choices (once-only `*` and sticky `+`, with `{conditions}`, `[brackets]` and labels), fallback choices, gathers and their labels, diverts (`-> knot`, `-> knot.stitch`, `-> END`, `-> DONE`), tunnels (`-> knot ->`, `-> a -> b`, `->->`), shuffles (`{~a\|b\|c}` in a line, of text or diverts, and `{ shuffle:` blocks), `VAR` and `CONST`, `~` assignments (`=`, `+=`, `-=`, `++`, `--`, `temp`), `{name}` showing a variable, multi-line conditions (`{ cond:` … `- else:` … `}`, and `{ - cond: … }`), switches on a value, and a line that is a whole `{cond: this\|that}` |
+| **Yarn Spinner** | `.yarn` | Nodes (`title:`, `---`, `===`), `Speaker: line`, options (`->`, with `<<if>>`, `<<once>>` or `<<once if>>`, and what's indented under them), `{$name}` showing a variable, line groups (`=>`, with what's indented under each line), `<<jump>>`, `<<detour>>`, `<<return>>`, `<<stop>>`, `<<if>>`, `<<elseif>>`, `<<else>>`, `<<endif>>`, `<<once>>` on a line and as a block (with `<<else>>` and `<<endonce>>`), `<<set>>` and `<<declare>>` |
+| **Twine** | `.twee`, `.tw`, `.tw2`, `.tw3`, or a Twine 2 `.html` (an archive or a published story) | Passages, `StoryTitle`, `StoryData` (the start passage and the story format), links in every form (`[[Text]]`, `[[Text->Passage]]`, `[[Passage<-Text]]`, `[[Text\|Passage]]`), and variables shown in text (`$name`). In SugarCube: `<<set>>`, `<<if>>`, `<<elseif>>`, `<<else>>`, `<<link>>`, `<<button>>`, `<<goto>>`, `<<print $name>>` and `<<= $name>>`, setter links, `StoryInit` for starting values, and the forms Plotra writes for Random, Call and Return cards (see [What maps to what](#what-maps-to-what)). In Harlowe: `(set:)`, `(put:)`, `(if:)`, `(unless:)`, `(else-if:)`, `(else:)`, `(link-goto:)`, `(link:)` with a `(goto:)` in its hook, `(goto:)`, `(print: $name)`, and a `startup` passage for starting values. |
+
+Plotra's own exports read back in as the same dialogue: the same lines, choices, String IDs and branches, played the same way. The cards may be cut up differently, and a variable that was only made by a Set card comes back declared. A choice offered only once comes back as one from Ink and Yarn; from Twine it comes back as its `picked_` variable, a Condition and a Set card, which play the same.
+
+### How a file becomes cards
+
+- A line of text is a **Line** card. Text before a colon, such as `Anna: Hello.`, is the speaker, if it's a few words at most. Yarn's speaker is everything before the first colon that isn't escaped (`\:`).
+- A speaker is linked to a character note when exactly one character note you can see, and not in the trash, has that name as its title or one of its aliases (capitals don't matter). Otherwise it stays a typed name, and the report lists the names that weren't linked: because no character note has that name, or because more than one does.
+- An option is a **Choice** card. One behind a condition gets a **Condition** card in front of it. Ink's `*` and Yarn's `<<once>>` make it a choice offered only once. When every choice is once-only and the file says where to go once none is left (Ink's fallback choice, or what follows a Yarn option group), that is a jump beside the choices.
+- A variable shown in text (Ink's `{gold}` for a declared variable, Yarn's `{$gold}`, Twine's `$gold` and `<<print $gold>>`) becomes `{$gold}`.
+- Yarn's `<<once>>` on a line or as a block becomes a variable of its own, named `once_` and the line number, with a **Condition** card that tests it and a **Set** card that sets it.
+- A Yarn command Plotra can't run, such as `<<wait 2>>` or one of your own, is kept in the note of the next line ("Before this line: `<<wait 2>>`"), or of the line before it when none follows.
+- After an option's own lines, the dialogue goes on with what follows the options: an Ink gather, the lines under a Yarn option group. In Twine, a passage's links are its choices, offered after its text.
+- A Twine link called **Continue** (or **Next**, or `…`) is a jump, not a choice, unless the passage also has a choice that is always on offer. That is how a Twine story moves on, and how Plotra writes a jump.
+- Assignments one after another become one **Set** card. `gold = gold + 5` is written `gold += 5`.
+- Where a passage runs out, and at `-> END`, `-> DONE` and `<<stop>>`, there is an **End** card.
+- Ink's shuffle (`{~Halt!\|Who goes there?}`, or a `{ shuffle:` block) and Yarn's line group (`=>`) become a **Random** card with a way for each of their lines. Text around a shuffle in a line goes with each way: `Guard: {~Halt!\|Stop!}` is two lines, "Halt!" and "Stop!", both spoken by the guard. Yarn's `dice()` chain, as Plotra writes it, becomes a Random card too. A condition on a line in a line group stays on that line: when the line picked doesn't pass it, nothing is said.
+- Ink's tunnel (`-> knot ->`) and Yarn's `<<detour>>` become a **Call** card; `->->` and `<<return>>` become a **Return** card. A `<<detour>>` followed straight away by `<<return>>`, as Plotra writes a jump inside a call, is a plain jump. In Yarn a `<<jump>>` inside a detour forgets the way back; in Plotra it doesn't, so a file that relies on that plays differently.
+- When a Random card's way or a Call card's target is a group of choices, a Condition card that's always `true` stands in front of them, so they're all offered.
+- String IDs come from Ink's `id:` tags, Yarn's `#line:` tags and Twine's `/* id: */` comments. One is kept if it is a usable ID, isn't repeated in the file, and isn't already used by another dialogue or a string in the project. Every other line and choice gets a new one.
+- Variables come from `VAR`, `<<declare>>` and `StoryInit`. One that the file uses without declaring it is added, starting empty (`0`, `false` or `""`), and the report says so.
+- Expressions are put in Plotra's spelling: Yarn's `is`, `gt` and `lte`, SugarCube's `===` and `to`, Harlowe's `is` and `it`.
+
+### What is skipped
+
+Nothing in the file stops an import except a file Plotra can't read at all. What can't be brought in is left out or kept as written.
+
+When something was, a dialogue headed "Imported *file name*" opens with the dialogue: "3 things in the file couldn't be brought in as written. The rest is here, laid out from Start." Below is the list, each with its line in the file ("Line 12"), or "File" for something about the file as a whole, such as speakers that weren't linked. Up to 200 are listed; past that the last entry reads "And … more like these." Press **OK** to close it. It is shown once. When nothing was skipped, Plotra just says "Imported …".
+
+| What | What happens |
+| --- | --- |
+| Ink: functions, `LIST`, `INCLUDE`, `EXTERNAL`, threads (`<-`), knot parameters, a divert after `->->` | Left out. A knot is imported without its parameters; `->-> knot` returns without going on to the knot. |
+| Ink: sequences other than a shuffle (`{ stopping:`, `{ cycle:`, `{ once:`, `{ shuffle once:` blocks) | The first alternative is imported |
+| Ink: glue that isn't between two lines of text (before a choice, after a divert) | The lines stay apart |
+| Ink: other inline logic in text (`{a\|b}`, sequences other than a shuffle, two shuffles in one line, `{x + 1}`, `{knot}`), tags other than `id:` | Text kept as written; tags left out |
+| Yarn: a jump or detour to `{$node}`, node groups (`when:`) | A jump to `{$node}` ends the dialogue; each node of a group is imported on its own |
+| Yarn: other inline expressions (`{$x + 1}`, functions, markup), hashtags other than `#line:` | Text kept as written; hashtags left out |
+| Twine: other macros (`<<run>>` other than Plotra's call stack, `<<print>>` of anything but a variable, `(display:)`…), JavaScript, stylesheets, widgets and special passages such as `StoryMenu` | Left out |
+| Twine: `$name.property`, temporary `_name` variables, formatting | Kept as written; bold and italics taken off |
+| Twine: story formats other than SugarCube and Harlowe | Links only |
+| An expression Plotra can't read, such as Ink's `mod` or Yarn's `visited()` | Kept as written on its card, so the Check menu lists it |
+| A jump to a passage that doesn't exist | The dialogue ends there |
+
+The card positions in a file (Yarn's `position:`, Twine's) are not used: a position belongs to a whole passage, which becomes many cards, so the dialogue is laid out anew.
+
+### Limits
+
+| Limit | Value |
+| --- | --- |
+| Size of the file | 900,000 characters. A Twine HTML file can be up to 20 MB: only its story is read, not the story format's code. |
+| Cards one import may make | 5,000 |
+| A line's or a choice's text | 2,000 characters; longer text is cut, with a warning |
+| Imports per person | 30 in ten minutes |
+
+### When an import is refused
+
+| Message | Why |
+| --- | --- |
+| That file is too large to import. | The file is over 20 MB. |
+| That file is too large to import. Split it into several files. | The text, or a Twine HTML file's story, is over 900,000 characters. |
+| That HTML file isn't a Twine 2 story: it has no story data in it. | An HTML file that isn't a Twine 2 story. |
+| That file is empty. | The file has no text. |
+| Plotra can import Ink (.ink), Yarn Spinner (.yarn) and Twine (.twee, .tw, or a Twine 2 .html) files. | The extension is none of these and the text doesn't look like any of them. |
+| That file would make more than 5,000 cards. Split it into several dialogues. | Too many cards for one import. |
+
+Nothing is changed when an import is refused.
+
+<Callout type="info" title="Imported text and the AI agent">
+A dialogue made or replaced by an import is marked as text from outside the project. The [AI agent](/docs/ai) reads it as material, not as instructions.
+</Callout>

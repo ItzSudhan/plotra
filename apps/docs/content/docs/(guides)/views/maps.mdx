@@ -1,0 +1,83 @@
+---
+title: Maps
+description: "A picture of your world with pins, regions and paths on it, each linked to a note, in layers you can show and hide, edited live with everyone in the project."
+---
+
+A map is a picture of your world (a drawn map, a satellite photo, a floor plan, a star chart) with pins, regions and paths on it. Each of them can stand for a note: a pin for a place, a region for a kingdom, a path for a road or a journey. A pin can stand for another map, so a continent's map opens a city's map, and the city's opens a building's.
+
+A map is a note in the binder, so a project can have as many as it needs. It needs no module.
+
+## Creating a map
+
+Choose **Map** in the binder's **New…** menu, or in **New inside** when you right-click a folder, or run "New map" from **All commands**. A map starts empty: choose **Choose a picture…** and pick a PNG, JPEG, WebP, GIF or AVIF file. The picture is uploaded to the map's note, counts towards the workspace's storage, and can be as large as an upload on your plan (see [Uploaded files](/docs/settings/limits#uploaded-files)).
+
+**Change the picture** in the toolbar puts a new one in its place. Pins, regions and paths stay where they were, in the old picture's pixels, so a redrawn map of the same size keeps them in place.
+
+### Very large pictures
+
+A picture more than 4,096 pixels wide or tall is cut up in your browser when you choose it, which takes a moment ("Preparing the map: 12 of 17"):
+
+- a smaller copy of the whole picture, 4,096 pixels on its longer side, shown while the map is zoomed out;
+- full-size tiles, 2,048 pixels square (larger for a huge picture, so there are no more than 80), shown once you zoom in past what the smaller copy can show, and only the tiles on screen.
+
+So a 20,000-pixel map moves about as smoothly as a small one. The copy and the tiles are files of the map too, and count towards storage alongside the picture, roughly doubling what it takes. Changing the picture removes the old copy and tiles. A picture too large for your browser to open whole can't be cut: it is shown whole, and the map says so.
+
+## The toolbar
+
+| Button | What it does |
+| --- | --- |
+| **Select and move** | Click a pin, region or path to select it, drag a pin to move it, drag the map to move around. `Esc` comes back here. |
+| **Add a pin** | Click the map where the pin goes. |
+| **Draw a region** | Click its corners one by one, then press `Enter`, double-click, or choose **Finish**. A region needs three corners. |
+| **Draw a path** | Click along it, then finish the same way. A path needs two points. |
+| **Pin a note** | Find a note by name and pin it in the middle of the screen. Places come first, then other maps. |
+| **Layers** | Show or hide each layer. |
+| **Every pin, region and path as a list** | **On this map**: every pin, region and path, grouped, by name. Click one to select it; the pen renames it and the bin removes it. It works with the keyboard and a screen reader. |
+| **Fit the map** | Shows the whole picture. |
+| **Change the picture** | See above. |
+
+You can also drag a note from the binder onto the map: it becomes a pin for that note where you drop it.
+
+Scroll or pinch to zoom, and use the buttons at the bottom left. Pins and labels stay the same size on screen at any zoom.
+
+## Pins, regions and paths
+
+Select one to open its panel at the top right.
+
+![A map drawn on a napkin, with pins for Verona, Friar Laurence's cell and the Capulet tomb, each labelled with its note's title](/shots/view-map.webp)
+
+| In the panel | What it does |
+| --- | --- |
+| The linked note | Its title and synopsis, with **Open** and **Open to the side**. For a pin that stands for a map, **Open its map**. |
+| **Link to a note…** | Choose the note it stands for. **Unlink** takes the link off. |
+| **Label** | The words shown on the map. Without one, a linked mark shows its note's title. |
+| **Layer** | Which layer it is on. Type a new name or pick one already used. Marks with no layer are on **Main**. |
+| Colour | One of nine colours. |
+| **Remove from the map** | Takes it off the map. The note it stood for isn't touched. `Delete` does the same. **Undo** in the message that appears puts it back. |
+
+Double-click a pin, region or path to open the note it stands for.
+
+### Reshaping a region or a path
+
+Select a region or a path and its corners appear as dots. Drag a corner to move it. Each side has a smaller dot halfway along: drag it to add a corner there. Double-click a corner to take it away; a region keeps at least three corners and a path two. Everyone with the map open sees the shape change as you drag.
+
+A mark for a note you can't see, or one that has been deleted, shows **Restricted** and a lock, never the note's title.
+
+## Layers
+
+Put marks on layers to show one thing at a time: **Trade routes**, **The war**, **Act two**. **Layers** in the toolbar lists them with how many marks each has; untick one to hide it. Hiding a layer is only for you, in this tab: nobody else's map changes.
+
+## Under a spoiler horizon
+
+With a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) set, a pin, region or path that stands for something the audience doesn't know yet is not drawn. The toolbar says how many are hidden. Marks with no linked note are always drawn.
+
+## Working together
+
+Everyone with the map open sees each other's pointers and every change as it is made. Anyone who can edit the project can add, move and remove marks; viewers and commenters can look, pan, zoom, open linked notes and show or hide layers, but not change the map.
+
+## What a map feeds
+
+- **Mentioned in.** Every note a mark stands for lists the map under **Mentioned in**, as "Pinned on the map" or "Drawn on the map", so a place's page shows which maps it is on. See [Links](/docs/writing/links#backlinks).
+- **Search.** Labels are the map's text, so project search finds a map by what is written on it.
+- **The graph.** A map is linked to every note on it.
+- **Version history.** A map is versioned like a canvas: its picture and every mark are kept, and restoring a version puts them back. See [Version history](/docs/collaboration/version-history).

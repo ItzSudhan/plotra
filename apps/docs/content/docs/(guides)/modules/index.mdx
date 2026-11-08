@@ -1,0 +1,112 @@
+---
+title: How modules work
+description: "Switch on only the tools your project needs. What a module is, the ten there are, what each adds, and what happens when you switch one off."
+---
+
+A novelist doesn't need a shot list, and a studio shouldn't have to go without one. Plotra keeps its specialised tools in **modules**: sets of views, commands and inspector sections that a project switches on when it needs them. A new project starts with few, so the screen stays small, and the rest are one click away.
+
+In the app they are called **tools**: you switch them on and off in **Project settings → Tools**.
+
+Modules are not a paid feature. Every module works in every project type and on every plan.
+
+## What a module changes
+
+Switching a module on can add:
+
+- **views**, which appear under **More** in the ribbon and get an "Open …" command in **All commands** (`⌘P`);
+- **commands** in **All commands**;
+- **sections of the inspector**, and entries in menus such as the binder's **New** menu or the editor's block menu.
+
+A module belongs to the project, not to you. When it is on, it is on for everyone in the project.
+
+## The ten modules
+
+| Module | What it is for | Page |
+| --- | --- | --- |
+| **World bible** | Custom entity types, canon status, retcon history and continuity sheets. | [Canon](/docs/canon) |
+| **Releases & reveals** | Books, episodes or patches; what each reveals; "world as of release X"; who knows what; foreshadowing. | [Canon](/docs/canon/releases-and-reveals#releases) |
+| **Research & sources** | Citations and a bibliography, clipped pages and files, fact-check status per claim. | [Research and sources](/docs/modules/research) |
+| **Review & editorial** | Your own status workflow, required reviewers, locked content, beta readers and a changelog per release. | [Review and editorial](/docs/modules/editorial) |
+| **Script formats** | Screenplay, stage play, comic and audio script elements with industry formatting and Fountain. | [Script formats](/docs/modules/scripts) |
+| **Production** | Script breakdowns, recording sheets with line status, and shot lists from storyboards. | [Production](/docs/modules/production) |
+| **Interactive narrative** | Branching dialogue, quests, short strings with limits, and Ink / Yarn / Twine export. | [Interactive narrative](/docs/modules/interactive) |
+| **Localization** | Side-by-side translation, a glossary, CSV and XLIFF for translators, subtitles. | [Localization](/docs/modules/localization) |
+| **Publishing** | EPUB, manuscript and script formats, a series bible, and a spoiler-safe public wiki. | [Publishing](/docs/modules/publishing) |
+| **AI agent** | Ask questions about the project and rewrite or continue text, on each person's own model. | [The AI agent](/docs/ai) |
+
+## What each one adds to the screen
+
+| Module | Views | Commands | Inspector and menus |
+| --- | --- | --- | --- |
+| **World bible** | Continuity | "Open continuity" | Canon status in the **Story** tab and in "Tag block". Note types of your own (Faction, Object and seven more to begin with) in the binder's **New** menu, under **Change type** and as sections of the Codex. **Born** and **Died** on characters. |
+| **Releases & reveals** | Release roadmap, Secrets & setups | "Open release roadmap", "Open secrets & setups" | "Revealed to the audience" in the **Story** tab, and a reveal in "Tag block". The spoiler horizon, "World as of". |
+| **Research & sources** | Sources | "Open sources" | **Citation** in the editor's block menu (`/`). A fact-check claim in "Tag block". The **Story** tab. |
+| **Review & editorial** | Reviews | "Open reviews" | A review section in the inspector's Properties. Reactions on a passage, for anyone who can comment. Required reviewers, set under **Rules** in the Reviews view. |
+| **Script formats** | None | "Import Fountain…", "Export as Fountain" | The format switcher on a note: Prose, Screenplay, Stage play, Comic script, Audio script. |
+| **Production** | Production | "Open production" | A breakdown tag (cast, props, wardrobe and so on) in the toolbar that appears when you select text. **Played by** on characters. |
+| **Interactive narrative** | Quests, Strings | "Open quest designer", "Open strings (short game text)" | **Dialogue** as a type of note in the **New** menu. A Quest note type. "Strings and dialogue lines" as a scope in the Translate view. |
+| **Localization** | Translate | "Open translate" | None. |
+| **Publishing** | Publish | "Open publish" | None. |
+| **AI agent** | AI | "Open AI chat", "Ask AI…", "AI: Draft this scene or chapter", "AI: Check this chapter", "AI: Carry a change through the project…", "AI: Build the project from a premise…" | An **AI** tab in the inspector. |
+
+The inspector's **Story** tab is there when any of World bible, Releases & reveals or Research & sources is on.
+
+The views that need no module (Graph, Codex, Outline, Plot grid, Relationships, Corkboard, Manuscript, Read, Activity, Stats) are described in [Views](/docs/views).
+
+## Which modules a project starts with
+
+The project's type decides. A novel starts with none; a screenplay starts with Script formats; a tabletop campaign starts with World bible and Releases & reveals. The full table is in [Project types](/docs/reference/project-types#modules-what-starts-on-and-what-the-type-is-meant-for).
+
+A sample project has every module its type is meant for switched on.
+
+## Switching a module on
+
+Only people who manage the project can: the workspace's owner and admins. A member or a guest editor sees the modules that are on, but can't switch any.
+
+![The Tools tab of Project settings: a switch for each module with what it adds](/shots/settings-modules.webp)
+
+There are four places:
+
+| Where | How |
+| --- | --- |
+| **Project settings → Tools** | Switch the module on. See [Project settings](/docs/settings/project#tools). |
+| **More → More tools** in the ribbon | Lists the modules "Not switched on in this project". Choose one. |
+| A step of the **Getting started** checklist | A step that needs a module shows **Turn on …**. |
+| **Project settings → Note types** | **Turn on World bible**. |
+
+The last three open the same prompt: "Turn on *module*?", with what it is and the views it adds. Press **Turn on**, or **Not now** to leave things as they are. Plotra confirms with "*Module* is on."
+
+The new views appear under **More** in the ribbon, for everyone in the project, straight away. To keep one in your ribbon, see [Customising the ribbon](/docs/settings/customize#the-ribbon).
+
+The first time a module is on, Plotra adds what it relies on, the next time someone who can edit opens the project:
+
+- World bible: the nine starting note types, if the project has none yet, and **Born** and **Died** on characters;
+- Interactive narrative: the Quest note type;
+- Production: **Played by** on characters.
+
+## Switching a module off
+
+Switch it off under **Project settings → Tools**. That is the only place.
+
+Nothing is deleted. The module's views, commands and inspector sections go away, and everything made with them stays in the project for when you switch it back on. In particular:
+
+- Notes stay in the binder. A dialogue or a world entry is still there and still opens, even though the **New** menu no longer offers that type.
+- A note written in a script format stays in that format, and keeps its format switcher. New scenes still start in the project's default format.
+- Releases, reveals, canon statuses, who-knows-what entries, translations, reviews and breakdown tags are kept. They are simply not shown.
+- The module's views are gone from **More**, from the ribbon and from **All commands**, for everyone.
+
+In the Tools list, a module you have switched by hand is marked **Set by you**. It then stays as you set it even if the project's type changes. **back to the default** beside it, or **Back to the defaults for** *type* above the list, puts it back and the mark goes. A module the type starts with is marked **On by default for** *type*.
+
+## Renaming a module
+
+A project can call a module by its own word, for example "Campaign tools" for **Releases & reveals**. Rename it under **Project settings → Rename things**, in the **Tools** list; the new name is shown in the **Tools** list of Project settings. Everywhere else, including the prompt that turns a module on, the module keeps its own name. See [Project settings](/docs/settings/project#views-and-tools).
+
+## The AI agent is opt-in
+
+The AI agent is the one module no project type starts with, and the one that needs a second switch.
+
+1. The workspace's owner switches AI on for the **workspace**, in the workspace's settings.
+2. Only then does **AI agent** appear in **Project settings → Tools**. Switch it on for each project that should have it. It is never listed under **More tools**.
+3. Each person who uses it must be able to edit the project, and needs a model to run it on.
+
+Notes the agent reads are sent to the provider that person chose. See [The AI agent](/docs/ai).

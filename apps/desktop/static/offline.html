@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'" />
+    <title>Plotra</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f7f6f3;
+        --fg: #161412;
+        --muted: #5f5a53;
+        --line: #e2ded6;
+        --card: #ffffff;
+        --accent: #b5461a;
+        --accent-fg: #ffffff;
+        --ring: rgba(226, 96, 42, 0.55);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #141311;
+          --fg: #ece9e3;
+          --muted: #a8a299;
+          --line: #2e2b27;
+          --card: #1c1a18;
+          --accent: #e2602a;
+          --accent-fg: #ffffff;
+          --ring: rgba(226, 96, 42, 0.6);
+        }
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        box-sizing: border-box;
+        font: 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      main {
+        max-width: 460px;
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font: 400 34px/1.15 "Instrument Serif", "Iowan Old Style", Charter, Georgia, serif;
+      }
+      p {
+        margin: 0 0 24px;
+        color: var(--muted);
+      }
+      .buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      a.button {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 7px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--fg);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      a.button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--accent-fg);
+      }
+      a.button:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px var(--ring);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- The buttons link back to this page with an `action`; the app handles them (src/main.ts). -->
+    <main role="alert">
+      <h1 id="title">Can't reach Plotra Cloud</h1>
+      <p id="message">Check your internet connection.</p>
+      <div class="buttons">
+        <a class="button primary" id="retry" href="offline.html?action=retry">Try again</a>
+        <a class="button" id="local" href="offline.html?action=local">Open a library on this computer</a>
+      </div>
+    </main>
+    <script>
+      if (new URLSearchParams(location.search).get("mode") === "local") {
+        document.getElementById("title").textContent = "Can't reach your library";
+        document.getElementById("message").textContent = "Plotra lost touch with the library. Try again, or open it again from File → Open Recent.";
+        document.getElementById("local").textContent = "Choose a library";
+      }
+      document.getElementById("retry").focus();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,80 @@
+name: Desktop release
+
+# Builds the desktop app (apps/desktop) for macOS, Windows and Linux and
+# publishes it as a GitHub release, which the installed apps update from
+# (apps/desktop/src/updates.ts) and plotra.ink/download links to.
+#
+# Runs when a tag like desktop-v0.2.0 is pushed. The tag's version must match
+# apps/desktop/package.json's "version": electron-builder names the release
+# after the package.
+#
+# Signing (local-mode-plan.md, phase 7) uses these secrets when they exist;
+# without them the builds are unsigned:
+#   macOS    MAC_CSC_LINK, MAC_CSC_KEY_PASSWORD (a Developer ID certificate, base64 .p12),
+#            APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID (notarizing)
+#   Windows  WIN_CSC_LINK, WIN_CSC_KEY_PASSWORD
+
+on:
+  push:
+    tags: ["desktop-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      TURBO_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      # Bun doesn't run Electron's install script, which fetches its binary.
+      - name: Fetch Electron
+        working-directory: apps/desktop
+        run: bun run setup
+
+      - name: Test
+        working-directory: apps/desktop
+        run: bun run test
+
+      - name: Build and publish
+        working-directory: apps/desktop
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ runner.os == 'macOS' && secrets.MAC_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ runner.os == 'macOS' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          # Without a certificate, don't let electron-builder go looking for one in the keychain.
+          if [ -z "$CSC_LINK" ]; then export CSC_IDENTITY_AUTO_DISCOVERY=false; fi
+          bun run compile
+          bun run bundle-server
+          npx electron-builder --config electron-builder.yml --publish always $([ -n "$APPLE_ID" ] && echo "-c.mac.notarize=true")

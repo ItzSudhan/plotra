@@ -1,0 +1,1 @@
+ALTER TABLE "share_link" ADD COLUMN "allow_copy" boolean DEFAULT false NOT NULL;

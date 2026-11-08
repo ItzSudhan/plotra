@@ -1,0 +1,403 @@
+---
+title: Review and editorial
+description: "Move work through stages of your own, name who must approve it, lock what is finished, gather feedback from beta readers, and see what changed since each release."
+---
+
+When more than one person has a say in the text, "is this done?" needs an answer everyone can see. The **Review & editorial** module gives a project that answer: a status workflow of your own, people who must approve a note before it moves on, stages that lock what is finished, beta readers who react and answer questions without being able to edit, and a changelog that says what changed since a release.
+
+Comments, suggestions and version history work in every project, with or without this module. They are described in [Working together](/docs/collaboration/comments-and-suggestions#comments).
+
+## What the module adds
+
+| Where | What |
+| --- | --- |
+| The ribbon, under **More** | The **Reviews** view. **All commands** has "Open reviews". |
+| The inspector, **Note** tab, **Properties** | A **Review** section, between **Aliases** and the word counts. See [Review on a note](#review-on-a-note). |
+| The editor | Six one-click **reactions** next to **Comment** when you select text. See [Reactions](#reactions). |
+
+Someone who manages the project switches it on in **Project settings → Tools**. See [Modules](/docs/modules#switching-a-module-on).
+
+<Callout type="info" title="Stages work without the module">
+The workflow itself is part of every project: you can mark a stage **Approval** or **Locked** in Project settings whether the module is on or not, and a locked stage is enforced either way. The module is what lets you name reviewers, ask for a review and record the decisions. Reviewer rules you made stay in force if the module is switched off later.
+</Callout>
+
+## Who may do what
+
+"Manage" means the workspace's owner and admins. "Edit" means workspace members and people the project is shared with as editors. See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+| Action | Who |
+| --- | --- |
+| Open the Reviews view, read the rules, see who has approved what | Everyone in the project |
+| Edit the workflow (stages, Approval, Locked) | People who manage the project |
+| Add or remove a required reviewer | People who manage the project |
+| Be a required reviewer | Any member of the workspace. A guest the project is shared with can't be one. |
+| Request a review, ask again, withdraw | Anyone who can edit the note (and, if it is locked, is one of its approvers) |
+| Approve or request changes | The note's required reviewers |
+| **Approve as manager** | People who manage the project |
+| Change a locked note, or move it out of its locked stage | Its approvers: its required reviewers, and people who manage the project |
+| Invite, change or remove beta readers | People who manage the project |
+| React to a passage | Anyone who can comment |
+| Create, edit, close or delete a questionnaire, and read the results | Anyone who can edit the project |
+| Answer a questionnaire | Anyone who can comment on what it is about |
+| Read the changelog | Everyone in the project, for the notes they can read |
+| Cut a release | People who manage the project |
+
+## Your own status workflow
+
+Every note has a status, and the status is a stage of the project's workflow. A project that hasn't set its own uses **Draft → Revised → Final**. You change the stages in **Project settings → Workflow**: rename them, colour them, reorder them, add up to 12, or start from one of three presets. Every control there is described in [Project settings](/docs/settings/project#workflow).
+
+Two ticks on a stage are what this module is built around:
+
+| Tick | What it means |
+| --- | --- |
+| **Approval** | A note can only enter this stage once every reviewer required for it has approved. |
+| **Locked** | A note in this stage is read-only for everyone but its approvers. |
+
+A stage can have both. The preset **Draft → In review → Approved → Locked** has "Approved" needing approval and "Locked" both needing approval and locked. **Draft → Beta read → Edit → Copy-edit → Proof** has only "Proof" marked, with both.
+
+You set a note's status with the **Status** field at the top of the inspector's **Properties**.
+
+### What the two ticks check
+
+When someone changes a note's status, Plotra checks three things:
+
+1. **Leaving a locked stage.** Only an approver of the note may move it out. Anyone else is told: "*Stage* is locked. Only an approver can move this out of it."
+2. **Entering a stage that needs approval.** Every required reviewer must have approved. Otherwise: "*Stage* needs approval: 2 required reviewers haven't approved yet. Request a review first." People who manage the project are not held to this; they can always move the note.
+3. **Going back.** When a note leaves a stage that needs approval for one that doesn't, its approvals are cleared. A note sent back to draft has to be approved again.
+
+If nobody is required to review a note, nothing waits: anyone who can edit it can move it into any stage, an Approval stage included. A locked stage still locks; only people who manage the project can then change the note.
+
+## The Reviews view
+
+Open **Reviews** from **More** in the ribbon, or run "Open reviews" from **All commands**. It has five tabs:
+
+| Tab | What it is for |
+| --- | --- |
+| **Inbox** | What is waiting for your approval, what is in review, what is locked, and a form to request a review. The tab shows a count when something waits for you. |
+| **Rules** | Who must approve what. |
+| **Beta readers** | The people who read and comment without editing. |
+| **Questionnaires** | Questions for your readers and their answers. The tab shows a count of the ones you haven't answered. |
+| **Changelog** | What changed since a release. |
+
+## Required reviewers and review rules
+
+A rule names one person who must approve a set of notes. Rules are on the **Rules** tab.
+
+![The Rules tab of Reviews: Alex Morgan must approve everything in Part One: Violent Delights, with the form for adding another reviewer](/shots/mod-editorial-rules.webp)
+
+The top of the tab, **How it works**, lists the stages of your workflow that need approval or are locked, with **Edit the workflow** for people who manage the project. If no stage is marked it says "No stage needs approval or locks content yet."
+
+### Adding a rule
+
+Under **Add a reviewer**:
+
+1. Choose **Who…**. The list is the members of the workspace.
+2. Choose what they must approve:
+
+| Choice | Covers |
+| --- | --- |
+| **everything in…** | A folder or note you pick, and everything inside it. |
+| **everything tagged…** | Every note with that tag, whether the tag is in the note's **Tags** or typed in its text. Nested tags count: a rule for `#canon` also covers `#canon/book-2`. The box suggests the tags already used in the project. |
+| **the whole project** | Every note. |
+
+3. Press **Add rule**.
+
+The rule appears under **Required reviewers** as a sentence: "*Name* must approve everything in *Part One / Chapter 3*", "everything tagged `#canon`", or "everything in the project".
+
+Things to know:
+
+- A note can be covered by several rules. Everyone they name must approve it.
+- One person can have several rules. The same rule can't be added twice ("That rule already exists.").
+- A rule on a folder you can't see is not shown to you, but it still applies.
+- If a rule's folder is deleted for good, the rule goes with it. If the reviewer leaves the workspace, their name shows as "Former member"; remove the rule, since nobody can give that approval.
+- To remove a rule, press the bin at the end of its row. **Undo** in the message that appears puts it back.
+
+With no rules the tab says "Nobody is required to review anything yet, so anyone who can edit a note can move it through every stage."
+
+People who can't manage the project see the rules but not the form: "Only people who can manage the project can change who reviews what."
+
+## Requesting a review
+
+A review asks every required reviewer of a note to approve it, and names the stage the note moves to once they all have.
+
+You can ask from two places.
+
+**From the note.** In the inspector's **Review** section, choose a stage under **Move to** and press **Request review**.
+
+**From the Inbox.** Under **Request a review**, choose a note, choose the stage, and press **Request review**. The list holds the notes you can edit that have a required reviewer and are not already in review. If there are none it says "None of the notes you can edit has a required reviewer. Add reviewers under Rules."
+
+In both, **Move to** starts on the next stage that needs approval, and every other stage of the workflow is offered; stages that need approval are marked "(needs approval)". You can't ask for the stage the note is already in.
+
+What happens next:
+
+- Each reviewer gets a [notification](/docs/collaboration/notifications): "*Name* asked you to review *note*."
+- The note appears under **Waiting for you** in each reviewer's Inbox, and under **In review** in everyone else's.
+- Each reviewer is listed as **Waiting**.
+
+A review can't be requested for a note nobody is required to review: "Nobody is required to review this note. Add a rule under Reviews → Rules, or just move it."
+
+### Asking again and withdrawing
+
+Once a note is in review, the button reads **Ask again**. It sets every reviewer back to **Waiting**, clears their notes, and notifies them again. Use it after you have made the changes someone asked for. A reviewer that the rules no longer name is dropped from the request.
+
+**Withdraw** cancels the request and clears every approval on the note.
+
+## Giving a review
+
+Notes waiting for you are in the Inbox under **Waiting for you**, and the same buttons are in the **Review** section of the note itself.
+
+| Button | What it does |
+| --- | --- |
+| **Approve** | Records your approval. The button then reads **You approved**. |
+| **Request changes** | Opens a box, "What needs to change?". Write a note (it is required, up to 2,000 characters) and press **Request changes**. Your note is shown under your name on the review. |
+
+Whoever asked for the review is notified of each decision: "*Name* approved *note*" or "*Name* asked for changes to *note*."
+
+When the last required reviewer approves, the note moves to the stage the request was for, by itself, and you see "Approved. Moved to *stage*."
+
+Things to know:
+
+- You only need to be able to read a note to review it.
+- You can change your mind: after approving you can still request changes, and after requesting changes you can approve.
+- A request for changes does not move the note anywhere. It stays where it is until the author asks again and everyone approves.
+- Someone made a required reviewer after the review was requested shows as **Not asked yet**. They can still approve or request changes from the Inbox card.
+
+### Approve as manager
+
+People who manage the project are approvers of last resort. **Approve as manager** moves the note into the requested stage without waiting for the reviewers. Approvals already given are kept; requests still waiting, and requests for changes, are closed.
+
+In the **Review** section of a note the button names the stage: **Approve as manager → Approved**. It is there whenever the note has required reviewers who have not all approved, even if no review was requested.
+
+### The Inbox
+
+| Section | What it lists |
+| --- | --- |
+| **Waiting for you** | Notes where your approval is waiting. Empty: "Nothing is waiting for your approval." |
+| **Request a review** | The form above. |
+| **In review** | Every other note that has a review: ones you have already decided, and ones you are not a reviewer of. |
+| **Locked** | Notes in a locked stage that have no review. |
+
+Each card shows the note, the folders it is in, its stage, who asked ("*Name* asked for a review · moves to *stage* once everyone has approved"), each reviewer with **Waiting**, **Approved**, **Changes requested** or **Not asked yet**, and any note they left. Click the title to open the note in a new tab.
+
+If no stage of the workflow is marked, the Inbox says so at the top: "No stage of this project's workflow needs approval or locks content yet. Mark one under Project settings → Workflow; reviews can still be requested and recorded meanwhile."
+
+## Review on a note
+
+With the module on, the inspector's **Properties** has a **Review** section for the note you have open. It shows, as they apply:
+
+- the lock, if the note is in a locked stage: "Locked in *stage*. Only an approver can change it or move it out." or, for an approver, "Locked in *stage* for everyone but its approvers. You're one of them.";
+- "Nobody is required to review this." with **Set up reviewers**, which opens the Reviews view;
+- the reviewers and where each stands, and "Moves to *stage* once everyone has approved.";
+- **Approve** and **Request changes**, if you are a reviewer and a review has been requested;
+- **Move to**, **Request review** (or **Ask again**) and **Withdraw**, if you can edit the note and it has required reviewers;
+- **Approve as manager**, if you manage the project.
+
+A notification about a review opens the note with this section showing.
+
+## Locked content
+
+A note in a **Locked** stage is finished: it can be read, but not changed, by anyone except its approvers. The approvers of a note are its required reviewers and the people who manage the project.
+
+A locked note shows a **Locked** badge beside its title in the editor.
+
+### What a lock prevents
+
+For everyone who is not an approver of the note:
+
+| Blocked | Detail |
+| --- | --- |
+| Editing the text | The editor is read-only. This holds for every way in: a second tab, a co-writer's session, the [AI agent](/docs/ai) and its inline actions, and the [API](/docs/developers/api). A dialogue says "Locked: only an approver can change it" in its toolbar. |
+| Suggesting changes | Suggestions are edits, so a locked note takes comments only. |
+| Renaming it, changing its type, synopsis, tags or aliases | |
+| Changing its properties | A quest's state and ticked objectives included. |
+| Changing its label | |
+| Changing its settings | A board's calendar and lanes, and a note's script format. |
+| Restoring a version | **Restore** is hidden in its [version history](/docs/collaboration/version-history). Naming a version still works. |
+| Importing into a dialogue | |
+| Changing its status | Only an approver can move it out of the locked stage. |
+| Moving it in the binder | |
+| Moving it to the trash | A folder can't be trashed either while a locked note is inside it: "*Note* inside is locked, so this can't go. Ask an approver." |
+| Changing its canon status or its reveal | See [Canon](/docs/canon). |
+
+The message is "*Note* is *stage* and locked. Ask an approver to change it, or to move it out of *stage*."
+
+### What a lock does not prevent
+
+- **Comments and reactions.** People who could edit the note can still comment on it while it is locked. Viewers still only read.
+- **Line status on a recording sheet.** Marking a line **Written**, **Approved** or **Recorded**, and its session notes, only need permission to comment, so they carry on in a locked script. See [Line status](/docs/modules/production#line-status).
+- **Duplicating it.** The copy is a new draft: a copy of a locked note starts in the first stage of the workflow, where anyone who can edit it can change it. Reviewer rules on a folder or tag still apply to the copy if it is inside that folder or has that tag.
+- **Naming a version.**
+- **Approvers.** A required reviewer or a manager edits a locked note as usual.
+
+### When a note is locked while someone has it open
+
+Moving a note into a locked stage with its **Status** closes the editing connections of everyone who has it open. Their editor reconnects at once, read-only for anyone who is not an approver, so nobody keeps typing into a locked note.
+
+To change a locked note without being an approver, ask one to move it back to an earlier stage. Moving it out of a stage that needs approval clears its approvals, so it will be reviewed again on the way back.
+
+## Beta readers
+
+A beta reader is someone the project is shared with to read, or to read and comment. They don't need to be in your workspace, and they see nothing else in it. They can't edit.
+
+Beta readers are ordinary project shares. The **Beta readers** tab is a second place to manage the same list as the [Share dialog](/docs/collaboration/sharing#sharing-a-project), limited to people who read or comment. The limits on how many people a project can be shared with are the same; see [Limits](/docs/collaboration/sharing#limits).
+
+Only people who manage the project see the tab's contents. Everyone else sees "Only people who can manage this project can add or remove beta readers."
+
+### Inviting a reader
+
+Under **Invite a beta reader**:
+
+1. Type their email address.
+2. Choose **can read and comment** (the default) or **can only read**.
+3. Press **Invite**.
+
+They get an email with a link. If they already have an account you see "*address* can now open this project."; if not, "Invitation sent to *address*." and they are listed as "Invited: hasn't opened the link yet" until they do.
+
+To let someone edit, use **Share** in the binder instead.
+
+### Changing or removing a reader
+
+Each row has an **Access** list (**Can read and comment** or **Can read**) and **Remove**. Plotra asks first. Someone you remove no longer sees the project; their comments, reactions and answers stay, and you can invite them again later.
+
+### What a reader sees
+
+A reader sees the whole project: every note, including ones marked as not yet revealed. There are no permissions on single notes. If readers should only see part of the story, share a separate project, or send them an export made at a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon).
+
+| A reader who | Can |
+| --- | --- |
+| **Can read** | Read every note and view, and open the Reviews view. |
+| **Can read and comment** | The same, plus comment, react to passages and answer questionnaires. |
+
+### Reactions
+
+A reaction is a one-click response to a passage. Select some text; the bubble that appears has **Comment** and six reactions:
+
+| Reaction | Means |
+| --- | --- |
+| ❤️ | Loved it |
+| 😂 | Funny |
+| 😮 | Surprised |
+| 😢 | Sad |
+| 🤔 | Confused |
+| 😴 | Bored |
+
+Anyone who can comment can react, authors included. The passage is highlighted like a commented one.
+
+Reactions are collected at the top of the note's **Comments** panel, under **Reactions**, grouped by passage. Each group shows the quoted passage, each reaction with its count, and the names of the people behind them.
+
+- Click the quote to scroll to the passage in the text.
+- Click a reaction to add yours to that passage; click one of your own to take it back.
+- Reacting the same way to the same passage twice counts once.
+- A reaction is not announced: it sends no notification and is not in the activity feed.
+- Reactions count towards the same limit as comments: 600 an hour for each person.
+
+### Questionnaires
+
+A questionnaire asks your readers a few questions about a chapter, a folder or the whole project.
+
+**Creating one.** On the **Questionnaires** tab, press **New questionnaire**.
+
+| Field | What it is |
+| --- | --- |
+| **Title** | Required, up to 120 characters. For example "Chapter 3 feedback". |
+| **About** | "About the whole project", or one note or folder. |
+| The introduction | Optional, up to 2,000 characters: what to look out for, when you need it by. |
+| Questions | Between 1 and 30. Each has its text (up to 300 characters) and a kind of answer. |
+
+The three kinds of answer:
+
+| Kind | The reader gets |
+| --- | --- |
+| **Written answer** | A text box, up to 4,000 characters. |
+| **Rating (1–5)** | Five buttons, 1 to 5. |
+| **Multiple choice** | One choice from your list. Type one choice per line: at least 2, at most 12, each up to 120 characters. |
+
+Press **Add a question** for another, the bin to remove one, then **Create questionnaire**. Questions left empty are dropped.
+
+**Who sees it.** A questionnaire about the whole project is listed for everyone in the project. One about a note is listed for everyone who can read that note. To answer, you must be able to comment.
+
+**Answering.** A reader presses **Answer**, fills in what they want to (at least one question), and presses **Send answers**. Each person answers once. While the questionnaire is open they can press **Change answers** and then **Update answers**. Questionnaires a reader has not answered yet are listed first.
+
+**Each questionnaire's row** shows its title, how many questions it has and what it is about, **Open** or **Closed**, and, for authors, how many responses it has. Authors also get:
+
+| Button | What it does |
+| --- | --- |
+| **Results** | Shows who answered and, for each question, every answer beside its author's name. A rating also shows its average out of 5; a multiple choice shows a bar and a count for each choice. |
+| The pen | Edit the title, what it is about, the introduction and the questions. |
+| The lock | **Stop taking answers**, or **Take answers again**. A closed questionnaire keeps its answers and can't be answered. |
+| The bin | Delete it, after asking. Its answers go with it. |
+
+Things to know:
+
+- Readers see only their own answers. Results are for people who can edit the project.
+- Answers are not anonymous.
+- In **Results**, and in the names under a reaction, a reader who is not a member of your workspace is shown as "Former member" rather than by name.
+- If you change a question after people have answered, their answers to the questions you kept still show. A rating or choice that no longer fits its question is dropped when that reader next updates their answers.
+- If the note a questionnaire is about is deleted for good, the questionnaire stays and becomes one about the whole project.
+- There is no notification when a questionnaire is created or answered. Tell your readers it is there; the tab's count shows them what is left to answer.
+
+## The changelog per release
+
+The **Changelog** tab answers "what changed since Book 2?". It compares the project as it stood when a release was cut with the project now, or with a later release.
+
+Releases themselves (a book, an episode, a patch) are made in the **Release roadmap**, which comes with the **Releases & reveals** module. See [Releases](/docs/canon/releases-and-reveals#releases). With no releases the tab says "No releases yet" and links to the roadmap, or asks you to turn that module on.
+
+### Cutting a release
+
+Cutting a release keeps a snapshot of every note as it stands now.
+
+1. Choose the release under **Since**. One that hasn't been cut is marked "(not cut)".
+2. Press **Cut release**.
+3. Confirm: "Cut *release*? A snapshot of *n* notes is kept as they stand now."
+
+Plotra answers "*Release* cut: *n* notes snapshotted."
+
+What cutting does:
+
+- It snapshots every note that has something in it and is not in the trash, canvases included. A note nobody has opened since it was created has nothing to snapshot.
+- Each snapshot is a version of its note, named "Release: *title*". You can find it in the note's [version history](/docs/collaboration/version-history) and restore it from there.
+- The release is stamped with the time. The Release roadmap shows it as **Released**.
+- It is listed in the [activity feed](/docs/collaboration/notifications#the-activity-feed): "cut the release *title* (*n* notes)".
+- Each snapshot keeps the note's title, so the changelog can tell when a note was renamed.
+- On the hosted version the snapshots count towards the workspace's storage, and a cut that wouldn't fit is refused. See [Limits](/docs/settings/limits).
+
+**Cut again** replaces the release's snapshots with new ones. The confirmation says so: "This replaces the snapshots taken on *date*." The old ones can't be brought back.
+
+Only people who manage the project can cut a release. Everyone else sees, for a release that hasn't been cut, "*Release* hasn't been cut yet, so there's nothing to compare with… someone who can manage the project can do that."
+
+### Reading the changelog
+
+**Since** picks the release to compare from. It starts on the latest release that has been cut. **compared with** is **Now**, or any later release that has been cut.
+
+![The changelog since Part 1: two notes changed, one renamed from The Balcony and reworded, one with five more words](/shots/mod-editorial-changelog.webp)
+
+The first line gives the date and the totals: "Cut *date*. 12 notes changed, 340 unchanged." Below it:
+
+| Section | What is in it |
+| --- | --- |
+| **Added** | Notes written since the release was cut. |
+| **Changed** | Notes whose text differs, or that were renamed. A renamed note says what it was called: was "*old title*". |
+| **Removed** | Notes that were in the release and are now in the trash. Compared with a later release: notes that release has no snapshot of. A note deleted for good, by emptying the trash, drops out of the changelog altogether. |
+| **Retcons** | Each [retcon](/docs/canon#retcons-keep-their-history) recorded in that time: the note, what its canon status was before, when, and the reason given. |
+
+Each note's row shows its type, its title, its canon status and how much it changed: "+120 words", "−40 words", "reworded" when the count didn't move, or for a removed note the number of words it had.
+
+- Click a **changed** note to see what changed: the text then and now, with additions in green and removals struck through in red.
+- Click an added note to open it.
+- A canvas is listed when the text on its cards changes, but has no text comparison: "This is a board, not a text: open its version history to compare the cards."
+
+Things to know:
+
+- The changelog lists only notes you can read.
+- A change in spacing alone is not a change.
+- A note written and thrown away between the two points is not listed.
+- Compared with **Now**, the changelog reads each note as it was last saved to the server. Text someone is typing appears after it syncs.
+- At most 400 changed notes are compared at once. Past that the changelog says "The project has more changed notes than one changelog compares; the rest are left out."
+- Titles and canon statuses are the notes' current ones. A rename shows only for releases cut since renames were recorded (October 2026); cut an older release again to pick it up.
+
+<Cards>
+  <Card title="Working together" href="/docs/collaboration" description="Sharing, comments, suggestions and version history." />
+  <Card title="Project settings" href="/docs/settings/project#workflow" description="Build the workflow: stages, Approval and Locked." />
+  <Card title="Canon" href="/docs/canon/releases-and-reveals#releases" description="Releases, the roadmap and retcons." />
+  <Card title="Roles and permissions" href="/docs/reference/roles-and-permissions" description="What each role can do, action by action." />
+</Cards>

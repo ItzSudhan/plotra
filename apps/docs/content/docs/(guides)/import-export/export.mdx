@@ -1,0 +1,270 @@
+---
+title: Export and print
+description: Take your text out as Word, Final Draft, Markdown, plain text, an outline or a PDF, keep a copy in GitHub, and what each format keeps.
+---
+
+**Export** gives you the text back in a file any other program can open. Export is never held back by a plan limit. E-books, the series bible and the public wiki are on [Publishing](/docs/modules/publishing).
+
+![The Export dialog for one scene, offering Word, Markdown, Markdown as a zip, plain text and PDF](/shots/export-dialog.webp)
+
+## Opening the dialog
+
+| From | What is selected |
+| --- | --- |
+| **New…** at the top of the binder, then **Export project…** | The whole project |
+| Right-click any note, then **Export…** | That note and what is inside it |
+| **All commands**: "Export… (Word, RTF, Markdown, plain text, Final Draft, PDF)" | The note you have selected or open |
+
+**What** at the top of the dialog can be changed to **The whole project**, to any folder or chapter, or to any note that has notes inside it.
+
+## Formats
+
+| Format | What you get |
+| --- | --- |
+| **Word (.docx)** | Laid out as you choose under **Layout** (below); standard manuscript format to begin with. Selected to begin with. |
+| **Rich text (.rtf)** | The same layout, for Scrivener, Pages, LibreOffice and older word processors. See [Rich text](#rich-text-rtf). |
+| **Final Draft (.fdx)** | The script, element by element. Offered when something in the project is written in a script format. See [Final Draft](#final-draft-fdx). |
+| **Markdown (.md)** | One file, with a heading for each chapter and scene. |
+| **Markdown, a file per note (.zip)** | Folders and files that mirror the binder, with `[[links]]` kept. This is the closest thing to a copy of the whole project. |
+| **Plain text (.txt)** | Just the words, with the scene separator you choose (`* * *` to begin with). |
+| **PDF** | Opens the Read view and your browser's print dialog. See [Printing and PDF](#printing-and-pdf). |
+| **Archive of Our Own (AO3)** | The text cut into chapters, as HTML AO3 takes, each with a button to copy it. See [Archive of Our Own](#archive-of-our-own-ao3). |
+| **Outline (.opml)** | Titles and synopses, nested as in the binder. See [Outline](#outline-opml). |
+| **Plotra project (.plotra)** | The whole project, for another Plotra workspace or server to import. See [Plotra project files](/docs/import-export/import#plotra-project-files). |
+
+Click **Export** and the file is saved by your browser. It is named after what you exported, in lowercase with hyphens: `the-long-night.docx`.
+
+A [plugin](/docs/developers/plugins#an-export-format) of your own can add more formats. They are not in this dialog: each shows in **All commands** as **Export as** its name.
+
+## Layout
+
+Word, rich text and plain text follow a layout, chosen under **Layout** in the dialog. Pick a preset, or choose **Change** to set each part yourself.
+
+| Preset | What it is |
+| --- | --- |
+| **Standard manuscript** | For agents and editors: 12-point Times New Roman, double-spaced, indented paragraphs, `#` between scenes, a title page and a running header. Where you start. |
+| **Courier manuscript** | The same in 12-point Courier New, the typewriter look some editors still ask for. |
+| **Reading copy** | For beta readers: Garamond, 1.5 lines, `* * *` between scenes, headings like "Chapter 1: The Feud", the [opening pages](#front-matter-pages), no running header. |
+| **Working draft** | Compact, for reading your own draft: 11-point Arial, single-spaced, no indents, each scene under its title, chapters running on without page breaks, no title page or header. |
+
+| Setting | Choices |
+| --- | --- |
+| **Font** | Times New Roman, Garamond, Arial or Courier New. A font the reader's computer doesn't have is replaced by a similar one. |
+| **Size** | 10 to 16 points. |
+| **Paper** | US Letter or A4. Word and rich text only. |
+| **Spacing** | Single, 1.5 lines or double. |
+| **Chapter headings** | The chapter's title; "Chapter 1, Chapter 2…"; "Chapter 1: its title"; or nothing but the new page. Chapters are numbered in order. Parts (folders that hold chapters) keep their titles. In a book built only of folders, the folders that hold scenes are the chapters. |
+| **Between scenes** | `#`, `* * *`, `⁂` or a blank line. |
+| **Scene titles instead of separators** | Each scene under its own title, with no separator. |
+| **Title page** | Your name, the length, the title and "by" your name, on a page of their own. |
+| **Indent paragraphs** | Half an inch on each paragraph's first line. |
+| **Chapters on a new page** | Parts and chapters start a page a third of the way down. |
+| **Running header with page numbers** | "Surname / TITLE / page" at the top of every page after the title page. |
+| **Opening pages: copyright, dedication, epigraph** | The project's [opening pages](#front-matter-pages), after the title page. Off in the manuscript presets: agents and editors want the text. |
+
+Plain text only has words, so it offers the chapter headings, the separator, scene titles, the title page and the opening pages.
+
+The layout you last exported with is the one the dialog opens on next time, in every project. **Save these settings as a preset…** keeps them under a name, listed under **Yours**; choose one and **Remove** takes it away (**Undo** brings it back). You can keep 12. Layouts are kept with your account, not the project.
+
+A script always keeps its own layout in Word and rich text (see below), whatever the settings.
+
+## Opening pages [#front-matter-pages]
+
+A book's opening pages (its front matter) are written once and kept with the project, so every export uses the same pages. Tick **Opening pages** in the layout and open **Write the opening pages** under it, or open it on the EPUB card of the [Publish view](/docs/modules/publishing).
+
+| Page | What goes in it |
+| --- | --- |
+| **Copyright page** | Any text. **Start from a standard one** fills in "Copyright © (year) (your name)", "All rights reserved" and a line saying the book is fiction, for you to change. Set small and plain, on a page of its own. |
+| **Dedication** | Centred and in italics, a third of the way down a page of its own. |
+| **Epigraph** | The same, with **Epigraph by, or from** underneath it after a dash. |
+
+Each page holds up to 3,000 characters, and **Epigraph by, or from** up to 200. Leave a box empty and that page is left out. A blank line starts a new paragraph; a single line break is kept. **Save opening pages** keeps them for the project; only people who can edit the project can change them. In Word and rich text each page starts a new page, and the text after them starts a new page too. Plain text sets them apart with blank lines. Markdown and Final Draft leave them out. An EPUB always carries them, after the title page.
+
+## What is included
+
+- **Text notes only**: folders, chapters, scenes, notes, characters, locations, world entries and research notes. Canvases, timelines and dialogue trees are not text and are left out.
+- **Only what you can read yourself.**
+- **Nothing from the trash.**
+- **The text as last saved**, which can be a few seconds behind what is on screen.
+- **Comments are left out.**
+- **Suggestions nobody has accepted are not applied.** Text someone proposed adding is left out, and text they proposed deleting is kept.
+
+Which notes go into a single file (Word, one Markdown file, plain text):
+
+- **The whole project**: the manuscript, meaning folders, chapters and scenes. Characters, research and other notes are left out. If no chapter or scene has any text, every text note is exported instead.
+- **A folder or a note**: every text note under it, whatever its type.
+
+Notes with no text are skipped, and so are folders that end up holding nothing. If nothing is left, the dialog says "There's nothing written here to export yet."
+
+**Markdown, a file per note** always takes every text note, empty ones included.
+
+## How the text is written
+
+| In the note | Word | Markdown | Plain text |
+| --- | --- | --- | --- |
+| Link to a note | Its words | `[[Title]]`, with `#Heading` and `\|display text` when it has them | Its words |
+| Embedded note | The note's title, in italics | `![[Title]]` | The note's title |
+| Web link | A hyperlink | `[words](address)` | The words |
+| Image | Its description in square brackets | `![description](address)` | Its description in square brackets |
+| Citation | Its in-text form, such as "(Okafor 2019, 44)" | The same | The same |
+| Table | A table | A table | Cells separated by tabs |
+| Task list | ☐ and ☑ | `- [ ]` and `- [x]` | `[ ]` and `[x]` |
+| Callout | An indented paragraph | `> [!note]` | Its words |
+| Highlight, underline | Kept | `==…==`, `<u>…</u>` | Dropped |
+| Rule in the text | A centred `#` | `---` | `* * *` |
+
+An embedded note is not copied into the file; only its title is written. Images are never put inside a file. Markdown keeps the address of an image that was added by web address. An image uploaded to Plotra has no address outside Plotra, so it is left out of Markdown.
+
+When the text has citations, a reference list in the project's citation style is added at the end of a Word, single Markdown or plain-text file.
+
+In Word, a screenplay keeps its columns: character names, dialogue, parentheticals and transitions sit where a screenplay puts them. Stage plays, comic scripts and audio scripts have no column layout in Word. "SFX:" and "MUSIC:" labels are written out. Writer's notes in a script are never exported.
+
+## Word (.docx)
+
+With the **Standard manuscript** layout, the file follows standard manuscript format, ready to send to an agent or an editor. Other layouts change the parts described under [Layout](#layout).
+
+- US Letter, one-inch margins, 12-point Times New Roman, double-spaced, each paragraph indented half an inch.
+- **Title page:** your name at the top left with "about N words" at the top right (rounded to the nearest hundred), your email address under your name, then the title a third of the way down and "by" your name.
+- **Running header** from the second page, at the top right: your surname, the title in capitals and the page number.
+- **Folders and chapters** are centred headings. The first two levels start a new page, a third of the way down. A chapter directly under its part shares the part's page. Deeper folders are left-aligned headings that do not start a page.
+- **Scenes** inside a chapter or folder run on without their titles, with a centred `#` between them. A scene at the top level of the project gets its title as a heading.
+- **Other notes** (a character sheet, a research note) go under their own titles.
+- Headings inside a note become smaller headings, below the chapter headings.
+
+When more than half of the exported text is written in a script format, the file is set as a script instead: 12-point Courier New, single-spaced, an inch and a half on the left, the title in capitals, and only a page number in the header.
+
+The name and email address are those of the person exporting, not the project's owner. The title is the name of what you exported.
+
+## Rich text (.rtf)
+
+The same layout as Word, in Rich Text Format, which nearly every writing program opens: Scrivener (import it into a project's Draft folder), Pages, LibreOffice, WordPad and Word itself. Bold, italic, underline, strikethrough and web links are kept. A screenplay keeps its columns, as in Word. Tables become lines with their cells separated by tabs, and dual dialogue is written one speech after the other.
+
+## Final Draft (.fdx)
+
+An `.fdx` file that Final Draft, Fade In, Highland, WriterDuet and Arc Studio open, with each element of the script as the matching element there:
+
+| In Plotra | In Final Draft |
+| --- | --- |
+| Scene heading, action, character, parenthetical, dialogue, transition, shot | The same element |
+| Act heading | New Act |
+| Other script elements (SFX, music cues, comic panels) | General |
+| Prose that isn't in a script format | Action |
+| Dual dialogue | Dual dialogue |
+| Bold, italic, underline, strikethrough | The same text styles |
+
+Binder titles (folders, chapters, scene names) aren't part of a script and are left out. The title page has the title, "Written by" and your name, and your email address at the foot. The option is offered when something in the project is written in a script format; with no script in what you chose, the export says so.
+
+## Markdown (.md)
+
+One file. It opens with front matter holding `title` and `author` (your name). Each note sits under a heading as deep as it is in the binder, so with a manuscript folder selected `#` is a chapter and `##` is a scene. Headings inside a note are moved down to sit under the note's own heading. Headings stop at level six.
+
+This is the layout **Split at headings** reads back in.
+
+## Markdown, a file per note (.zip)
+
+A zip holding one top folder named after the project (or the folder you exported). Inside:
+
+- Each note is a `.md` file named after its title.
+- A note that holds other notes becomes a folder. If it has text of its own, that text is in a file of the same name inside the folder.
+- Each file starts with front matter: `title`, `kind`, `order` (its place among its siblings) and `tags`.
+- Characters a file system can't hold (`\ / : * ? " < > |`) are replaced by spaces, and names are cut at 80 characters. Two notes with the same name in one folder become "Name" and "Name (2)".
+
+Because files are named after titles, `[[links]]` still work when you open the folder in Obsidian or another Markdown tool.
+
+## Plain text (.txt)
+
+The title in capitals and "by" your name, then the text. Top-level headings are in capitals. Scenes are separated by `* * *`. Lists keep their markers (`-`, `1.`).
+
+## Outline (.opml)
+
+The shape of the project as an outline: every folder, chapter, scene and note that is exported, nested as it is in the binder, each with its synopsis as its note. No text. Boards (canvases, timelines, maps, dialogues) are in it too, as titles.
+
+- **Scrivener:** choose **File** → **Import** → **OPML or OmniOutliner File…** and pick the file. Each item becomes a document in the binder, and its note its synopsis or text, as you choose in Scrivener's import options.
+- **OmniOutliner, Workflowy, Dynalist, Logseq** and most outliners open or import OPML too.
+
+**What** and the spoiler horizon apply as for every export: a note outside the horizon is left out, and a folder kept only for what it holds is listed without its synopsis.
+
+## Archive of Our Own (AO3)
+
+AO3's posting form takes a work one chapter at a time: a title, a summary and the text, which it reads as HTML. Choose **Archive of Our Own (AO3)**, then **Show the chapters**, and the dialog lists them with a button to copy each part:
+
+- **Title**, **Summary** (the chapter's synopsis, when it has one) and **Chapter text (HTML)**.
+- On AO3, choose **Post New Work**, switch the text box to **HTML** and paste chapter 1. Then **Add Chapter** for each of the rest.
+- **Or download them all** saves a zip: `post-to-ao3.html`, a page that opens in any browser with the same copy buttons and a preview of each chapter, and each chapter's HTML as a file of its own in `chapters/`.
+
+How the text becomes chapters:
+
+| In the binder | On AO3 |
+| --- | --- |
+| A chapter | One AO3 chapter, under its title. Its scenes run on with a line (`<hr />`) between them. |
+| A folder holding chapters (a part) | Its title as a heading at the top of its first chapter. AO3 has no parts. |
+| A scene or note at the top, before any chapter (a prologue) | A chapter of its own, under its title |
+| A story with no chapters or folders at all | One chapter, under the work's title |
+| Bold, italics, underline, strikethrough, links, lists, quotes, tables | Kept, in the tags AO3 allows |
+| Pictures on the web | Kept. Pictures uploaded into Plotra are left out: AO3 can't load them |
+| Scripts | Character names and parentheticals centred, transitions to the right |
+
+**What** and the spoiler horizon apply as for every export. The opening pages stay out: AO3 has its own work notes for that.
+
+## Under a spoiler horizon
+
+If a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) is on when you open the dialog, it says "As of (release): only what's revealed by then is exported." To export everything, switch the horizon off first.
+
+- Notes the audience does not know by that release are left out. A folder or chapter kept only for what is inside it appears as a heading, without its own text or tags.
+- Passages tagged for a later release are left out.
+- A link to a note that is left out keeps its display text if you gave it one; otherwise it disappears from the sentence.
+
+<Callout type="warn" title="Passages marked Never are not in file exports">
+A passage tagged **Never** is left out of Word, Markdown and plain-text exports whether or not a horizon is on. So is a passage tagged with a release that has since been deleted. To get everything in a file, remove those [block tags](/docs/canon/releases-and-reveals#block-tags) first. The PDF route is different: without a horizon, the Read view prints every passage.
+</Callout>
+
+## Printing and PDF
+
+Plotra makes PDFs through your browser's print dialog. Choose **PDF** in the export dialog and click **Open print preview**: the [Read view](/docs/views/planning#read) opens on what you selected, and the print dialog opens as soon as the pages are laid out. Choose "Save as PDF" as the printer.
+
+- In the Read view, pick **Submission format (Courier)**, **Book** or a script layout, then **Print / PDF** to print again in that layout.
+- The paper is US Letter unless you chose A4 in Customize → Opening and printing → **Paper**.
+- The Read view holds up to 400 notes. A longer project is printed a folder at a time.
+- If the pages are not ready within 20 seconds, the print dialog does not open by itself. Click **Print / PDF** in the Read view.
+
+The Read view needs no module. Anyone who can read the project can print it.
+
+## A copy kept in GitHub
+
+A project can keep itself in a GitHub repository, as plain Markdown files that are updated as you write: your work readable outside Plotra, with every change in the repository's history. The files are the same as **Markdown, a file per note**: folders like the binder, a file per note, `[[links]]` kept, so the repository also opens as an Obsidian vault.
+
+![Project settings, GitHub: Repository, Branch, Folder in it, the access key, and Save and copy](/shots/settings-github.webp)
+
+Open **Project settings** → **GitHub**, under **Advanced**. Only people who manage the project see it.
+
+1. On GitHub, make the repository (or use one you have). It needs a first commit: if it's new, add a README.
+2. On GitHub, [make a new key](https://github.com/settings/personal-access-tokens/new) (GitHub calls it a fine-grained token) for that repository only, with **Contents: Read and write**. Copy it.
+3. In Plotra, under **Keep a copy in a GitHub repository**, enter the **Repository** as `owner/name` (pasting its `https://github.com/…` address works too), the **Branch** (leave it as `main` if unsure) and the **Folder in it** the files go in (the project's name to begin with; empty for the top of the repository), paste the key under **Access key**, and choose **Save and copy**.
+
+Plotra checks that the key can see the repository, can write to it, and that the branch exists, then commits the project once. After that:
+
+- **Each copy is one commit** of only what changed, "Update from Plotra (*n* files)", made with the key, so it shows as yours. Nothing is committed when nothing changed.
+- **When:** a few minutes after a note is saved or something changes in the binder (at most every five minutes a project), and once a day for anything still waiting. **Copy now** sends the changes at once.
+- **What it reads:** the project as the person who set the copy up can read it. If they lose access, the copy fails and says so; set it up again yourself.
+- **What it deletes:** Markdown files in the folder that the project no longer has (a note trashed or renamed). Other files there (a README, pictures) are left alone, and so is everything outside the folder.
+- **Errors** (an expired key, a branch that moved) show under the repository's name; the next copy tries again.
+- The switch, **Keep sending changes to GitHub**, pauses the copy and starts it again. **Stop** asks first, then forgets the access key; nothing on GitHub is changed or deleted.
+- **Change where it goes** takes a new repository, branch or folder. Leave the access key empty to keep the saved one.
+
+Above the form, the repository's name links to the folder on GitHub, with "Last copied (date)." under it, and "Changes since then go in a few minutes." when there are. After a copy you see "Sent 3 changes to (repository).", or "GitHub already has everything." when nothing had changed.
+
+GitHub's own messages still call the access key a token:
+
+| Message | What to do |
+| --- | --- |
+| "The token can't see that repository. Check its name, and that the token is for it." | Check `owner/name`, and that the key was made for that repository. |
+| "The token can read the repository but not write to it. Give it Contents: Read and write." | Edit the key's permissions on GitHub, or make a new one. |
+| "The repository is empty. Add a first file (a README) on GitHub, then save again." | Add any file on GitHub first. |
+| "The repository has no branch called (branch)." | Make the branch on GitHub, or enter one it has. |
+| "GitHub didn't accept the token. It may have expired: make a new one and save it here." | Make a new key and paste it under **Change where it goes**. |
+| "GitHub refused to …: the branch may have moved. Sync again." | Someone pushed to the branch while Plotra was writing. **Copy now**. |
+| "The project couldn't be read with the access of whoever set up the sync. Set it up again yourself." | The person who set it up lost access. Save it again with your own key. |
+
+**Save and copy** can be used 30 times an hour, and **Copy now** 20 times every ten minutes, per person.
+
+The access key is kept sealed with the server's own secret and is never shown again, only its last four characters. On a self-hosted server, changing `BETTER_AUTH_SECRET` makes saved keys unreadable: enter the key again. The daily sweep runs with the digest cron (`CRON_SECRET`, see [Self-hosting](/docs/self-hosting)).

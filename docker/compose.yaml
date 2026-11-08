@@ -1,0 +1,200 @@
+# Plotra, self-hosted: the app, Postgres, the collab server and an S3 store.
+#
+#   cd docker
+#   cp .env.example .env        # then generate the secrets, see .env.example
+#   docker compose pull         # the published images (ghcr.io)
+#   docker compose up -d
+#
+# Or build the images from this checkout instead: docker compose up -d --build
+# (needed to compile in NEXT_PUBLIC_SITE_URL, PostHog or browser-side Sentry).
+#
+# The full guide is the docs' Self-hosting tab, apps/docs/content/docs/(hosting)/self-hosting/.
+# Needs Docker Compose v2.20 or newer (`depends_on.required`).
+#
+# Postgres, MinIO and the collab server are optional parts, switched on by
+# COMPOSE_PROFILES in .env. Take `postgres` out to use Neon or your own
+# database, `minio` out to use another S3 store or none (files then go into
+# Postgres), and `collab` out to run the collab worker on Cloudflare instead.
+
+name: plotra
+
+services:
+  postgres:
+    profiles: [postgres]
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      # This role owns the database and is a superuser, which the migrations
+      # need: they create the `plotra_app` role that row-level security runs as.
+      POSTGRES_USER: plotra
+      POSTGRES_DB: plotra
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    volumes:
+      # Postgres 18 images keep their data under /var/lib/postgresql/<version>/.
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plotra -d plotra"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # Not published: only the other containers reach it. To use psql from the
+    # host, add:  ports: ["127.0.0.1:5432:5432"]
+
+  # Applies the database migrations, then exits. The app waits for it.
+  migrate:
+    image: ${PLOTRA_IMAGE:-ghcr.io/itzsudhan/plotra}-migrate:${PLOTRA_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: docker/migrate.Dockerfile
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://plotra:${POSTGRES_PASSWORD:-}@postgres:5432/plotra}
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+
+  minio:
+    profiles: [minio]
+    # The official minio/minio image is no longer published. This is the
+    # community-maintained build of the same server; any S3-compatible store
+    # works in its place (set S3_ENDPOINT and drop the `minio` profile).
+    image: ${MINIO_IMAGE:-pgsty/minio:RELEASE.2026-08-04T00-00-00Z}
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-plotra}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-}
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # Not published: the app reads and writes files on behalf of browsers, so
+    # nothing outside needs to reach the store. For its web console, add:
+    #   ports: ["127.0.0.1:9001:9001"]
+
+  # Creates the bucket, then exits. Safe to run again.
+  minio-init:
+    profiles: [minio]
+    image: ${MINIO_IMAGE:-pgsty/minio:RELEASE.2026-08-04T00-00-00Z}
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-plotra}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-}
+      S3_BUCKET: ${S3_BUCKET:-plotra}
+    entrypoint: ["sh", "-c"]
+    command:
+      - mc alias set store http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" && mc mb --ignore-existing "store/$$S3_BUCKET"
+
+  app:
+    image: ${PLOTRA_IMAGE:-ghcr.io/itzsudhan/plotra}-app:${PLOTRA_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: docker/app.Dockerfile
+      # NEXT_PUBLIC_* values are compiled into the browser bundle, so they are
+      # build arguments. After changing one: docker compose up -d --build app
+      args:
+        NEXT_PUBLIC_COLLAB_URL: ${NEXT_PUBLIC_COLLAB_URL:-http://localhost:8787}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+        NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY:-}
+        NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST:-}
+        SENTRY_DSN: ${SENTRY_DSN:-}
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+        required: false
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://plotra:${POSTGRES_PASSWORD:-}@postgres:5432/plotra}
+      DATABASE_DRIVER: ${DATABASE_DRIVER:-}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in docker/.env (see .env.example)}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      COLLAB_SECRET: ${COLLAB_SECRET:?Set COLLAB_SECRET in docker/.env (see .env.example)}
+      # Also read at run time, by /api/health.
+      NEXT_PUBLIC_COLLAB_URL: ${NEXT_PUBLIC_COLLAB_URL:-http://localhost:8787}
+      # Where the app itself reaches the collab server (the AI agent edits documents
+      # through it). Empty when the collab server isn't the bundled one: the public URL is used then.
+      COLLAB_INTERNAL_URL: ${COLLAB_INTERNAL_URL-http://collab:8787}
+      # Files: an S3-compatible store, or none (Postgres).
+      S3_ENDPOINT: ${S3_ENDPOINT:-}
+      S3_REGION: ${S3_REGION:-}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
+      # Optional services.
+      SMTP_URL: ${SMTP_URL:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      REPORT_EMAIL: ${REPORT_EMAIL:-}
+      # AI: each person's own key, an instance-wide one, or a local model.
+      AI_KEY_SECRET: ${AI_KEY_SECRET:-}
+      AI_ALLOW_PRIVATE_URLS: ${AI_ALLOW_PRIVATE_URLS:-true}
+      AI_PROVIDER: ${AI_PROVIDER:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_MODEL_AGENT: ${AI_MODEL_AGENT:-}
+      AI_MODEL_FAST: ${AI_MODEL_FAST:-}
+      PLOTRA_NO_AI: ${PLOTRA_NO_AI:-}
+      WEBHOOK_ALLOW_PRIVATE_URLS: ${WEBHOOK_ALLOW_PRIVATE_URLS:-}
+      # Paid plans through Creem. Off unless CREEM_API_KEY is set.
+      CREEM_API_KEY: ${CREEM_API_KEY:-}
+      CREEM_WEBHOOK_SECRET: ${CREEM_WEBHOOK_SECRET:-}
+      CREEM_PRODUCT_PRO_MONTHLY: ${CREEM_PRODUCT_PRO_MONTHLY:-}
+      CREEM_PRODUCT_PRO_YEARLY: ${CREEM_PRODUCT_PRO_YEARLY:-}
+    # Lets the app reach a model server on the Docker host (Ollama) as
+    # http://host.docker.internal:11434, on Linux too.
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - ${APP_BIND:-0.0.0.0}:${APP_PORT:-3000}:3000
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 10s
+      timeout: 6s
+      retries: 12
+      start_period: 10s
+
+  collab:
+    profiles: [collab]
+    image: ${PLOTRA_IMAGE:-ghcr.io/itzsudhan/plotra}-collab:${PLOTRA_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: docker/collab.Dockerfile
+    restart: unless-stopped
+    # An init process, so `docker compose stop` reaches wrangler and the
+    # workerd process it starts.
+    init: true
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      # The app's public URL: tokens name it as their issuer.
+      APP_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      # Where this container actually reaches the app.
+      APP_INTERNAL_URL: http://app:3000
+      COLLAB_SECRET: ${COLLAB_SECRET:?Set COLLAB_SECRET in docker/.env (see .env.example)}
+    volumes:
+      - collab-data:/data
+    ports:
+      - ${COLLAB_BIND:-0.0.0.0}:${COLLAB_PORT:-8787}:8787
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+volumes:
+  postgres-data:
+  minio-data:
+  collab-data:

@@ -1,0 +1,4 @@
+# `bun test` (apps/app/tests): the modules under test are server code, so the
+# marker package that keeps them out of client bundles is stubbed first.
+[test]
+preload = ["./tests/setup.ts"]

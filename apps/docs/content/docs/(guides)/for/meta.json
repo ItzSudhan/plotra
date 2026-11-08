@@ -1,0 +1,16 @@
+{
+  "title": "Guides by role",
+  "description": "A route through Plotra for your kind of work",
+  "defaultOpen": false,
+  "pages": [
+    "novelists",
+    "game-masters",
+    "screenwriters",
+    "game-writers",
+    "nonfiction",
+    "teams",
+    "collaborators",
+    "workspace-owners",
+    "self-hosters"
+  ]
+}

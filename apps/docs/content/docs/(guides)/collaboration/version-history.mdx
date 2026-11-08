@@ -1,0 +1,65 @@
+---
+title: Version history
+description: "Go back to how a note read before. How versions are made, how to look at one, and how to name, restore or delete it."
+---
+
+Version history lets you go back. A version is a complete copy of one note at one moment. It lives in the inspector, under **Review** → **History**; the "Show version history" command opens it.
+
+![The History panel beside a scene: a field to name a version, a named version called "Before Priya's pass" and an automatic snapshot](/shots/collab-history.webp)
+
+## How versions are made
+
+| Kind | When | Kept |
+| --- | --- | --- |
+| A version you save | When you click **Save** at the top of the panel. Type a name first in **Name it to keep it for good** if you want one ("Before the rewrite"); names can be up to 80 characters. | Until someone deletes it |
+| An automatic snapshot | While a note is being edited, whenever its newest version is more than half an hour old (or as often as the project says: [Automatic versions](/docs/settings/project#automatic-versions)). Nobody has to do anything. | The latest 40 for each note. Older ones are removed. |
+| A safety copy | Just before a version is restored, named "Before restoring “*name*”". | Until someone deletes it |
+
+A note that nobody edits gets no new snapshots. Giving an automatic snapshot a name turns it into a saved version, so it is no longer removed. Set [Automatic versions](/docs/settings/project#automatic-versions) to **Never** and no automatic snapshots are kept; every other kind still is.
+
+Other parts of Plotra save versions of their own, named for what they were kept for. They are kept until someone deletes them, like a version you save.
+
+| Name in the list | Saved when | Covered in |
+| --- | --- | --- |
+| "Before retcon: *reason*" | A note is marked **Retconned**. | [Retcons keep their history](/docs/canon#retcons-keep-their-history) |
+| "Release: *title*" | A release is cut, for every note in the project. Cutting it again replaces them. | [Review and editorial](/docs/modules/editorial) |
+| "Before AI · for *name*" | The AI agent first changes the note's text in a run. | [Undoing a run](/docs/ai#undoing-a-run) |
+| "AI, for *name*" | A run that changed the note's text ends. | [Undoing a run](/docs/ai#undoing-a-run) |
+| "Before an API change" | A script or plugin replaces the whole note through the API. | [The API](/docs/developers/api) |
+
+In the list, an automatic snapshot has a clock and reads "Automatic snapshot". Every other version has a bookmark and its name; one saved without a name reads "Automatic snapshot" too. A note with no versions yet says "No versions yet. Plotra keeps one automatically every half hour while people write, and you can save named ones any time."
+
+The list shows the latest 200 versions of the note, newest first, each with who saved it, when, and its word count.
+
+## Looking at a version
+
+Click a version to open it.
+
+| Tab | Shows |
+| --- | --- |
+| **Changes since** | What is different between that version and the note now. Green was added since the version; red was removed. This is the tab it opens on. |
+| **This version** | The text as it was. |
+
+For a canvas or a dialogue there is nothing to compare: the dialog says how many cards, lines and connections the version holds, and you restore it to see it.
+
+## Renaming, deleting and restoring
+
+| Button | What it does | Who |
+| --- | --- | --- |
+| **Rename** | Gives the version a name, or a new one. | Anyone who can edit |
+| **Delete** | Removes the version for good, after asking. The note itself isn't changed. | Whoever saved it, if they can edit. Owners and admins can delete any version, automatic snapshots included. |
+| **Restore this version** | Replaces the note's content with the version's. The current content is saved as a version first, so a restore can be undone by restoring that one. | Anyone who can edit |
+
+A restore is a normal edit: everyone with the note open sees the text change, and it applies directly even in suggesting mode. Paragraphs that read the same in the version are left as they are, so comments on them keep their highlight. A comment on a paragraph the restore changes keeps its quoted text.
+
+While a note is in a locked review stage, only its approvers can restore a version of it.
+
+Viewers and commenters can open and compare versions. They can't save, rename, delete or restore.
+
+## Things to know
+
+- Version history works for text notes, canvases and dialogues.
+- Versions count toward the workspace's storage; see [Storage](/docs/settings/limits#storage). When it is full, the oldest automatic snapshots in the workspace are removed to make room, oldest first, and each note keeps its latest one. Named versions, release snapshots and the AI agent's "Before AI" versions are never removed this way. Only when that isn't enough is saving a version refused with a message, and an automatic snapshot skipped without one.
+- Saving a named version, naming one and restoring one are listed in the [activity feed](/docs/collaboration/notifications#the-activity-feed). Unnamed and automatic versions are not.
+- You can save up to 120 versions an hour.
+- A version is a copy of one note. There is no version of a whole project; for that, cut a release with the **Review & editorial** module, or [export the project](/docs/import-export).

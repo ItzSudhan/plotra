@@ -1,0 +1,51 @@
+---
+title: Accessibility
+description: "What works with a keyboard, a screen reader, less motion and more contrast, what doesn't yet, and how to tell us about a barrier."
+---
+
+This page gathers what Plotra does for people who use a keyboard, a screen reader, reduced motion or high contrast, and is honest about the parts that don't work for them yet. Each section links to the page that describes the feature in full.
+
+## Keyboard
+
+- **Commands.** Every command in a project is in **All commands** (`⌘P`), and most can be given keys of their own. The list of keys, and how to change them, is on [Keyboard shortcuts](/docs/reference/keyboard-shortcuts).
+- **Finding things.** **Find a note** (`⌘O`) and **Search the whole project** (`⌘⇧O`) open a note without the binder. See [Find anything](/docs/get-started/the-screen#find-anything).
+- **Skip to content.** In a project, the first press of `Tab` shows a **Skip to content** link, which jumps past the ribbon and the binder to the open notes.
+- **The binder** works from the keyboard alone, moving notes included: `⌥` with the arrow keys, or **Move to…** in the note's menu (`⇧F10`). See [Keys](/docs/writing/binder#keys).
+- **The inspector's tabs** follow the usual pattern for tabs: `Tab` reaches the selected one, `←` `→` move between them, `Home` and `End` go to the first and the last.
+- **Sidebars.** `Tab` to the edge of the binder or the inspector and resize it with `←` and `→`. See [The screen](/docs/get-started/the-screen).
+- **Panes.** **Split right** (`⌘⌥\`) and **Split down** move the open tab into a new pane; `⌘⌥→` and `⌘⌥←` go from tab to tab. See [Tabs and panes](/docs/get-started/the-screen#tabs-and-panes).
+- **Selected blocks** in the editor have keys of their own: select, duplicate, copy, cut, delete and tag. See [Moving blocks](/docs/writing/editor#moving-blocks).
+- **Customize.** The rows of the status bar, the formatting toolbar and the binder header have up and down arrow buttons as well as drag handles. See [Customize](/docs/settings/customize).
+
+## Screen readers
+
+- **Pictures** in the editor can have alt text: move onto the picture with the arrow keys, or click it, and press `Tab` to reach its **Alt text** button. It is kept for your co-writers, in the public reader and in exports. See [Images](/docs/writing/editor#images).
+- **The writing chart** in the Stats view has a **Table** button that shows the same days as a table a screen reader can read day by day. See [The chart](/docs/writing/goals#the-chart).
+- **The graph** has a **List** that shows the same notes, with what each links to and what mentions it. See [Graph or list](/docs/views/world#graph-or-list).
+- **A map's** pins, regions and paths are listed by name in **On this map**. See [The toolbar](/docs/views/maps#the-toolbar).
+
+## Motion
+
+**Your settings** → **Motion** → **Animations** turns the app's animations off: pages, menus, dialogs and tabs then change at once. The choice is kept with your account. Spinners and loading shimmers keep going, so you can still see that something is happening. If your system is set to reduce motion, Plotra stays still whatever the switch says, and the Motion section tells you so. See [Your settings](/docs/settings/account#your-settings).
+
+## Contrast, colour and size
+
+- **High contrast** is one of the palettes in **Customize** → **Colours**, in a light and a dark version. See [Colours and your own CSS](/docs/settings/customize#colours-and-your-own-css).
+- **Interface size** makes the buttons, menus and labels bigger, up to **Larger**, and **Text size** does the same for the text you write. See [Interface size](/docs/settings/customize#interface-size) and [The page](/docs/settings/customize#the-page).
+
+## Known gaps
+
+Some of Plotra is still drawn for a mouse, a trackpad or a touch screen.
+
+- **The canvas.** Cards are added from the **Add** menu, and a focused card opens with `↵` or `F2`, but arrows between cards are drawn by dragging from a card's dots. Pen strokes are drawn with a pointer. See [Canvas](/docs/views/timeline-and-canvas#canvas).
+- **Dialogues.** A card added from the toolbar with another card selected is joined to it, but a jump between two cards that are already there is drawn by dragging. (Quests have a way without dragging: **Add a quest to do first…** in a quest's panel.) See [Drawing jumps](/docs/modules/interactive/dialogue#drawing-jumps).
+- **Maps.** A pin, region or path is placed by clicking the map, and a pin is moved by dragging it. From the keyboard, **Pin a note** pins a note in the middle of the screen, and pins can be reached with `Tab`. See [Maps](/docs/views/maps).
+- **The timeline.** Items are moved and stretched by dragging. From the keyboard, `Tab` to an item and press `↵` to change its dates in its panel. See [Moving and stretching](/docs/views/timeline-and-canvas#moving-and-stretching).
+- **The graph and the relationship map** are pictures you pan and zoom with a pointer. Use the graph's **List**, and **Add relationship** in the relationship map's toolbar, instead. See [Adding a relationship](/docs/views/world#adding-a-relationship).
+- **Drag and drop** elsewhere has a keyboard way only where a menu or a key offers one: notes in the binder and cards on the corkboard (`⌥←` `⌥→`) do, but a block in the editor has no keys to move it up or down (cut and paste it instead), and a tab is moved into another pane only by dragging it.
+
+Barriers we already know about are listed as [open issues labelled accessibility](https://github.com/ItzSudhan/plotra/issues?q=is%3Aopen+label%3Aaccessibility).
+
+## Reporting a barrier
+
+If something in Plotra or in these docs gets in your way, [open a bug report on GitHub](https://github.com/ItzSudhan/plotra/issues/new?template=bug_report.yml&labels=bug,accessibility) and say that it's an accessibility barrier, so it gets the `accessibility` label. Say what you were trying to do, what you use (a screen reader, keyboard only, zoom, reduced motion…) and what happened. Don't paste your manuscript: issues are public. Other ways to reach us are in [Reporting a problem](/docs/reference/troubleshooting#reporting-a-problem).

@@ -1,0 +1,63 @@
+---
+title: MCP server
+description: "Plotra as an MCP server: connect Claude, Cursor or another assistant so it can read your world and write into it, as you."
+---
+
+The Model Context Protocol lets an AI assistant use tools. Connect one to Plotra and it can read your project and write into it, as you, under the same permissions as you.
+
+Plotra's MCP server is at:
+
+```
+https://<your Plotra address>/api/mcp
+```
+
+It uses the Streamable HTTP transport.
+
+## AI has to be on
+
+An assistant is AI, so it only opens projects where AI is switched on: the workspace's owner switches it on in the workspace's **Settings → AI**, and each project can switch it off for itself. Projects where AI is off don't appear in `list_projects`, and every other tool refuses them. A workspace that promised no AI is closed to assistants too, and so is a server that took AI out (`PLOTRA_NO_AI`).
+
+If none of your projects has AI on, Plotra won't let an assistant connect at all. Switch AI on, then connect.
+
+## Connect Claude
+
+In Claude, open **Settings → Connectors**, choose **Add custom connector**, and paste the address above. Claude sends you to Plotra to sign in; Plotra shows which projects it could open and asks whether it may only read, or read and write. Choose, then **Connect**.
+
+Claude Code works the same way:
+
+```sh
+claude mcp add --transport http plotra https://<your Plotra address>/api/mcp
+```
+
+Then run `/mcp` in Claude Code and pick plotra to sign in.
+
+Connected apps are listed in **Your settings → Advanced → API tokens and MCP**, where you can disconnect them. An app's access lasts an hour at a time and renews itself; it stops at once when you disconnect it.
+
+## With a token
+
+Clients that can't sign in take an [API token](/docs/developers/api#api-tokens) as a bearer token instead:
+
+```sh
+claude mcp add --transport http plotra https://<your Plotra address>/api/mcp \
+  --header "Authorization: Bearer plt_…"
+```
+
+A token is held to the same rule: through MCP, it only opens projects where AI is on. The REST API isn't.
+
+## For client authors
+
+Plotra follows the MCP authorization spec: a `401` from `/api/mcp` points to `/.well-known/oauth-protected-resource/api/mcp`, which names Plotra as its authorization server (`/.well-known/oauth-authorization-server`). Clients register themselves (`/api/oauth/register`, RFC 7591), use the authorization code flow with PKCE (`S256` only), and get an access token for an hour and a refresh token that's replaced each time it's used. Scopes are `read` and `write`. Redirect URIs must be `https`, `http` to `localhost`, or an app's own scheme.
+
+## Tools
+
+| Tool | What it does | Needs |
+| --- | --- | --- |
+| `list_projects` | The projects you can open, with their ids | Read |
+| `list_notes` | A project's notes in binder order: ids, kinds, parents, tags, word counts | Read |
+| `read_note` | One note, its text as Markdown | Read |
+| `search` | Full-text search in a project, best first | Read |
+| `create_note` | A new note from Markdown, at the end of the project or inside a folder or chapter | Write |
+| `update_note` | A note's title, synopsis, tags, aliases or status | Write |
+| `write_note_text` | Appends to a note's text, or replaces it; optionally as suggestions | Write |
+
+A read-only token or connection only offers the tools that read.

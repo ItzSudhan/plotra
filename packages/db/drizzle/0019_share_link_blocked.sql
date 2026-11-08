@@ -1,0 +1,1 @@
+ALTER TABLE "share_link" ADD COLUMN "blocked_at" timestamp;

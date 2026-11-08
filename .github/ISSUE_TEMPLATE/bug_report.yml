@@ -1,0 +1,92 @@
+name: Bug report
+description: Something in Plotra doesn't work the way it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. Plotra is early and most features have only been tested by one person, so reports from real use help a lot.
+
+        **Please don't paste your manuscript.** A made-up sentence that shows the problem is enough.
+        Security problems go through [SECURITY.md](https://github.com/ItzSudhan/plotra/blob/master/SECURITY.md), not here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The shortest list of steps that shows the problem, starting from a new project if you can.
+      placeholder: |
+        1. Create a novel project
+        2. Add a scene and type "[["
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where are you running Plotra?
+      options:
+        - The hosted version
+        - Self-hosted with Docker
+        - Locally with `bun dev`
+        - Other (say which below)
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part?
+      options:
+        - Editor
+        - Binder, tabs and panes
+        - Links, backlinks, properties, tags
+        - A view (timeline, graph, plot grid, corkboard, ...)
+        - Collaboration (live editing, comments, suggestions, versions)
+        - Sharing and members
+        - Canon, releases and the spoiler horizon
+        - Import or export
+        - Sign-in and accounts
+        - Self-hosting and setup
+        - The site or the docs
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: Firefox 143 on Windows 11
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit or date
+      description: For a self-hosted or local instance, the commit (`git rev-parse --short HEAD`). For the hosted version, the date you saw it.
+  - type: dropdown
+    id: people
+    attributes:
+      label: Was more than one person in the project at the time?
+      options:
+        - "No, only me"
+        - "Yes, two or more people editing"
+        - Not sure
+  - type: textarea
+    id: logs
+    attributes:
+      label: Errors
+      description: Anything from the browser console, the terminal, or an error message on screen. Remove anything private first.
+      render: text
+  - type: checkboxes
+    id: data-loss
+    attributes:
+      label: Did you lose any writing?
+      description: Lost text is the most serious kind of bug here. Tick this and it gets looked at first.
+      options:
+        - label: Yes, text was lost or overwritten

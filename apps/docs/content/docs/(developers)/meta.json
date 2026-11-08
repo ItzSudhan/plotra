@@ -1,0 +1,17 @@
+{
+  "title": "Developers",
+  "description": "The API, MCP, webhooks and plugins",
+  "root": true,
+  "icon": "Code",
+  "pages": [
+    "developers/index",
+    "---[KeyRound]API---",
+    "developers/api",
+    "developers/mcp",
+    "developers/webhooks",
+    "---[Puzzle]Extend the app---",
+    "developers/plugins",
+    "---[GitPullRequest]Open source---",
+    "[Contributing](https://github.com/ItzSudhan/plotra/blob/master/CONTRIBUTING.md)"
+  ]
+}

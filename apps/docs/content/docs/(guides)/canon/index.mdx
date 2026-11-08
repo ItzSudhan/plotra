@@ -1,0 +1,156 @@
+---
+title: Canon and the world bible
+description: "Keep a long story consistent. What the canon tools are and which module each belongs to, then the world bible, canon status and retcons."
+---
+
+This is the part of Plotra that other writing tools don't have. It answers three questions that get harder with every book: what is actually true in this world, what has the audience been told so far, and who in the story knows it. With those answered in the project, a series stays consistent without you rereading it, and a contradiction is found by you, not by a reader.
+
+These tools belong to two modules.
+
+| Module | What it adds |
+| --- | --- |
+| **World bible** | Entity types of your own, canon status and retcon history, the **Continuity** view with its checks and character sheets. |
+| **Releases & reveals** | Releases, reveals and channels, the spoiler horizon, the **Release roadmap** and **Secrets & setups** views. |
+
+A tabletop RPG project starts with both on. A franchise project starts with **World bible**. Every other type starts with neither: turn them on in the **Tools** tab of [Project settings](/docs/settings/project), which needs someone who manages the project. Turning a module off hides its tools and keeps everything you recorded. See [Modules](/docs/modules).
+
+Everyone who can open the project can read all of this. Changing it needs edit access: viewers and commenters see the same views with the controls switched off.
+
+## The world bible
+
+Characters and locations are built in. For everything else, define your own **entity types**: a faction, an object, a species, a magic system, a legal case. Each type has its own name, icon, colour and fields. Project settings lists them as **Note types**.
+
+Every page of a type is an ordinary note, a **World entry**. It has a body, tags, a synopsis and a canon status, it can be linked with `[[`, the notes that link to it are listed under **Mentioned in**, and it appears in the graph. Its fields show in the **Properties** panel. The **Codex** view (`⌘⌥⇧C`) lists the pages by type; see [World views](/docs/views/world).
+
+### The types you start with
+
+The first time the project is opened with **World bible** on, it gets nine types. Rename, reshape or delete any of them.
+
+| Type | Fields |
+| --- | --- |
+| Faction | Kind (Nation, Organisation, Guild, Family, Cult, Company), Leader (a character), Based in (a location), Goal |
+| Object | Owner (a character), Kept at (a location), Significance |
+| Event | Story date, Location (a location), Participants (several characters) |
+| Species | Habitat, Lifespan, Sapient (a checkbox) |
+| Culture | Homeland (a location), Values |
+| Language | Family, Script |
+| Religion | Deities, Tenets |
+| System | Source, Limits & costs |
+| Theme | Statement |
+
+With the **Interactive narrative** module on, a **Quest** type is added too. See [Interactive narrative](/docs/modules/interactive).
+
+A project with no types at all gets the nine again the next time it is opened. Keep at least one type if you don't want them back.
+
+### Creating and editing a type
+
+Open the type dialog from either place:
+
+- the **Codex** view: **New type…** at the bottom of the list of types, or the gear beside a type (**Edit the type** *name* **and its fields**);
+- **Project settings**, the **Note types** tab: **New note type…**, or **Edit** beside a type.
+
+A new type can **Start from** one of 22 ready-made types, shown at the top of the dialog when you create one. Picking one fills in its name, plural, icon, colour and fields; change anything before you save. The project's own types aren't offered again.
+
+| Ready-made types | |
+| --- | --- |
+| Belief and story | Deity, Myth, Ritual, Law |
+| Magic and science | Spell, Magic system, Artifact, Technology, Material |
+| People and power | Organization, Military unit, Conflict, Rank, Profession, People |
+| The natural world | Creature, Plant, Condition, Celestial body |
+| Things | Document, Vehicle, Language |
+
+| Field | What it does |
+| --- | --- |
+| **Name** | What one page is called: "Faction". Required, up to 80 characters. It is the name used in the binder's **New…** menu and in **Change type**. |
+| **Plural** | The heading of its section in the Codex. Left empty, it is the name with an "s". |
+| **Icon** | One of 24 icons. |
+| **Colour** | The colour of the icon in the binder, the Codex and the graph. |
+| **Fields** | The properties every page of this type has. |
+
+Each field has a name (up to 60 characters) and a type:
+
+| Field type | Holds |
+| --- | --- |
+| Text | A line of text. |
+| Number | A number. |
+| Date | A date. |
+| Select | One choice from a list. Type the **Choices, separated by commas**. |
+| Multi-select | Several choices from a list. |
+| Link to note | Another note. Under **Links to**, tick the types of note it may point at (none ticked means any note). Tick **Several** to let it hold more than one. |
+| Checkbox | Yes or no. |
+| URL | A web address. |
+
+Use the arrows to reorder fields and the bin to remove one. **Add a field** adds a row. A field with no name is dropped when you save.
+
+Things to know about fields:
+
+- A field's type can't be changed once the type has been saved. Remove the field and add a new one.
+- Removing a field hides its values; it doesn't erase them. Add a field with the same name again and they come back.
+- A field that links to a note counts as a link: the page it points at lists this one under **Mentioned in** (see [Links](/docs/writing/links#backlinks)).
+- Limits: 40 fields per type, 100 choices per list, 60 types per project.
+
+**Delete type** removes the type after asking, and says how many notes use it. Its pages stay in the binder as plain notes, with their text untouched, but lose the type and its fields.
+
+### Creating a page
+
+With **World bible** on, each type has an entry in the binder's **New…** menu. In the Codex, select the type and press the plus beside the search box. To turn an existing note into a page of a type, right-click it and choose **Change type**. See [The binder](/docs/writing/binder#changing-a-notes-kind).
+
+## Canon status
+
+Every note has a canon status. A new note is **Draft**.
+
+![The Story tab of the inspector on a world entry, with the five canon statuses, the release that reveals it, and Truth or Belief](/shots/inspector-story.webp)
+
+| Status | Meaning |
+| --- | --- |
+| Canon | Established. It is true in the story. |
+| Draft | Still being worked out. |
+| Speculative | An idea that may or may not make it in. |
+| Retconned | Was canon, then changed. The old version is kept. |
+| Non-canon | Outside the story's continuity. |
+
+Set it in the **Story** tab of the inspector, under **Canon**: click a status and it applies at once. The Codex shows the status as a badge on each page.
+
+Canon status is used in four places:
+
+- the [continuity checks](/docs/canon/secrets-and-continuity#continuity-checks) warn when a canon scene links to something retconned or non-canon;
+- the published wiki can be limited to **Only canon pages and passages**, see [Publishing](/docs/modules/publishing);
+- a read-only link can be limited to **Only what's canon**, see [Read-only links](/docs/collaboration/sharing#read-only-links);
+- the [AI agent](/docs/ai) is told to respect it, and asks before changing it.
+
+A note that is [locked for review](/docs/modules/editorial) can't have its canon status or its reveal changed until it is unlocked.
+
+### Retcons keep their history
+
+Choosing **Retconned** opens a short form instead of applying straight away.
+
+1. Say what changed and why: "Her brother survives: Book 3 needs him." The reason is required.
+2. Optionally pick the release it changed in, under **Changed in…**. The list appears once the project has releases.
+3. Press **Retcon**.
+
+Plotra saves the note's text as it stands as a named version, "Before retcon:" followed by your reason, and adds an entry to the retcon history under the status buttons. Each entry shows the reason, the release it changed in, what the status was before, who did it and when. **old text in History** opens the History panel, where the saved version is kept until someone deletes it; it is never removed to make room when storage is full. See [Version history](/docs/collaboration/version-history).
+
+A note can be retconned more than once; every entry is kept, newest first. Moving a note away from **Retconned** later doesn't remove its history.
+
+### One block can differ from its note
+
+A character page can be canon while one line on it is still speculative. Put the cursor in a block and press `⌘⌥T` to give that block its own canon status. See [Block tags](/docs/canon/releases-and-reveals#block-tags).
+
+## The Story tab
+
+The **Story** tab of the inspector gathers a note's canon and reveal settings. It appears when **World bible**, **Releases & reveals** or **Research & sources** is on. "Show canon and reveals" in **All commands** opens it.
+
+| Section | Needs | Covered in |
+| --- | --- | --- |
+| **Canon** and the retcon history | World bible | [Canon status](#canon-status) |
+| **Revealed to the audience**: release, channel, Truth / Belief | Releases & reveals | [Reveals](/docs/canon/releases-and-reveals#reveals) |
+| **Tagged passages** and **Tag the selected block** | Any of the three | [Block tags](/docs/canon/releases-and-reveals#block-tags) |
+
+Under the reveal, two lines explain the effect: which horizons hide the note, and, for a note with others inside it, that everything inside is revealed with it unless it has its own tag.
+
+## Things to know
+
+- Block tags are indexed a few seconds after you stop typing, so the views lag slightly behind the editor.
+- Releases, reveals, who-knows-what entries and setups are shared with everyone on the project. The spoiler horizon, dismissed continuity results and the continuity calendar are stored in your browser.
+- Deleting a note for good removes its who-knows-what entries. A setup that pointed at it stays, with that side empty.
+- A [shared world](/docs/writing/links#shared-worlds) lends its characters, places and entries to another project. It doesn't lend its releases: the borrowing project's horizon doesn't apply to shared pages.

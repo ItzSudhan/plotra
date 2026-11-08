@@ -1,0 +1,57 @@
+name: Digest
+
+# The daily notification digest (plan.md 2.6, Phase 10): asks the app to email
+# everyone who has unread notifications and chose a daily digest. The app does
+# the work (apps/app/app/api/cron/digest); this only calls it, because Vercel's
+# Hobby plan can't be relied on for a schedule and a self-hosted instance has
+# no scheduler of its own.
+#
+# It does nothing until both of these exist
+# (Settings → Secrets and variables → Actions):
+#   APP_URL       variable: the app's address, e.g. https://app.plotra.ink
+#                 (the same one the Uptime workflow uses)
+#   CRON_SECRET   secret: the same value as the app's CRON_SECRET
+#
+# Emails stay inside Resend's free tier: the app sends at most 60 notification
+# emails a day and holds the rest for the next run. Running this by hand twice
+# doesn't send anything twice.
+#
+# Like every scheduled workflow in a public repository, this is switched off
+# after 60 days without a commit (GitHub emails first).
+
+on:
+  schedule:
+    # 06:41 UTC. Off the hour, when GitHub's scheduler is least delayed.
+    - cron: "41 6 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: digest
+  cancel-in-progress: false
+
+jobs:
+  send:
+    name: Send
+    if: vars.APP_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      APP_URL: ${{ vars.APP_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Send the digest
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::notice title=Digest skipped::The CRON_SECRET secret isn't set."
+            exit 0
+          fi
+          url="${APP_URL%/}/api/cron/digest"
+          # One retry covers a cold start. The app marks what it has sent, so a retry can't send twice.
+          if ! body=$(curl --silent --show-error --fail-with-body --max-time 120 --retry 1 --retry-delay 20 \
+            --request POST --header "Authorization: Bearer $CRON_SECRET" "$url"); then
+            echo "::error title=Digest failed::$url did not answer 200. Response: ${body:-none}"
+            exit 1
+          fi
+          echo "$body"

@@ -1,0 +1,25 @@
+{
+  "title": "Reference",
+  "description": "Settings, plans, shortcuts, roles and answers",
+  "root": true,
+  "icon": "Library",
+  "pages": [
+    "---[Settings]Settings---",
+    "settings/project",
+    "settings/account",
+    "settings/customize",
+    "---[CreditCard]Plans and limits---",
+    "settings/plans",
+    "settings/limits",
+    "---[Search]Look it up---",
+    "reference/keyboard-shortcuts",
+    "reference/accessibility",
+    "reference/roles-and-permissions",
+    "reference/project-types",
+    "reference/glossary",
+    "---[LifeBuoy]Help---",
+    "reference/faq",
+    "reference/troubleshooting",
+    "[MessageCircle][Ask on Discord](https://discord.gg/PxXr7Y4QrU)"
+  ]
+}

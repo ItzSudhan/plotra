@@ -1,0 +1,51 @@
+name: Feature request
+description: Something Plotra should do, or do differently.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Plotra is maintained by one person, so not everything can be built. The clearer the problem, the better the chance.
+
+        Check the roadmap in [plan.md](https://github.com/ItzSudhan/plotra/blob/master/plan.md#5-milestones) first: it may already be planned.
+
+        Two things Plotra will not add: paid plans or locked features, and AI that the project pays for. The agent runs on your own key or a local model.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The problem in your own writing or your team's work, not the solution yet. An example from a real project helps.
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: What do you do today instead?
+      description: Another tool, a spreadsheet, a workaround inside Plotra, or nothing.
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like Plotra to do?
+      description: As concrete as you can. A sketch or a screenshot of another tool is welcome.
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: What do you write?
+      options:
+        - Novels or a series
+        - Web serial
+        - Tabletop RPG campaigns
+        - Screenplays or TV
+        - Comics
+        - Games or interactive fiction
+        - Audio drama
+        - Non-fiction
+        - Something else
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Would you work on it?
+      options:
+        - label: I would like to build this, once we agree on the shape

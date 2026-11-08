@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self'" />
+    <title>Welcome to Plotra</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f7f6f3;
+        --fg: #161412;
+        --muted: #5f5a53;
+        --line: #e2ded6;
+        --card: #ffffff;
+        --accent: #b5461a;
+        --accent-fg: #ffffff;
+        --accent-text: #b5461a;
+        --ring: rgba(226, 96, 42, 0.55);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #141311;
+          --fg: #ece9e3;
+          --muted: #a8a299;
+          --line: #2e2b27;
+          --card: #1c1a18;
+          --accent: #e2602a;
+          --accent-fg: #ffffff;
+          --accent-text: #f08a5d;
+          --ring: rgba(226, 96, 42, 0.6);
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 40px 48px;
+        font: 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font: 400 36px/1.1 "Instrument Serif", "Iowan Old Style", Charter, Georgia, serif;
+        letter-spacing: -0.01em;
+      }
+      p.lede {
+        margin: 0 0 26px;
+        color: var(--muted);
+      }
+      .choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .choice {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px;
+        background: var(--card);
+      }
+      .choice h2 {
+        margin: 0 0 8px;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .choice ul {
+        margin: 0 0 18px;
+        padding-left: 18px;
+        color: var(--muted);
+        flex: 1;
+      }
+      .buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      button {
+        font: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        min-height: 36px;
+        border-radius: 8px;
+        padding: 7px 14px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--fg);
+        cursor: pointer;
+      }
+      button:hover:not(:disabled) {
+        border-color: var(--muted);
+      }
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--accent-fg);
+      }
+      button.primary:hover:not(:disabled) {
+        filter: brightness(1.08);
+      }
+      button:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px var(--ring);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .recent {
+        margin-top: 22px;
+      }
+      .recent h3 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .recent button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        margin-bottom: 6px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .missing {
+        margin: 0 0 18px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+      .missing strong {
+        color: var(--accent-text);
+        font-weight: 600;
+      }
+      .note {
+        margin: 18px 0 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        button {
+          transition: border-color 120ms, filter 120ms, box-shadow 120ms;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Where should your work live?</h1>
+    <p class="lede">You can change this later from the File menu, and use both. Projects in the cloud and in a library are kept separately.</p>
+
+    <p class="missing" id="missing" role="status" hidden></p>
+
+    <div class="choices">
+      <section class="choice" aria-labelledby="cloud-heading">
+        <h2 id="cloud-heading">Plotra Cloud</h2>
+        <ul>
+          <li>Sign in to your Plotra account</li>
+          <li>Write with others, share, and sync between devices</li>
+          <li>Backups and hosted AI</li>
+        </ul>
+        <div class="buttons">
+          <button class="primary" data-choice="cloud">Use Plotra Cloud</button>
+        </div>
+      </section>
+
+      <section class="choice" aria-labelledby="local-heading">
+        <h2 id="local-heading">On this computer</h2>
+        <ul>
+          <li>No account, no internet needed</li>
+          <li>Everything in a folder you choose: a library</li>
+          <li>Only you. To back up, use File → Back Up Now, or copy the folder</li>
+        </ul>
+        <div class="buttons">
+          <button class="primary" data-choice="new">New library…</button>
+          <button data-choice="open">Open library…</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="recent" id="recent" hidden>
+      <h3 id="recent-heading">Recent libraries</h3>
+      <div id="recent-list" role="group" aria-labelledby="recent-heading"></div>
+    </div>
+
+    <p class="note">On this computer, AI works with your own key, or an AI that runs on your computer.</p>
+
+    <script>
+      const buttons = () => document.querySelectorAll("button");
+      async function choose(choice, button) {
+        const label = button.textContent;
+        buttons().forEach((b) => (b.disabled = true));
+        button.textContent = "Opening…";
+        document.body.setAttribute("aria-busy", "true");
+        try {
+          await window.plotra.choose(choice);
+        } finally {
+          button.textContent = label;
+          buttons().forEach((b) => (b.disabled = false));
+          document.body.removeAttribute("aria-busy");
+        }
+      }
+      document.querySelectorAll("[data-choice]").forEach((button) => {
+        button.addEventListener("click", () => choose(button.dataset.choice, button));
+      });
+      window.plotra.missing().then((dir) => {
+        if (!dir) return;
+        const line = document.getElementById("missing");
+        const strong = document.createElement("strong");
+        strong.textContent = "Couldn't find your library";
+        line.append(strong, ` at ${dir}. Was it moved? Use Open library… to find it.`);
+        line.hidden = false;
+      });
+      window.plotra.recent().then((libraries) => {
+        if (!libraries.length) return;
+        const list = document.getElementById("recent-list");
+        for (const library of libraries) {
+          const button = document.createElement("button");
+          button.textContent = library.name;
+          button.title = library.path;
+          button.setAttribute("aria-label", `${library.name}, ${library.path}`);
+          button.addEventListener("click", () => choose({ library: library.path }, button));
+          list.appendChild(button);
+        }
+        document.getElementById("recent").hidden = false;
+      });
+    </script>
+  </body>
+</html>

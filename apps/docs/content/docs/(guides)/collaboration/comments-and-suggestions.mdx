@@ -1,0 +1,83 @@
+---
+title: Comments and suggestions
+description: "Talk about the text without changing it, and propose changes that someone accepts or rejects. Threads, mentions, reactions and suggesting mode."
+---
+
+Feedback stays in the draft, attached to the words it is about. A **comment** is a thread on a passage. A **suggestion** is a tracked change that is not final until someone accepts it.
+
+## Comments
+
+Comments are how a reader or an editor talks about the text without changing it. Anyone who can comment can use them: commenters, editors and workspace members. Viewers can read comments but not write them.
+
+![A scene with the Comments panel open: one suggestion with Reject and Accept, and one thread that quotes the passage, with a reply and Resolve](/shots/collab-comments.webp)
+
+Comments live in the inspector, under **Review** → **Comments**. The "Show comments" command opens it.
+
+### Starting a thread
+
+1. Select the text you want to talk about.
+2. Press `⌘⌥M`, or click **Comment** in the toolbar beside the selection, or **Comment** at the top of the Comments panel.
+3. Write the comment and press `⌘↵`, or click **Comment**. `Esc` cancels.
+
+The passage is highlighted in the text, and the thread quotes it. With nothing selected, the comment is **On the whole note**. Comments can be made on text notes; canvases, timelines and dialogues have no comments.
+
+A comment can be up to 5,000 characters.
+
+### Threads
+
+| Do this | And |
+| --- | --- |
+| Click a highlight in the text | The Comments panel opens on that thread. |
+| Click a thread in the panel | The text scrolls to its passage. |
+| **Reply** | Adds to the thread. Replying to a resolved thread reopens it. |
+| **Resolve** | Closes the thread. Its highlight leaves the text and the thread moves under "*n* resolved" at the bottom of the panel. |
+| **Reopen** | Brings a resolved thread back. |
+| The pen on your own comment | Edits it. An edited comment is marked "edited". |
+| The bin on a comment | Deletes it. **Undo** in the message that appears brings it back. You can delete your own; owners and admins can delete anyone's. When the last comment of a thread is deleted, the thread goes too. |
+
+Anyone who can comment can resolve or reopen any thread.
+
+A thread stays attached to its words as the text around them changes. If the passage itself is deleted, the thread stays in the panel with the words it quoted, and has no highlight.
+
+### Mentions
+
+Type `@` and the start of a name. Plotra suggests up to five of the project's people; press `↵` to take the first, or click one. The mention is highlighted in the comment, and the person gets a [notification](/docs/collaboration/notifications).
+
+The project's people are the members of its workspace and the people the project is [shared with](/docs/collaboration/sharing#sharing-a-project). Someone it is shared with is marked **Guest** in the list. A guest is only there once they have opened the link and the access belongs to their account: someone still marked "Invited: hasn't opened the link yet" in the Share dialog can't be mentioned.
+
+A name typed in full after `@` counts as a mention even if you didn't pick it from the list.
+
+### Things to know
+
+- Comments by someone who is no longer one of the project's people (they left the workspace, or the project was unshared with them) are kept, and shown under the name "Former member".
+- Every new thread and reply is listed in the [activity feed](/docs/collaboration/notifications#the-activity-feed) as "commented on", without its text.
+- You can post up to 600 comments an hour.
+- With the **Review & editorial** module on, the panel also collects one-click reactions; see [Review and editorial](/docs/modules/editorial).
+
+## Suggestions
+
+Suggesting mode is track changes. What you type is marked as an insertion and what you delete as a deletion, and nothing is final until someone accepts or rejects it.
+
+Turn it on with `⌘⇧E`, the **Suggest** button at the top of the Comments panel, or the "Toggle suggesting (track changes)" command. While it is on, the button reads **Suggesting** and the trail above the note shows a **Suggesting** label; click the label to go back to editing directly. Suggesting is a switch for the sitting: it is off again when you reload the page.
+
+In the text, a suggested insertion is underlined in green and a suggested deletion is struck through in red. The Comments panel lists them under **Suggestions**, each with who made it, what they did (added, deleted, replaced or formatted) and when.
+
+| Button | What it does |
+| --- | --- |
+| **Accept** | Makes the change final. |
+| **Reject** | Puts the text back as it was. |
+| **Accept all**, **Reject all** | Do the same for every suggestion in the note. Shown when there is more than one. **Reject all** asks first when there are more than three. |
+
+When you accept or reject someone else's suggestion, they get a [notification](/docs/collaboration/notifications): "*Name* accepted your suggested change to “*Note*”", or "…rejected…". **Accept all** and **Reject all** send one to each person whose suggestions were decided. Deciding your own suggestions, or the [AI agent](/docs/ai)'s, tells nobody.
+
+Only people who can edit can make suggestions, and only they can accept or reject them. Any editor can decide any suggestion, including their own. A commenter can comment but can't suggest.
+
+A note in a locked review stage takes no suggestions from anyone but its approvers, and only they can accept or reject the ones already in it; everyone else can still comment. See [Review and editorial](/docs/modules/editorial). Viewers and commenters see the suggestions in the text and in the panel.
+
+Things to know:
+
+- Suggestions work in the editor and in the Manuscript view.
+- [Block tags](/docs/writing/editor#block-tags) and restored versions are applied directly, even while you are suggesting.
+- Changes the [AI agent](/docs/ai) proposes arrive as suggestions too, listed as "AI, for *your name*".
+- A pending suggestion is part of the text until it is decided: the [read-only link](/docs/collaboration/sharing#read-only-links) shows both the suggested additions and the text suggested for deletion as ordinary text.
+- A suggestion by someone who is no longer one of the project's people is listed under "Someone".

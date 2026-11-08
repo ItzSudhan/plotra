@@ -1,0 +1,331 @@
+---
+title: The editor
+description: "Everything the page you write on can do: blocks, formatting, Markdown shortcuts, tables, images, block tags, focus mode, word counts, and what happens when you are offline."
+---
+
+The editor is the page a note opens in. It stays out of the way while you write: there is no fixed toolbar, the formatting bar appears only when you select text, and everything else is one key away. What you type is saved as you type it, and it reaches everyone else who has the note open.
+
+Scenes, chapters, notes, characters, locations, research notes, world entries and folders all open in the editor. Canvases, timelines and dialogues open in views of their own; see [Views](/docs/views).
+
+## The page
+
+From top to bottom, a note shows:
+
+- **A trail**: the folders the note sits in, then its type. **Template for new scenes** (or characters, chapters…) marks the note new notes of its type are copied from; see [A template for new notes](/docs/writing/binder#a-template-for-new-notes). With the **Script formats** tool on, or in a note already in a script format, the trail ends with the note's format (**Prose**, **Screenplay** and so on): click it to change the format of this note alone. See [Scripts](/docs/modules/scripts).
+- **A bar, when the note can't simply be edited.** While your edits are tracked as suggestions, a tinted bar says **You're suggesting edits**, "Others can accept or reject each change.", with **Switch to editing**. When you can't edit, a quieter one says "You can read this note, but not change it." (or "read and comment on"), and a note a review stage has locked says so.
+- **The title.** Type to rename the note. `Enter`, or `↓` at the end of the title, moves into the text. `Esc` puts the old title back. A title can be 200 characters long; an empty one goes back to what it was.
+- **The text.**
+
+An empty note shows a line of grey text in place of a bare cursor: a way in that fits the type of note ("Open on a line of dialogue."), followed by the two keys worth knowing. The same note always shows the same line. To get the plain "Start writing." back, open **Customize** and switch off **Suggest a way in when a note is empty**.
+
+### How the page looks
+
+The typeface and spacing of the page are yours, not the project's. Open **Customize** from the **More** menu in the ribbon, or run "Customize: presets, ribbon, shortcuts, toolbar and the look of the page" from **All commands**, and go to **Look** → **The page**.
+
+| Setting | Choices | Starts as |
+| --- | --- | --- |
+| **Typeface** | Serif, Sans-serif, Typewriter | Serif |
+| **Text size** | Small, Medium, Large, Extra large | Medium |
+| **Line width** | Narrow, Normal, Wide | Normal |
+| **Line spacing** | Tight, Normal, Relaxed | Normal |
+| **Paragraphs** | Space between, First line indented | Space between |
+
+These are saved with your account, so they are the same in every project and on every device, and nobody else's screen changes. They only affect the page you write on: printed and exported pages have their own formats. To make the buttons, menus and labels around the page bigger or smaller, use **Interface size**, just above it; see [Customize](/docs/settings/customize). A note in a script format keeps that format's layout whatever you choose here.
+
+## Blocks
+
+A note is made of blocks: a paragraph, a heading, a list item, a table. Type `/` at the start of a line or after a space to open the block menu, keep typing to filter it, and press `Enter` to insert.
+
+![The block menu opened by typing a slash on an empty line, starting with Text, the three headings, the lists and Quote](/shots/editor-slash.webp)
+
+| Block | What it is | Also made by |
+| --- | --- | --- |
+| **Text** | A paragraph. | |
+| **Heading 1**, **Heading 2**, **Heading 3** | Headings. They build the note's outline in the inspector and can be linked to. | `#`, `##` or `###` and a space; `⌘⌥1`, `⌘⌥2`, `⌘⌥3` |
+| **Bulleted list** | | `-` or `*` and a space |
+| **Numbered list** | | `1.` or `1)` and a space |
+| **To-do list** | A list with a checkbox on each line. Click the box to tick it; a ticked line is greyed and struck through. | `[ ]` and a space, or `[x]` for one already ticked |
+| **Quote** | An indented, italic passage. | `>` and a space; `⌘⇧.` |
+| **Callout** | A shaded box with a light-bulb icon, for an aside. | |
+| **Table** | Starts with three columns and three rows. See [Tables](#tables). | |
+| **Image** | A picture uploaded from your computer, or from a web address. See [Images](#images). | |
+| **Divider** | A horizontal line, for a scene break. | `---` or `___` |
+
+Beside each block, the menu shows the Markdown that makes it as you type (unless **Markdown as you type** is off), so you can learn them from there.
+
+Below the blocks, the menu has a **Links** group:
+
+| Item | What it does |
+| --- | --- |
+| **Link to note** | Starts a link to another note, the same as typing `[[`. |
+| **Embed note** | Shows another note inside this one, the same as typing `![[`. |
+| **Citation** | Cites a research note. This menu item is only there with the **Research & sources** tool on, but typing `[@` starts a citation in every project: pick a research note, or **New source “…”** to make one. See [Citations in the editor](/docs/modules/research#citations-in-the-editor). |
+
+Two more groups appear when they apply. Where AI is on, an **AI** group comes last, after the blocks and links: **Continue writing**, and **Hide AI for me**; see [Hiding AI](#hiding-ai) and [AI](/docs/ai). In a note written in a script format, the format's own elements (scene heading, character, dialogue) come first; see [Scripts](/docs/modules/scripts).
+
+Inserting a block into an empty line replaces that line. Otherwise the new block goes below the one you are in.
+
+A few things about blocks that save keystrokes:
+
+- `Enter` in an empty heading turns it back into a paragraph.
+- `⌘↵` starts a new paragraph below the block you are in, and `⌘⇧↵` one above it. This is how you get out of a table, a quote or a callout.
+- A note always ends with an empty paragraph, so there is somewhere to click after a table or an image.
+- `Tab` indents the paragraph, heading, quote or list item you are in, and `⇧Tab` brings it back. In a list, an indented item becomes part of the item above it. In a script format, `Tab` changes the element instead; see [Scripts](/docs/modules/scripts).
+
+## Formatting text
+
+Select some text and a toolbar appears above it. From left to right:
+
+| Control | What it does | Keys |
+| --- | --- | --- |
+| **AI** | Rewrites, shortens, expands or changes the tone of the selection. Only where AI is on. See [AI](/docs/ai). | `⌘J` |
+| The block's type (for example **Text**) | Turns the selected blocks into another type: Text, Heading 1 to 3, Bulleted list, Numbered list, To-do list or Quote. | |
+| **Bold** | | `⌘B` |
+| **Italic** | | `⌘I` |
+| **Underline** | | `⌘U` |
+| **Strikethrough** | | `⌘⇧X` |
+| **Highlight** | Marks the text in yellow. | `⌘⇧H` |
+| **Code** | Sets the text in a fixed-width face on a grey ground. | `⌘E` |
+| **Link** | Links the selection to a web address. See [Web links](#web-links). | `⌘K` |
+| **Comment** | Starts a comment on the selection. See [Comments](/docs/collaboration/comments-and-suggestions#comments). | `⌘⌥M` |
+
+![The toolbar above a selected word, with the block type, bold, italic, underline, strikethrough, highlight, code, link and comment, and the reactions under it](/shots/editor-toolbar.webp)
+
+With the **Production** tool on, the toolbar has one more button, for tagging the selection as a prop, a costume or another breakdown element; see [Production](/docs/modules/production).
+
+The toolbar is not shown in a note you can't edit. Inline code starts switched off; switch it on in **Customize** → **Formatting toolbar**.
+
+### Hiding AI
+
+Where AI is on, the **AI** button has a small menu beside it with **Hide AI for me**, and the same item is in the `/` menu. It takes AI off your toolbar and out of your `/` menu, for you alone; **Undo** in the message puts it back, and so does **Customize** → **Formatting toolbar** later. It doesn't switch AI off for the project.
+
+To take buttons off the toolbar or change their order, open **Customize** and use **Formatting toolbar**: drag a button's row, or use its arrows. A button you take off keeps its shortcut, and the shortcuts are yours to change in **Keyboard shortcuts** (`⌘/`); the toolbar's tooltips show the keys you chose.
+
+### Markdown shortcuts
+
+If you know Markdown, type it and the editor formats as you go.
+
+| Type | You get |
+| --- | --- |
+| `**text**` | Bold |
+| `*text*` or `_text_` | Italic |
+| `***text***` | Bold and italic |
+| `~~text~~` | Strikethrough |
+| `==text==` | Highlight |
+| `` `text` `` | Code |
+| `[text](https://example.com)` | A link |
+
+The block shortcuts (`#`, `-`, `1.`, `[ ]`, `>`, `---`) are in the table under [Blocks](#blocks).
+
+To type these characters as they are, switch off **Markdown as you type** in **Customize** → **Typing**. The `/` menu, the toolbar and the shortcuts still format.
+
+### Typography
+
+The editor sets the punctuation a manuscript expects.
+
+| Type | You get |
+| --- | --- |
+| `"` and `'` | Curly quotes, opening or closing as needed |
+| `--` | An em dash |
+| `...` | An ellipsis |
+| `->` | An arrow |
+| `(c)` | A copyright sign |
+
+To keep straight quotes and double hyphens, switch off **Smart quotes and dashes** in **Customize** → **Typing**. **Turn web addresses into links** is there too, and so are:
+
+- **A list of notes on [[**: switched off, typing `[[` gives two brackets and no list. Links to notes can still be made with **Link to note** in the `/` menu. (`⌘K` and the toolbar's **Link** make web links, not links to notes.)
+- **Check spelling**: your browser's spellchecker underlines misspelt words in the text and the title. It checks in the project's language, the one set as written in under **Project settings** → **Reveals & languages** (otherwise your browser's own). Switch it off for a draft full of invented names.
+
+### Web links
+
+Select text and press `⌘K`, or choose **Link** in the toolbar. A small box asks for the address ("Paste link") and the text to show ("Text to display"). A web address that you paste, or type and follow with a space or `Enter`, becomes a link on its own.
+
+Put the cursor in a link to get **Edit link**, a button that opens it in a new browser tab, and **Remove link**.
+
+### On a phone
+
+On a phone, while you write in a note, a bar sits just above the keyboard instead of the toolbar over a selection: **Bold** and **Italic** (for the selected words, or what you type next), **Heading** and **List** (for the paragraph you're in, and back), **Link a note** (types `[[`, which opens the list of notes unless you switched that list off), **Undo**, **Redo**, and **Done**, which puts the keyboard away. It shows on narrow touch screens only; a tablet with a keyboard, or a wider window, has the usual toolbar.
+
+## Links to other notes
+
+Type `[[` and start typing a note's name. Pick one from the list and the link is made. If no note has that name, the list offers to create it.
+
+Type `![[` to embed a note instead: its text appears inside this one, read-only, and stays up to date as the other note changes.
+
+Hold the pointer over a link for a moment and a preview card shows the note it points to: its title, its synopsis and the first lines of its text. Click a link to open the note, `⌘`-click to open it in a new tab, and `⌘⌥`-click to open it to the right.
+
+A link to a note in the trash is struck through. A link to a note you can't see reads "Restricted note".
+
+Headings, shown text, **Mentioned in**, **Named but not linked** and shared worlds are covered on [Links](/docs/writing/links).
+
+## Tags in the text
+
+Write `#` followed by a word anywhere in the text and the note carries that tag: `#subplot`, or nested with a slash, `#subplot/romance`. The `#` has to come at the start of a line or after a space, and the tag can't be only digits, so "chapter #3" doesn't make one.
+
+Tags written in the text are listed in the inspector under **Tags** as "In the text", and they count in the tags pane beside the ones you add as a property. See [Tags](/docs/writing/properties-and-tags#tags).
+
+## Tables
+
+Insert a table from the block menu. It starts at three by three. Click inside it and a small toolbar appears above its top-left corner:
+
+| Button | What it does |
+| --- | --- |
+| **Row above** | Adds a row above the one the cursor is in. |
+| **Row below** | Adds a row below it. |
+| **Column** | Adds a column. |
+| **Delete row** | Removes the cursor's row. |
+| **Delete column** | Removes the cursor's column. |
+| **Delete table** | Removes the whole table. |
+
+A table that is wider than the page scrolls sideways.
+
+## Images
+
+Choose **Image** in the block menu and **Add a picture** opens, with two ways in:
+
+- **Upload from computer**: a PNG, JPEG, GIF, WebP or AVIF file. It is stored in Plotra, attached to the note, and counts towards the workspace's storage. Its file name becomes the starting alt text.
+- **Paste a link**: the address of a picture on the web, starting with `https://` (or `http://`), then **Use this link**. The picture is shown from that address, so it disappears from the note if the address stops working.
+
+An image file pasted or dropped straight into the text is not inserted; use **Image** instead. People who can only read the note can't add pictures.
+
+Pictures can also come in with an import: an Obsidian vault's pictures are uploaded with their notes and stored in Plotra, so they don't depend on another site. They count towards the workspace's storage. See [Pictures from a vault](/docs/import-export/import#pictures-from-a-vault).
+
+An image is centred and scaled to fit the page. There is no caption or resizing.
+
+Click an image, or move onto it with the arrow keys, and an **Alt text** button appears under it; with the image selected, `Tab` moves to the button. Type a short description of the picture for people who can't see it, then press `Enter` or **Save** (`Esc` cancels). Leave the field empty to remove it. The alt text is kept with the image for your co-writers, the public reader, and exports (Markdown, Word, RTF, EPUB, AO3). People who can only read the note don't see the button.
+
+## Moving blocks
+
+Hold the pointer over a block and a handle appears in the margin to its left.
+
+- **Drag** the handle to move the block. A line shows where it will land.
+- **Click** the handle to select the whole block. A selected block is tinted. Selected blocks move together when you drag one of them, and `⌘⌥T` tags all of them at once.
+- A list item takes the items indented under it along.
+
+Once a block is selected, the keys work on whole blocks:
+
+| Keys | What it does |
+| --- | --- |
+| `↑` `↓` | Select the block above or below instead |
+| `⇧↑` `⇧↓` | Add the block above or below to the selection |
+| `⌘A` | Select every block in the note |
+| `⌘D` | Duplicate the selected blocks |
+| `⌘C`, `⌘X` | Copy or cut them |
+| `⌫` or `Delete` | Delete them |
+| `↵` | Put the cursor back in the text, at the end of the block |
+| `Esc` | Clear the selection |
+
+Typing a letter replaces the selected blocks with a new paragraph that starts with it.
+
+Handles are on top-level blocks only: a row or a cell of a table can't be dragged by itself. They are not shown in a note you can't edit.
+
+## Block tags
+
+A single block can say something different from its note: a line that is still speculative on a page that is canon, a paragraph that isn't revealed until a later book, a claim that needs a source.
+
+![The Tag this block dialog with three fields: Canon, Revealed and Layer](/shots/editor-block-tag.webp)
+
+Put the cursor in a block, or select several, and press `⌘⌥T` (the command is "Tag block (canon, reveal, fact-check)…"). The dialog sets the block's **Canon** status, when and where it is **Revealed**, its **Layer**, and its **Fact-check** state with a **Source**. Which of these are offered depends on the tools that are on. **Clear tags** removes them all.
+
+A tagged block has a coloured line down its left side and small labels at its right. Click a label to change the tags. Under a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon), a block the audience hasn't been told about yet is blurred until you point at it or put the cursor in it.
+
+Tags belong to the block, so they travel with it when it is moved, copied or restored from a version. They are applied directly, even while you are suggesting. What the tags mean is covered on [Canon and the spoiler horizon](/docs/canon#canon-status) and [Research](/docs/modules/research).
+
+## Focus mode
+
+**Focus mode** (`⌘⇧F`) hides the ribbon, the binder, the inspector and the status bar. If the window is split, the pane you are writing in fills it; the other panes come back when you leave.
+
+Leave with `Esc`, or with the **Leave focus (Esc)** button that appears at the bottom right when you move the pointer.
+
+You can also turn it on from **More** in the ribbon.
+
+To start every project in focus mode, open **Customize…** and tick **Open projects in focus mode** under **Opening and printing**. **Typewriter scrolling from the start** is beside it. See [Customize](/docs/settings/customize#what-you-can-change).
+
+## Typewriter scrolling
+
+**Typewriter scrolling** (`⌘⌥⇧T`) keeps the line you are writing in the middle of the pane, so your eyes stay in one place and the text moves instead. It works together with focus mode or without it. Turn it on from **All commands** or from **More** in the ribbon, where it shows a tick while it is on.
+
+Focus mode, typewriter scrolling and suggesting are switches for the sitting: all three are off again when you reload the page, unless you chose to open projects in focus mode or with typewriter scrolling.
+
+## Word counts
+
+The status bar at the bottom of the window counts as you type.
+
+| Shown | What it counts |
+| --- | --- |
+| **words** and **characters (with spaces)** | The open note. Characters include spaces but not line breaks. |
+| **words in the project** | Every note that isn't in the trash, as last saved. It follows a little behind your typing. |
+| **this session** | The words you have typed since you opened the project, against your session goal if you set one. Click it for [writing stats and goals](/docs/writing/goals). |
+
+Only the note's words and the session start switched on; switch the others on in **Customize** → **Status bar**.
+
+A word is a run of letters or digits; an apostrophe or a hyphen inside it doesn't split it, so "don't" and "well-known" are one word each. The text of an embedded note isn't counted in the note that embeds it.
+
+The **Properties** panel of the inspector shows the same counts for the open note, with a **Reading time** worked out at 230 words a minute.
+
+## Saving and working offline
+
+There is no save button. Every change is sent to the server as you make it, and a copy of each note you open is kept in your browser.
+
+The status bar shows where things stand:
+
+| State | Meaning |
+| --- | --- |
+| **Saved** | Every change is saved. |
+| **Saving…** | Your latest changes are on their way. |
+| **Offline — changes kept on this device** | You're offline. Your changes are kept on this device and saved when you're back online. |
+
+While you are offline you can keep writing in any note you have opened on this device before. Its tab shows a dot, like an unsaved file, until the changes have gone up. When the connection returns, your changes and everyone else's are merged; see [If your connection drops](/docs/collaboration#if-your-connection-drops).
+
+A note you have never opened on this device can't be shown offline, unless you keep the whole project on this device (below). It says: "You're offline. This note will open when you're back online. We'll keep trying.", and opens once the connection is back.
+
+Changes to the binder (a new note, a rename, a move, a property) are made on the server. Made offline, one waits and is sent once the connection is back, as long as the tab stays open; if the server then refuses it, it is undone with a message. If one is still on its way when you close or reload the tab, the browser asks before leaving. Comments, versions and sharing need the connection.
+
+To write with no server at all, with your projects kept as files on your computer, use the [desktop app](/docs/desktop).
+
+### Opening Plotra offline
+
+Plotra keeps a copy of each workspace and project page you open in this browser, with the app itself. Without a connection, reloading the tab or opening the app shows the project as it was when you last opened it online, and the notes you can write in. Moving to a project you haven't opened on this device shows **You're offline**, with a list of the projects that are here.
+
+These copies hold what you saw, so they are deleted when you sign out, and when anyone signs in on this browser.
+
+### Keeping a whole project on this device
+
+To have every note of a project here, not only the ones you have opened, choose **Keep on this device, for offline** under **More** in the ribbon, or **Keep this project on this device, for offline** in **All commands** (`⌘P`). Plotra fetches every note, and the status bar counts them (**Copying to this device 12 / 80**). When it's done, the status bar says **On this device**.
+
+A kept project is brought up to date each time you open it, if it has been more than half an hour. Choosing the item again removes it: each note first sends up anything written on this device, then its copy is deleted. A note that can't be reached keeps its copy, so nothing is lost.
+
+Which projects are kept is this browser's choice, not your account's. Signing out forgets the list; the notes stay until you remove them, so nothing unsent is lost.
+
+### Installing Plotra as an app
+
+Plotra can be installed, so it opens in its own window with its own icon, and starts without a connection.
+
+| Browser | How |
+| --- | --- |
+| Chrome or Edge, on a computer | The install icon at the right of the address bar, or **Install Plotra** in the browser's menu. |
+| Chrome on Android | **Add to home screen** or **Install app** in the menu. |
+| Safari on a Mac | **File** → **Add to Dock**. |
+| Safari on an iPhone or iPad | The share button, then **Add to Home Screen**. |
+
+Firefox on a computer doesn't install web apps; Plotra still works offline in it once you have opened a project.
+
+To go back to an earlier state of a note, use its [version history](/docs/collaboration/version-history).
+
+## When you can't edit
+
+What the editor lets you do follows your role in the project; see [Roles and permissions](/docs/reference/roles-and-permissions).
+
+| You are | Above the title | What changes |
+| --- | --- | --- |
+| A viewer | "You can read this note, but not change it." | The text and the title can't be changed. No formatting toolbar, no drag handles, no checkboxes to tick. Links, previews and embeds work as usual. |
+| A commenter | "You can read and comment on this note, but not change it." | The same, except that selecting text shows a **Comment** button beside it. |
+| An editor, in a locked note | "Locked for everyone but its approvers." | A note in a locked review stage can only be changed by its approvers. Everyone else can read and comment. See [Review and editorial](/docs/modules/editorial). |
+
+With the **Review & editorial** tool on, the button beside a selection also offers reactions, for editors as well as commenters.
+
+## Things to know
+
+- There is no fixed toolbar and no right-click menu of the editor's own. Everything is in the block menu, the selection toolbar and the shortcuts.
+- An embedded note can itself contain embeds, two levels deep. Past that it shows "Embedded too deeply to show here."
+- Every shortcut on this page is listed, with the ones you can change, on [Keyboard shortcuts](/docs/reference/keyboard-shortcuts).

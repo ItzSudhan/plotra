@@ -1,0 +1,238 @@
+---
+title: Project settings
+description: "Shape a project to your medium: its type, tools, status workflow, its own names for things, labels and note types, its connections to other services, and deleting it."
+---
+
+A project's type is only a preset. Everything it chose for you can be changed: which tools are on, what a new scene looks like, what a "chapter" is called, the stages a note moves through. This page covers the **Project settings** dialog, section by section, and the **Customize** dialog, which holds what is yours alone.
+
+| Dialog | What it changes | For whom |
+| --- | --- | --- |
+| **Project settings** | The project: type, tools, workflow, names, labels, note types, reveal channels, languages, webhooks and GitHub. | Everyone in the project sees the same. |
+| **Customize** | Your screen: the ribbon, the inspector, the look of the page, the project home, guidance. | You alone, in every project. |
+
+## Opening project settings
+
+- The gear at the bottom of the ribbon, **Project settings**.
+- **All commands** (`⌘P`): "Project settings (type, tools, workflow)…".
+- On a phone: the **Views and commands** menu in the top bar, then **Project settings**.
+
+The tabs are grouped down the side: **Project** (General, Tools, Workflow), **Organise** (Rename things, Labels, Note types), **Audience** (Reveals & languages) and, last, **Advanced** (Webhooks, GitHub). The Advanced tabs are for connecting Plotra to other services; you don't need them to write. On a phone the tabs fold into a strip across the top.
+
+There is no save button: "Changes save as you make them". A text field saves when you press Enter or leave it. Everyone who has the project open gets the new settings at once.
+
+## Who may change what
+
+| Who | What they can change |
+| --- | --- |
+| Workspace **owner** and **admins** | Everything, including webhooks, GitHub and deleting the project. They are the people who "manage" the project. |
+| Workspace **members**, and guests shared in as **editor** | The **Reveals & languages** tab, and the project's own note types and their fields. Everything else is shown but greyed out, under the line "Only people who manage this project can change these." |
+| Guests shared in as **viewer** or **commenter** | Nothing. They can open the dialog and read it. |
+
+See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+## General
+
+| Setting | What it does |
+| --- | --- |
+| **Title** | The project's name, up to 120 characters. It can't be empty. Renaming does not change the project's web address, so old links keep working. |
+| **Logline** | One or two sentences, up to 2,000 characters. Used on the series bible and the public wiki. |
+| **What kind of story** | One of the eleven [project types](/docs/reference/project-types). |
+| **New scenes are written as** | Prose, Screenplay, Stage play, Comic script or Audio script. |
+| **Shared world bible** | Another project whose world this one borrows. |
+| **Automatic versions** | How often a note's text is kept in its history while someone writes. |
+| **Offer as a template** | Offers this project as a model for new ones. |
+| **Delete project…** | Under **Delete this project**: deletes the project and everything in it. Only for people who manage it. |
+
+![The General tab of Project settings: title, logline, type, the format of new scenes, shared world bible and template](/shots/settings-general.webp)
+
+### Changing the type
+
+Changing the type changes which tools are on by default. A tool you have switched on or off yourself stays as you set it. A line under the types says what happened ("Now a Web serial. Its usual tools are switched on; any you set yourself stay as they were.") with **Undo** to go back to the type before. The format of new scenes follows the new type too, unless you have chosen one under **New scenes are written as**.
+
+It does not touch anything you have written, the format of existing notes, the project's own names for things, or your ribbon.
+
+### The format of new scenes
+
+| Format | What a page is made of |
+| --- | --- |
+| **Prose** | Paragraphs, headings and lists. |
+| **Screenplay** | Scene headings, action, character, dialogue, transitions. |
+| **Stage play** | Acts and scenes, stage directions, character and dialogue. |
+| **Comic script** | Pages and panels with captions, dialogue and SFX. |
+| **Audio script** | Character lines with delivery notes, sound and music cues. |
+
+This is the default for scenes created from now on. A single note's format can be changed on the note itself. See [Script formats](/docs/modules/scripts).
+
+### Shared world bible
+
+A book series, a show and a game can share one world. Choose another project of the same workspace here, and its characters, places and entities appear in this project's codex and can be linked from any note. "None: this project keeps its own world" is the default.
+
+- Only projects you can open are offered.
+- It goes one level deep. A project that itself uses a shared world can't be chosen: link to that world instead.
+- Who can see the shared pages is still decided by the world project's own sharing.
+
+See [Shared worlds](/docs/writing/links#shared-worlds).
+
+### Automatic versions
+
+How often a note's text is kept in its [history](/docs/collaboration/version-history) while someone writes in it: every **10 min**, **30 min** (where a project starts), **1 hour**, **3 hours**, or **Never**. The latest 40 automatic versions of each note are kept whatever the choice; a shorter time means they reach back less far. **Never** stops automatic versions only: naming a version, and the version kept before an AI change, still work. Only managers can change it.
+
+### Templates
+
+Switch on **Offer as a template** and the project appears in [the cold open](/docs/get-started/first-project#the-cold-open), under "Or start in the shape of one of this workspace's templates".
+
+A project started from a template is called "Untitled, from *template name*". It gets the template's:
+
+- type, tools, names, labels and workflow;
+- note types and their fields, the fields of each type of note, and custom calendars;
+- folders and chapters, empty, with one empty scene to start in.
+
+None of the template's text is copied: no scenes, no characters, no notes. The new project is an ordinary project, not another template, and it counts towards the workspace's project limit.
+
+### Deleting a project
+
+At the bottom of **General**, people who manage the project (the workspace's owners and admins) have **Delete this project** and its **Delete project…** button. Type the project's title to confirm, then choose **Delete forever**.
+
+![The bottom of the General tab: Automatic versions, Offer as a template, and the red Delete this project box with Delete project…](/shots/settings-delete-project.webp)
+
+- Every note, version, comment and uploaded file in it is deleted, for everyone it's shared with. This can't be undone.
+- Projects that use it as their [shared world](#shared-world-bible) lose the link and keep their own notes.
+- Its uploaded files and version snapshots are removed from file storage, and the workspace's storage and project count go down at once.
+
+![The confirmation: Delete “Romeo and Juliet”?, what is deleted, a box to type the project's title, and Delete forever, greyed out until the title is typed](/shots/settings-delete-confirm.webp)
+
+To keep a copy first, export it as a [Plotra project file](/docs/import-export/import#plotra-project-files), which holds the whole project and can be imported again.
+
+## Tools
+
+A card for each of the project's tool sets, with a switch, what it adds, and a line under it when it applies:
+
+| Line | Meaning |
+| --- | --- |
+| **On by default for** *type* | The project's type starts with this tool on. |
+| **Set by you** | Someone has switched it on or off by hand, so it no longer follows the type. **back to the default** beside it undoes that. |
+
+The top of the tab counts how many are on. Once any tool is set by hand, **Back to the defaults for** *type* puts them all back.
+
+Switch a tool on and it is on for everyone in the project. Its views appear under **More** in the ribbon. Switch it off: its views, commands and inspector sections go away, and everything made with it is kept for when you switch it back on.
+
+**AI agent** is only in the list once the workspace has switched AI on. See [The AI agent](/docs/ai#turning-it-on).
+
+What each tool adds is on the [Modules](/docs/modules) page.
+
+## Workflow
+
+Every note has a status, shown in the binder and the inspector. The status is a stage of the project's workflow. A project that hasn't set its own uses **Draft → Revised → Final**.
+
+![The Workflow tab: three ready-made workflows to pick from, and the stages Draft, Revised and Final, each with Approval and Locked](/shots/settings-workflow.webp)
+
+Above the stages, the workflow is drawn the way a note travels it, left to right. Three ready-made workflows are under **Start from a preset**. Clicking one replaces the stages. If you have shaped the stages by hand, Plotra asks first ("Replace your 4 stages with …?"), and **Undo** puts them back:
+
+| Preset | Stages |
+| --- | --- |
+| **Draft → Revised → Final** | The default. Nothing locked, nothing needs approval. |
+| **Draft → In review → Approved → Locked** | Approved needs approval. Locked needs approval and is locked. |
+| **Draft → Beta read → Edit → Copy-edit → Proof** | Proof needs approval and is locked. |
+
+Or build your own. Each stage is a row:
+
+| Control | What it does |
+| --- | --- |
+| The coloured dot | Pick the stage's colour. |
+| The name | Rename the stage, up to 40 characters. |
+| **Approval** | A note can only enter this stage once every required reviewer has approved it. |
+| **Locked** | Notes in this stage are read-only for everyone but approvers. |
+| **Move up**, **Move down** | Change the order. The first stage is the one new notes start in, and it is shown without a marker. |
+| **Remove stage** | Takes the stage out, with **Undo** to put it back. The last remaining stage can't be removed. |
+| **Add a stage** | Adds "New stage" at the end. A workflow has between 1 and 12 stages. |
+
+Notes in a stage you remove keep its name until you move them.
+
+Reviewers and approvers are set in the **Reviews** view, which comes with the **Review & editorial** tool. Without it, you can still mark stages as Approval or Locked here, but there is nowhere to name the reviewers. See [Review and editorial](/docs/modules/editorial).
+
+## Rename things
+
+Call things what your medium calls them. A "Chapter" can be an "Episode", a "Session" or an "Act". The new name is used in the binder, the menus, the commands and every view, for everyone in the project.
+
+Under **Types of note**, seven can be renamed: **Folder**, **Chapter**, **Scene**, **Note**, **Character**, **Location** and **Research**. Type the new name (up to 30 characters) and press Enter. Clear the field to go back to the app's name. **Back to Plotra's own names** clears them all.
+
+- Plotra makes the plural itself, by the usual English rules: "Sessions", "Stories", "Classes".
+- Canvases, timelines and dialogues keep their names. World entries are named by their own note type.
+- A project started from [the cold open](/docs/get-started/first-project#the-cold-open) may already have a name of its own: a tabletop campaign calls chapters "Session", a screenplay calls them "Sequence".
+
+### Views and tools
+
+Under the types of note, **Views** lists every view this project has, and **Tools** every tool. Rename them the same way: the **Codex** can be the "Wiki", the **Release roadmap** the "Campaign", **Secrets & setups** the "Mysteries".
+
+- A renamed view is called that in the ribbon (its button and tooltip), the **More** menu, its tabs, a folder's right-click menu and **All commands** ("Open Wiki").
+- A renamed tool is called that in **Tools** here.
+- A view's own words inside it (its toolbar, its empty state) stay the app's.
+
+Renaming a type of note changes its name only. No note is changed.
+
+## Labels
+
+Labels mark notes any way you like: "Needs research", "Subplot", "Cut?". They are separate from a note's status.
+
+- **Add** one with the field at the bottom: a name of up to 40 characters. A project can have 24.
+- **Colour** it with one of the seven dots.
+- **Rename** it in place.
+- **Delete** it with the bin. Notes that carry it lose it; **Undo** gives it back to them.
+
+A note carries one label. Once the project has any, a **Label** field appears in the inspector's Properties. The label shows as a colour in the binder and on the corkboard.
+
+## Note types
+
+Besides scenes, characters and places, a project can have types of note of its own: a Faction, a Spell, a Case. Each has its own icon, colour and fields, appears in the binder's **New** menu, and has a section in the Codex.
+
+Note types come with the **World bible** tool. While it is off, this tab says "They come with the World bible" and offers **Turn on World bible** to people who manage the project.
+
+With it on, the tab lists the project's note types and how many fields each has. **Edit** opens one; **New note type…** adds one. Anyone who can edit the project can do both. A world bible starts with nine: Faction, Object, Event, Species, Culture, Language, Religion, System and Theme. See [The world bible](/docs/canon#the-world-bible).
+
+### Note types as a file
+
+To use your note types in another project, or to give them to someone:
+
+- **Save** beside a type writes it to a file (`faction.plotra-kinds.json`): its name, plural, icon, colour and fields. **Save them all to a file** writes every note type of the project to one.
+- **Load note types from a file…** adds the types in such a file to this project. A type with the same name as one the project has is left out, so loading a file twice adds nothing. An icon or colour this Plotra doesn't know becomes the plain box.
+
+Only the note types travel, not the entries written with them. To copy a whole project, use its [project file](/docs/import-export).
+
+## Reveals and languages
+
+Anyone who can edit the project can change this tab.
+
+| Setting | What it does |
+| --- | --- |
+| **Reveal channels** | Where the audience can learn something: the text itself, a trailer, an interview. They start as Main text, Trailer, Interview, Social post and Supplementary story. Up to 20, each up to 40 characters. Used when you record a [reveal](/docs/canon/releases-and-reveals#reveals). |
+| **Written in** | The language the project is written in. Start typing its name ("Start typing a language") and pick it from the list. English unless you change it. |
+| **Translated into** | The languages it is translated into: type a name or a code ("French, Japanese, pt-BR…") and add it. Each shows with its code and a cross to remove it. Up to 30. The Localization tool keeps one translation of each note per language. See [Localization](/docs/modules/localization). |
+| **Citation style** | APA, MLA or Chicago, for references and the bibliography. APA unless you change it. See [Research and sources](/docs/modules/research). |
+
+A language Plotra doesn't know is refused: "That isn't a language Plotra knows. Pick one from the list, or type its code, like ‘pt-BR’."
+
+## Webhooks
+
+Tell another service when something happens in this project: a Discord bot, a site that rebuilds, an automation. Only people who manage the project see this tab. A project can have 10 webhooks. Each has a **Secret key** to give the other service, so it can check that a message came from Plotra; **New key** replaces it (after you confirm **Make a new key**), and the old one stops working at once. The events, the signature and the deliveries are on [Webhooks](/docs/developers/webhooks).
+
+![Project settings, Webhooks: an address box, Every event, including ones added later, ticked, and Add webhook](/shots/settings-webhooks.webp)
+
+## GitHub
+
+Keep a copy of the project in a GitHub repository as plain text (Markdown) files, updated a few minutes after each change. Only people who manage the project see this tab. You paste an **access key** from GitHub; **Copy now** sends any waiting changes at once. How to connect a repository, and what is written, is on [A copy kept in GitHub](/docs/import-export/export#a-copy-kept-in-github).
+
+![Project settings, GitHub: Repository, Branch, Folder in it, the token, and Save and sync](/shots/settings-github.webp)
+
+## What is not in the dialog
+
+| Thing | Where it is |
+| --- | --- |
+| The fields of a type of note (a scene's POV, a character's role, your own) | The inspector's **Properties**, on a note of that type. See [Properties](/docs/writing/properties-and-tags#properties). |
+| Custom calendars | The timeline. See [Timeline and canvas](/docs/views/timeline-and-canvas). |
+| The project's word target | The **Stats** view. See [Writing goals](/docs/writing/goals). |
+| Who the project is shared with | **Share project…** at the top of the binder. See [Working together](/docs/collaboration/sharing#sharing-a-project). |
+| Switching AI on for the workspace | The workspace's settings. See [The AI agent](/docs/ai#turning-it-on). |
+
+<Callout type="warn" title="A project can't be archived or moved">
+  The app has no button to archive a project or move it to another workspace. To move one, export it as a [Plotra project file](/docs/import-export/import#plotra-project-files), import it in the other workspace, then [delete](#deleting-a-project) the old one.
+</Callout>

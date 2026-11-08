@@ -1,0 +1,79 @@
+name: Uptime
+
+# The free uptime check (plan.md Phase 8): asks the app and the collab worker
+# whether they are up, and fails when one isn't. A failed scheduled run emails
+# whoever last edited this file (GitHub → Settings → Notifications → Actions).
+#
+# It does nothing until these repository variables exist
+# (Settings → Secrets and variables → Actions → Variables):
+#   APP_URL      the app's address, e.g. https://app.plotra.ink
+#   COLLAB_URL   the collab worker's address, as https://
+#
+# Every half hour it asks the app without touching the database, and four times
+# a day with it. A database query every half hour would keep Neon's
+# scale-to-zero compute awake for hours a day and spend the free monthly
+# allowance on being asked how it is.
+#
+# Two things to know about GitHub's schedules: runs can start several minutes
+# late, and in a public repository they are switched off after 60 days without
+# a commit (GitHub emails first; any push or a click on "Enable workflow"
+# resumes them).
+
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+    - cron: "22 */6 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: uptime
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check
+    if: vars.APP_URL != '' || vars.COLLAB_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      APP_URL: ${{ vars.APP_URL }}
+      COLLAB_URL: ${{ vars.COLLAB_URL }}
+      # The database is included four times a day and whenever this is run by hand.
+      WITH_DATABASE: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '22 */6 * * *' }}
+    steps:
+      - name: App
+        if: env.APP_URL != ''
+        run: |
+          url="${APP_URL%/}/api/health"
+          if [ "$WITH_DATABASE" != "true" ]; then url="$url?db=0"; fi
+          # Retries cover a cold start; three failures in a row is an outage.
+          if ! body=$(curl --silent --show-error --fail-with-body --max-time 20 --retry 2 --retry-delay 15 --retry-all-errors "$url"); then
+            echo "::error title=App is down::$url did not answer 200. Response: ${body:-none}"
+            exit 1
+          fi
+          echo "$body"
+          if ! echo "$body" | grep -q '"ok":true'; then
+            echo "::error title=App is unhealthy::$url answered without ok:true"
+            exit 1
+          fi
+          # Up, but misconfigured (no object store in production, say): visible, not a failure.
+          if ! echo "$body" | grep -q '"warnings":\[\]'; then
+            echo "::warning title=App has warnings::$body"
+          fi
+
+      - name: Collab worker
+        # Checked even when the app is down: they fail independently.
+        if: always() && env.COLLAB_URL != ''
+        run: |
+          url="${COLLAB_URL%/}/health"
+          if ! body=$(curl --silent --show-error --fail-with-body --max-time 20 --retry 2 --retry-delay 15 --retry-all-errors "$url"); then
+            echo "::error title=Collab worker is down::$url did not answer 200. Response: ${body:-none}"
+            exit 1
+          fi
+          echo "$body"
+          if ! echo "$body" | grep -q '"ok":true'; then
+            echo "::error title=Collab worker is unhealthy::$url answered without ok:true"
+            exit 1
+          fi

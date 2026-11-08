@@ -1,0 +1,332 @@
+/* Tailwind is imported here, not in @plotra/ui, so it resolves from this app's dependencies. */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@plotra/ui/globals.css";
+
+@theme {
+  --animate-rise: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-page-in: page-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float 11s ease-in-out infinite;
+  --animate-caret: caret 1.05s steps(2, start) infinite;
+  --animate-draw: draw 2.4s ease-out both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(28px) rotate(1.5deg) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) rotate(var(--page-tilt, -1deg)) scale(1); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes caret {
+    to { visibility: hidden; }
+  }
+  @keyframes draw {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+}
+
+@utility dot-grid {
+  background-image: radial-gradient(color-mix(in oklab, var(--foreground) 9%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* plotra.ink's display face (Young Serif). Only the sign-in pages load it (app/(auth)/layout.tsx). */
+@theme inline {
+  --font-brand: var(--font-young-serif), Georgia, serif;
+}
+
+/* Headline emphasis on the sign-in pages, set as on plotra.ink: the way a [[link]] looks in the editor. */
+@utility wikilink {
+  font-style: normal;
+  color: var(--ember);
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in oklab, var(--ember) 45%, transparent);
+  text-decoration-thickness: 0.045em;
+  text-underline-offset: 0.14em;
+}
+
+/* Dockview pane area, themed from our tokens so it follows light/dark automatically. */
+.dockview-theme-plotra {
+  --dv-paneview-active-outline-color: var(--ring);
+  --dv-tabs-and-actions-container-font-size: 13px;
+  --dv-tabs-and-actions-container-height: 36px;
+  --dv-drag-over-background-color: color-mix(in oklab, var(--ember) 14%, transparent);
+  --dv-drag-over-border-color: var(--ember);
+  --dv-edge-dock-indicator-color: var(--ember);
+  --dv-tabs-container-scrollbar-color: var(--faint);
+  --dv-icon-hover-background-color: var(--accent);
+  --dv-floating-box-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
+  --dv-floating-border: 1px solid var(--border);
+  --dv-overlay-z-index: 40;
+  --dv-tab-font-size: inherit;
+  --dv-border-radius: 0px;
+  --dv-tab-margin: 0;
+  --dv-sash-color: transparent;
+  --dv-active-sash-color: color-mix(in oklab, var(--ember) 45%, transparent);
+  --dv-active-sash-transition-duration: 0.1s;
+  --dv-active-sash-transition-delay: 0.3s;
+  --dv-spacing-padding: 0px;
+  --dv-tab-border-radius: 0px;
+  --dv-sash-border-radius: 0px;
+  --dv-dropdown-border-radius: var(--radius-md);
+  --dv-tab-close-icon-size: inherit;
+  --dv-floating-group-border: none;
+  --dv-drag-over-border: none;
+  --dv-floating-group-dragging-opacity: 0.5;
+  --dv-floating-titlebar-height: 22px;
+  --dv-floating-titlebar-background-color: var(--sidebar);
+  --dv-floating-titlebar-border-bottom: var(--dv-floating-border);
+
+  --dv-group-view-background-color: var(--background);
+  --dv-tabs-and-actions-container-background-color: var(--sidebar);
+  --dv-activegroup-visiblepanel-tab-background-color: var(--background);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--sidebar);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--background);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--sidebar);
+  --dv-tab-divider-color: var(--sidebar-border);
+  --dv-activegroup-visiblepanel-tab-color: var(--foreground);
+  --dv-activegroup-hiddenpanel-tab-color: var(--muted-foreground);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--muted-foreground);
+  --dv-inactivegroup-hiddenpanel-tab-color: var(--faint);
+  --dv-separator-border: var(--border);
+  --dv-paneview-header-border-color: var(--border);
+  --dv-context-menu-background-color: var(--popover);
+  --dv-context-menu-color: var(--popover-foreground);
+  color-scheme: inherit;
+}
+.dockview-theme-plotra .dv-tabs-and-actions-container {
+  border-bottom: 1px solid var(--border);
+}
+.dockview-theme-plotra .dv-tab.dv-active-tab {
+  box-shadow: inset 0 -1px 0 var(--background), inset 0 2px 0 var(--ember);
+}
+.dockview-theme-plotra .dv-tab {
+  padding: 0;
+}
+
+/* Read view printing (components/views/read-view.tsx): the pages are copied
+   into a portal on <body> while printing, and only that portal prints. */
+.plotra-print-portal {
+  display: none;
+}
+@media print {
+  @page {
+    size: letter;
+    margin: 0;
+  }
+  body:has(> .plotra-print-portal) > :not(.plotra-print-portal) {
+    display: none !important;
+  }
+  .plotra-print-portal {
+    display: block;
+  }
+}
+
+/* Focus mode (plan.md 2.5): no tabs either, just the page. */
+.focus-mode .plotra-dock .dv-tabs-and-actions-container {
+  display: none;
+}
+
+/* Accessibility (plan.md Phase 10). */
+
+/* Keyboard focus is always visible. Controls that draw their own ring say
+   `outline-none`, which is a utility and so wins over this. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 1px;
+  }
+}
+
+/* Less motion for people who ask for it: nothing slides, zooms or spins. The
+   states still change, at once. Scripted scrolling is handled in lib/motion.ts. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* The same when someone switches animations off in Your settings (lib/motion.ts).
+   Spinners and loading shimmers keep going: they say something is happening. */
+[data-motion="off"] *:not(.animate-spin, .animate-pulse),
+[data-motion="off"] *::before,
+[data-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+[data-motion="off"] {
+  scroll-behavior: auto !important;
+}
+
+/* Moving between pages (components/transitions.tsx). React names a page while
+   it changes, and the browser draws the move from these: the page going
+   leaves quickly so it never competes with the one coming, which arrives a
+   beat later and settles more slowly. A move with no direction fades across. */
+::view-transition {
+  /* Clicks reach the page underneath while it moves. */
+  pointer-events: none;
+}
+::view-transition-old(.vt-fade) {
+  animation: 150ms var(--ease-out) both vt-fade-out;
+}
+::view-transition-new(.vt-fade) {
+  animation: 220ms var(--ease-out) both vt-fade-in;
+}
+
+/* Forward: out to the left, in from the right. Back is the mirror image. */
+::view-transition-old(.vt-forward),
+::view-transition-old(.vt-back) {
+  animation:
+    150ms var(--ease-out) both vt-fade-out,
+    220ms var(--ease-out) both vt-move-out;
+}
+::view-transition-new(.vt-forward),
+::view-transition-new(.vt-back) {
+  animation:
+    220ms var(--ease-out) 60ms both vt-fade-in,
+    320ms var(--ease-out) both vt-move-in;
+}
+::view-transition-old(.vt-forward) {
+  --vt-move: -16px 0;
+}
+::view-transition-new(.vt-forward) {
+  --vt-move: 24px 0;
+}
+::view-transition-old(.vt-back) {
+  --vt-move: 16px 0;
+}
+::view-transition-new(.vt-back) {
+  --vt-move: -24px 0;
+}
+
+/* Into a project: the page behind swells past as the project rises from just
+   under full size, like an app opening from its icon. Out is the reverse. */
+::view-transition-old(.vt-open),
+::view-transition-old(.vt-close) {
+  animation:
+    160ms var(--ease-out) both vt-fade-out,
+    240ms var(--ease-out) both vt-scale-out;
+}
+::view-transition-new(.vt-open),
+::view-transition-new(.vt-close) {
+  animation:
+    240ms var(--ease-out) 60ms both vt-fade-in,
+    380ms var(--ease-out) both vt-scale-in;
+}
+::view-transition-old(.vt-open) {
+  --vt-scale: 1.02;
+}
+::view-transition-new(.vt-open) {
+  --vt-scale: 0.97;
+}
+::view-transition-old(.vt-close) {
+  --vt-scale: 0.97;
+}
+::view-transition-new(.vt-close) {
+  --vt-scale: 1.02;
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+}
+@keyframes vt-fade-out {
+  to { opacity: 0; }
+}
+@keyframes vt-move-in {
+  from { translate: var(--vt-move); }
+}
+@keyframes vt-move-out {
+  to { translate: var(--vt-move); }
+}
+@keyframes vt-scale-in {
+  from { scale: var(--vt-scale); }
+}
+@keyframes vt-scale-out {
+  to { scale: var(--vt-scale); }
+}
+
+/* Pages change at once for anyone who asked for less motion or switched
+   animations off. The rules for both further up only reach elements, not the
+   layer the browser draws these moves on, so they're repeated for it here. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+[data-motion="off"]::view-transition-group(*),
+[data-motion="off"]::view-transition-old(*),
+[data-motion="off"]::view-transition-new(*) {
+  animation: none !important;
+}
+
+/* Touch screens: tabs tall enough for a finger, and no page-level sideways
+   scroll or rubber-banding behind the fixed shell. */
+@media (pointer: coarse) {
+  .dockview-theme-plotra {
+    --dv-tabs-and-actions-container-height: 44px;
+  }
+}
+html:has(.plotra-dock),
+html:has(.plotra-dock) body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Paragraphs set like a printed book: no space between, first line indented. The writer's choice (lib/shell-prefs.ts). */
+[data-paragraphs="indent"] .prose-p {
+  padding-block: 0;
+  text-indent: 1.5em;
+}
+
+/* A click on a link answers at once (components/nav-feedback.tsx): the link
+   dims as if pressed, and after a beat a bar runs along the top of the window
+   until the next page is there. */
+a[data-pending] {
+  opacity: 0.6;
+  cursor: progress;
+}
+.plotra-nav-bar {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 100;
+  height: 2px;
+  width: 100%;
+  background: var(--ember);
+  transform-origin: left;
+  pointer-events: none;
+  opacity: 0;
+  animation:
+    plotra-nav-bar-show 0s 120ms forwards,
+    plotra-nav-bar-grow 8s 120ms cubic-bezier(0.1, 0.7, 0.2, 1) both;
+}
+@keyframes plotra-nav-bar-show {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes plotra-nav-bar-grow {
+  from {
+    transform: scaleX(0.08);
+  }
+  to {
+    transform: scaleX(0.92);
+  }
+}

@@ -1,0 +1,279 @@
+---
+title: World views
+description: "The Graph, the Codex and the Relationships map in detail: filters, the graph around one note, a list of links, browsing the world like a wiki, and how to relate two characters."
+---
+
+Three views show the world of the story instead of its order. The Graph draws every note and the links between them. The Codex lets you read your characters, places and other world pages like a wiki. The Relationships map shows who is what to whom.
+
+All three are always available; none needs a module. The World bible module adds more to the Codex.
+
+Three more views about the world belong to [Canon](/docs/canon): the **Release roadmap** and **Secrets & setups** (with the Releases & reveals module) and **Continuity** (with the World bible module). See [The Release roadmap view](/docs/canon/releases-and-reveals#the-release-roadmap-view), [Who knows what](/docs/canon/secrets-and-continuity#who-knows-what) and [Continuity checks](/docs/canon/secrets-and-continuity#continuity-checks).
+
+## Graph
+
+Every note is a dot and every link is a line. Use it to see what the story hangs on, and which notes nothing points at.
+
+![The Graph: every note as a dot coloured by type and every link as a line, with the Whole project and Around this note switch, a search box and filters above](/shots/view-graph.webp)
+
+### Opening it
+
+| To open | Do this |
+| --- | --- |
+| The whole project | **Graph** in the ribbon, "Open graph view" in **All commands**, or `⌘G` |
+| The graph around one note | Right-click the note in the binder and choose **Graph around this scene** (or character, and so on), or run "Open the graph around this note". It opens to the right of what you have open. |
+
+### What is drawn
+
+- **A dot** is a note. Its colour is its type. It grows with the number of links it has and, a little, with its word count.
+- **A line** joins two notes that are linked, in either direction. Two notes get one line however many links there are between them.
+
+There are three kinds of link, drawn at three weights:
+
+| Link | Comes from | Drawn |
+| --- | --- | --- |
+| Embed | A note embedded in another | Thickest |
+| Link | A `[[link]]` in the text, or a note card on a canvas | Medium |
+| Link from a field | A field that points at a note, such as a scene's **POV** or **Location** | Thinnest and faintest |
+
+Labels appear as you zoom in. Bigger dots get theirs first.
+
+The links are read again every 15 seconds while the view is visible, and whenever the binder changes. A link you have just typed takes a few seconds to appear, because links are indexed when the note is saved.
+
+### Whole project and around this note
+
+**Whole project** shows every note. **Around this note** shows one note and what is around it.
+
+In **Around this note**, **Steps away** sets how far to go: 1 shows the notes linked to the centre, 2 adds their links, 3 goes one step further. The centre note always shows its label.
+
+A graph opened around a note from the binder or **All commands** stays on that note. If you switch a whole-project graph to **Around this note**, it follows the note you last opened, and changes as you move from note to note.
+
+### Graph or list
+
+**Graph** and **List** at the top switch how it is shown. **List** lists the same notes by title, each with **Links to** and **Mentioned in**: the notes it links to and the notes that link to it. It follows the same filters and search, and works with the keyboard and a screen reader. Click a title to open the note; `⌘`-click opens it in a new tab. Which one you chose is remembered with your account.
+
+### Search
+
+Type in **Find a note** to light up the notes whose title or aliases contain the text. The rest are dimmed and the number of matches is shown in the box. `Esc` clears it.
+
+### Filters
+
+| Control | What it does |
+| --- | --- |
+| Tag list | **All tags**, or one tag. Only notes with that tag are drawn. Tags set in the properties and tags written in the text both count. |
+| **Unlinked notes** | On: notes with no links are drawn. Off: they are hidden. It starts on. |
+| **Links from fields** | On: links from fields are drawn and counted. Off: only links and embeds. It starts on. |
+| The row of note types at the bottom | Each type with its colour and how many notes of it the project has. Click a type to hide it, and again to show it. A hidden type is struck through. |
+
+Folders and timelines are hidden to begin with. Around a note, the centre note is drawn whatever the filters say.
+
+To find notes nothing links to, leave **Unlinked notes** on and look at the dots with no lines. To see only the story's people and places, hide every type but Character and Location.
+
+The types you hide, **Steps away**, **Unlinked notes**, **Links from fields** and **Graph** or **List** are remembered with your account, in every project and on every computer. The tag list and the search box are not: they reset when you close the tab.
+
+### Entries of a shared world
+
+If the project uses another project's [shared world](#a-shared-world), the world's characters, places and entries that your notes link to are drawn too, with `↗` after their names. Only the entries something here links to are drawn, not the whole world. Click one to open its page in the [Codex](#codex); `⌘`-click opens it to the side.
+
+A link to a shared entry is picked up when the note that holds it is next saved.
+
+### Colours
+
+Colour always means note type. Characters, locations, scenes, chapters, research notes and plain notes each have their own colour; world entries share one; folders, canvases, timelines and dialogue trees are grey. The row at the bottom is the key. The colours follow your light or dark theme.
+
+### Moving around
+
+| Do this | And |
+| --- | --- |
+| Point at a dot | It and its neighbours stay lit; everything else dims |
+| Click a dot | Open the note. `⌘`-click opens it in a new tab |
+| Scroll | Zoom |
+| Drag the background | Pan |
+| **Fit to screen** (bottom right) | Bring the whole graph back into view |
+| **Tidy up** (bottom right) | Let the dots settle again |
+
+The layout arranges itself for a couple of seconds whenever notes or links are added, then holds still. Positions are not saved; the graph is laid out afresh each time you open it.
+
+### Empty states
+
+| You see | It means |
+| --- | --- |
+| "Nothing here yet. Create a note to start your graph." | The project has no notes. A button for the project's main type of note, such as **New scene**, is offered if you can edit. |
+| "No notes match these filters." | The filters hide everything. |
+| "No links yet. Type [[ in a note to link it to another." | There are notes but no links. |
+| "Open a note to see what's around it." | **Around this note** is on and no note is open. |
+| "This note has no links yet. Type [[ in a note to link it." | The centre note has no links. |
+| "No notes match the search." | In **List**, nothing matches what you typed. |
+
+How to make links is in [Links](/docs/writing/links).
+
+### Under a spoiler horizon
+
+When a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) is on, the graph draws only the notes the audience knows by then.
+
+## Codex
+
+The world of the story as pages to read: a list on the left, the page on the right. Open it from the ribbon, with "Open codex", or with `⌘⌥⇧C`.
+
+![The Codex on Juliet Capulet's page: types on the left, her text in the middle, her properties and the notes that mention her on the right](/shots/view-codex.webp)
+
+### Sections
+
+The top of the left column lists the sections, each with a count:
+
+- **Characters**, **Locations**, **Research** and **Notes**, in the project's own words for them.
+- One section for each world-entry type, such as Factions or Objects, when the project has them. See [The world bible](/docs/canon#the-world-bible).
+
+Click a section to list its entries, in alphabetical order. The codex opens on the section of the note you had open, or on Characters.
+
+Scenes, chapters and folders are not in the codex.
+
+### Finding and creating
+
+- The **Find in…** box filters the section by title and alias.
+- The **+** beside it creates a new entry of that section's type, called "Untitled character" (or location, and so on), and shows it. It needs edit access to the project.
+
+### The page
+
+| Part | What it shows |
+| --- | --- |
+| Top line | The note type, the note's aliases after "also", and "revealed in" with a release's name if the note has one. With the World bible module on, the [canon status](/docs/canon#canon-status) too. |
+| Title and **Edit** | **Edit** opens the note in the editor in a new tab. `⌘`-click opens it to the right. |
+| Synopsis | In italics under the title. |
+| Tags | The note's tags. |
+| The text | The note itself, read-only. |
+| Properties | The note's fields and their values, in a box at the side. |
+| **Mentioned in** | Every note that links to this one. Click one to open it. `⌘`-click opens it in a new tab. "Nothing links here yet." when there are none. |
+
+The codex is for reading. To change anything on the page, click **Edit**.
+
+With the World bible module on, an entry whose canon status is not Canon or Draft has a coloured dot beside its name in the list. Point at it for the status.
+
+### Entry types
+
+With the World bible module on, and edit access to the project:
+
+- **New type…** at the bottom of the section list creates a world-entry type.
+- Point at a type's section (or move to it with the keyboard) and click the gear to change the type and its fields.
+
+Both open the type dialog described in [The world bible](/docs/canon#the-world-bible).
+
+### A shared world
+
+If the project uses another project's world bible, two buttons appear at the top of the left column: **This project** and the name of the shared world. The second shows the shared world's characters, locations and entry types.
+
+A shared entry is read-only here. Its top line says "from" and the world's name, and **Open** and the world's name goes to that project. To link to a shared entry from your own notes, type `[[` and its name. See [Shared worlds](/docs/writing/links#shared-worlds).
+
+Under the entry's text, **Mentioned here** lists the notes in this project that link to it, each with the line the link is in, and counts them. Click one to open it in a new tab. "No note in this project links to it yet." when there are none.
+
+Following a link to a shared entry opens the codex on that entry.
+
+### The world's own project
+
+In a project that other projects use as their world, an entry's page has a second list under **Mentioned in**: **Mentioned in projects using this world**, with each note's title and the project it is in. Click one to go to that project with the note open.
+
+It lists only notes in projects you can open, up to 200. A project you can't open is left out without a word.
+
+### Under a spoiler horizon
+
+When a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) is on, entries the audience does not know yet are left out of your own project's sections, and the foot of the list says how many: "3 not revealed yet at this point". The shared world's entries are not filtered.
+
+## Relationships
+
+A map of the project's characters with a labelled line for each relationship between two of them. Open it from the ribbon (its button is labelled **Relations**), with "Open relationship map", or with `⌘⌥⇧R`.
+
+![The Relationships map: five characters joined by labelled lines such as Mentor of, Enemy, cousins and married in secret](/shots/view-relationships.webp)
+
+Every character note is on the map, as a pill with its initial, its name and how many relationships it has. The picker at the left of the toolbar shows something else instead: **Places**, or the entries of any [entry type](#entry-types) (Factions, Nations, Houses): see [A diplomacy web](#a-diplomacy-web). Characters can also be drawn as a [family tree](#a-family-tree).
+
+### Adding a relationship
+
+With the mouse:
+
+1. Press on a character's initial (the circle at the left of the pill).
+2. Drag to another character and let go anywhere on it.
+3. The relationship is created as **Ally** and its panel opens. Choose the type you want.
+
+Or with the keyboard or a touch screen: choose **Add relationship** in the toolbar. A form opens at the top right: pick **From**, **Relationship** and **To**, then **Add**. In the family tree it starts on **Parent of**.
+
+You need to be able to edit the character you start from. A character cannot be related to itself. Two characters can have more than one relationship; the lines bow apart so each can be read.
+
+### Editing a relationship
+
+Click a line, or its label, to open the panel at the top right. A selected line can also be deleted with `⌫` or `Delete`, with **Undo** to bring it back. Its heading shows the two names with `→` for a one-way relationship and `↔` for a mutual one.
+
+| Field | What it does |
+| --- | --- |
+| **Type** | One of the built-in types, or **Other…** to type your own, such as "betrayed" or "owes a debt to". Up to 80 characters. |
+| **Label** | Text shown on the map instead of the type's name. Up to 80 characters. |
+| **One-way** | Draws an arrowhead pointing at the second character. |
+| **Reverse** | Swaps the two characters, so the arrow points the other way. |
+| **Delete relationship** | Removes it at once. **Undo** in the message that appears puts it back. |
+
+Editing and deleting need edit access to the first character of the pair. **Reverse** needs edit access to both. Without it, the panel shows the relationship but its fields are greyed out.
+
+### Relationship types
+
+| Type | Colour | Direction |
+| --- | --- | --- |
+| Ally | Green | Mutual |
+| Friend | Cyan | Mutual |
+| Family | Blue | Mutual |
+| Parent of | Violet | One-way |
+| Married to | Purple | Mutual |
+| Sibling of | Indigo | Mutual |
+| Love interest | Pink | Mutual |
+| Mentor of | Orange | One-way |
+| Rival | Dark orange | Mutual |
+| Enemy | Red | Mutual |
+| Works for | Grey | One-way |
+
+Between places and world entries the types are the ones for powers: **Ally**, **Rival**, **Enemy** and **Works for**, and **At war with** (crimson), **Trades with** (gold), **Vassal of** (slate, one-way: drag from the vassal to its liege) and **At peace with** (teal). A relationship keeps its type if you switch what the map shows.
+
+The key is along the right of the toolbar, for what the map is showing. A one-way type always has an arrow, from the character you dragged from to the one you dropped on: drag from the parent to the child for "Parent of". A type you typed yourself is drawn in grey and is mutual unless you tick **One-way**.
+
+### The toolbar
+
+| Button | What it does |
+| --- | --- |
+| **Characters**, **Places** or an entry type | What the map shows. Remembered for you. |
+| **Map** / **Family tree** | With characters: drawn freely, or as a [family tree](#a-family-tree). Remembered for you. |
+| **Character** | Creates a new character note without opening it. Needs edit access to the project. |
+| **Only related** | Hides what has no relationships. Remembered for you. Not in the family tree. |
+| **Add relationship** | Opens the form to relate two of them without dragging. Shown once there are two or more. |
+| **List** | Every relationship as a line of text, "Juliet — Married to — Romeo", in alphabetical order. The pen opens it in the panel; the bin deletes it. Shown once there are relationships. |
+| **Arrange in a circle** | Forgets the positions you set and puts everyone back on a circle. **Undo** puts them back where they were. Not in the family tree. |
+| **Fit everything** | Zooms to show the whole map. |
+
+### Arranging the map
+
+Drag a character by its name to move it. Characters start on a circle. You can also drag a character from the binder and drop it where you want it.
+
+Double-click a character to open its note in a new tab. Scroll to zoom and drag the background to pan; the buttons at the bottom left zoom and fit.
+
+Positions are kept in your browser, for this project. They do not follow you to another computer, and your co-writers arrange their own. The relationships themselves are stored with the project and are the same for everyone.
+
+### A family tree
+
+Choose **Family tree** with characters showing, and the map arranges itself into generations:
+
+![The Relationships view as a family tree: Lord and Lady Capulet married, above Juliet; Lord and Lady Montague married, above Romeo; Juliet and Romeo married to each other](/shots/view-family-tree.webp)
+
+- **Parent of** puts the child a row below its parents, joined by a line down.
+- **Married to** puts two people side by side, joined by a line.
+- **Sibling of** puts two people level with each other, joined by a dashed line. Siblings with parents in the tree already sit under them.
+- Each row is ordered to sit under the parents above it.
+
+Only characters with one of those three relationships are in the tree; the rest stay on the map, and a note at the bottom says how many. Other relationships aren't drawn in the tree. The tree can't be dragged about: change it by changing the relationships, on the map or here (click a line to open its panel).
+
+### A diplomacy web
+
+Show **Places** or an entry type (a Faction or Nation type you made, for instance) and the map holds those notes instead of characters, with the stances between them: drag from one to another as with characters, then choose **At war with**, **Trades with**, **Vassal of**, **At peace with**, or one of the shared types. Positions are kept for each thing the map shows, so the characters' map and the factions' web are arranged separately.
+
+### Things to know
+
+- You see a relationship only if you can see both characters.
+- Deleting a character for good deletes its relationships. A character in the trash is not on the map.
+- The map shows everything, whatever the spoiler horizon is.
+- With no characters, the view shows "No characters yet" and a **New character** button. With no places, or no entries of the type, it says so, as "No places yet".
+- A family tree with no family relationships yet shows "No family yet" and an **Add a family tie** button.
+- What the map shows, **Map** or **Family tree**, and **Only related** are kept with your account, in every project. If you chose an entry type a project doesn't have, the map shows characters there.

@@ -1,0 +1,237 @@
+---
+title: Your account and workspaces
+description: "Signing in, resetting a password, your profile and account, your own settings, the account menu, and workspaces: creating, renaming, leaving and deleting them, their members, roles and settings."
+---
+
+Your account is you: a name, an email address and a way to sign in. A workspace is where projects live and where the people you write with are gathered. One account can belong to any number of workspaces, and can also be let into single projects in workspaces it doesn't belong to.
+
+This page covers the account and the workspace. Sharing one project, comments and co-writing are on [Working together](/docs/collaboration); what each role may do is on [Roles and permissions](/docs/reference/roles-and-permissions).
+
+## Your account
+
+### Creating one
+
+On the sign-up page, fill in:
+
+| Field | Notes |
+| --- | --- |
+| **Your name** | Up to 80 characters. "This is your byline": it is the name shown on your cursor, your comments, your versions and in the activity feed. |
+| **Email** | The address invitations and shared projects must be sent to. |
+| **Password** | At least 8 characters. The eye button shows what you typed. |
+
+Then click **Start writing**. Where the server has Google sign-in set up, **Continue with Google** is offered above the form, and creates the account from your Google name, address and picture.
+
+A new account goes straight to naming its first workspace; see [Your first workspace](#your-first-workspace).
+
+### Signing in
+
+Sign in with your email and password, or with **Continue with Google** if you have connected Google. If you opened a link while signed out (an invitation, a shared project, a note), you are taken back to it after signing in.
+
+| Fact | Detail |
+| --- | --- |
+| How long you stay signed in | Seven days, renewed while you keep using Plotra in that browser. |
+| Signing in on several devices | Allowed. Each browser has its own session. |
+| Signing out | **Sign out** in the account menu. It signs out the browser you are in, not your other devices. |
+| Too many attempts | Sign-in is limited to 5 attempts a minute and sign-up to 5 an hour from one address. Asking for a password reset link, or changing your email, is limited to 5 an hour. |
+
+### Forgot your password
+
+1. On the sign-in page, click **Forgot password?** beside the password field.
+2. Type your email and click **Send me a link**. Plotra says "We've sent a link to …" whether or not there is an account for that address. If it doesn't arrive in a few minutes, look in your spam folder, or **Use a different email**.
+3. Open the link in the email ("Reset your Plotra password") and choose a new password, twice. **Save new password**.
+
+The link works for an hour, once. An old or used link says so, with **Send me a new link**. Once the password is changed you are signed out everywhere else; sign in with the new one.
+
+On a Plotra you host yourself, the email is only sent if the server has a mail server set up. See [Configuration](/docs/self-hosting/configuration).
+
+### Profile and account
+
+The first section of [Your settings](#your-settings), **Profile and account**, is who you are in Plotra and how you sign in.
+
+| Part | What it does |
+| --- | --- |
+| **Your name** | Your byline on comments, history and the people list, up to 80 characters. **Save** to change it. |
+| **Email** | **Change email**, then type the **New email** and **Send confirmation**. Plotra emails a link to confirm the change; until you open it, you keep signing in with the old address. An address that is already confirmed (a Google one, or one changed before) is asked first: approve the change from the old inbox, then confirm the new address from its own. |
+| **Password** | **Change password** asks for the current one and a new one of at least 8 characters. Saving it signs you out on your other devices. An account made with Google has no password: **Email me a link to set one** sends a link to choose one. |
+| **Google** | Where the server has Google sign-in set up. **Connect Google** to sign in with one click; **Disconnect** to stop. Google can't be disconnected while it is your only way in: set a password first. |
+| **Delete your account** | See [Deleting your account](#deleting-your-account). |
+
+Your picture is the one from Google if you signed in with it ("Your photo comes from your Google account."). Otherwise Plotra shows your initials.
+
+There are still no sign-in links by email, and no list of your sessions.
+
+### Deleting your account
+
+**Delete account…**, at the bottom of **Profile and account**. Type your password if you have one, then **Delete account**, then type your email address to confirm and choose **Delete my account**.
+
+- Your account goes for good, with every workspace you're alone in and all of its projects.
+- Workspaces you share with other people stay with them. If you are the only owner of one, Plotra stops and says so: make someone else an owner in its settings, or delete it, first.
+- This can't be undone.
+
+Plotra sends no email to verify your address when you sign up. An account that signs in with Google counts as verified; one made with a password does not. The only place this matters is [sharing a project](/docs/collaboration/sharing#sharing-a-project): a verified account gets access at once, and anyone else gets it by opening the emailed link.
+
+## The account menu
+
+Your avatar opens the account menu. It is at the right of the top bar on the workspace's home page, the **Shared with you** page and your settings, and at the right end of the status bar inside a project.
+
+| Item | What it does |
+| --- | --- |
+| Your name and email | Shown at the top, so you can tell which account you are in. |
+| **Theme** | **Light**, **Dark** or **System**, which follows your device. Kept in this browser, not on your account. |
+| **Your settings** | Opens [your settings](#your-settings). |
+| **Keyboard shortcuts** | Opens the shortcuts sheet. Only inside a project. See [Keyboard shortcuts](/docs/reference/keyboard-shortcuts). |
+| **Getting started** | Brings back the getting-started checklist. Only inside a project, and only after you have closed the checklist. |
+| **Join the Discord** | Opens the Plotra Discord in a new tab, to ask a question or talk an idea through. |
+| **Report a bug** | Three ways to tell us: **By email**, **On Discord**, or **On GitHub (needs an account)**, which opens a new bug report with your browser and the app's version filled in. Nothing from your projects goes into it. See [Reporting a problem](/docs/reference/troubleshooting#reporting-a-problem). |
+| **Sponsor Plotra** | Opens the project's GitHub Sponsors page in a new tab. Sponsoring changes nothing in the app. |
+| **Sign out** | Signs this browser out and returns to the sign-in page. The copies of your notes kept in this browser for working offline, and the projects kept on this device, are removed with it. Not in the [desktop app's](/docs/desktop) libraries, where you are always signed in. |
+
+## Your settings
+
+**Your settings** are yours alone, and apply in every workspace you belong to. The page has a **Back** link at the top and these sections:
+
+| Section | What it holds |
+| --- | --- |
+| **Profile and account** | Your name, email, password, Google, and deleting your account. See [Profile and account](#profile-and-account). |
+| **Email notifications** | Whether notifications are also emailed: **A daily digest** (the default), **Each one** or **Off**. See [Notifications](/docs/collaboration/notifications#email). |
+| **Your model** | The AI provider, key and models the agent uses when you run it. See [The AI agent](/docs/ai/models-and-privacy#whose-model-it-runs-on). |
+| **What this means** | A reminder that AI is opt-in for each workspace and each project. |
+| **Motion** | Whether the interface animates as you use it. |
+| **Plugins** | Your own scripts that add commands, panels and export formats to every project you open. See [Plugins](/docs/developers/plugins). |
+| **Advanced: for scripts and AI assistants** | Folded away at the bottom. Opens to **API tokens**: tokens for scripts, automations and AI assistants (MCP) to use Plotra as you. See [Developers](/docs/developers). |
+
+**Email notifications**, and the email, password, Google and delete parts of **Profile and account**, are not shown in a [desktop library](/docs/desktop), which sends no email and has no sign-in, and **Your model** is not shown on a server that has [taken AI out](/docs/ai#a-promise-of-no-ai).
+
+Other things Plotra remembers for your account are set where you use them, not on this page:
+
+| Preference | Where you set it |
+| --- | --- |
+| Daily and session word goals | The Stats view. See [Writing goals](/docs/writing/goals). |
+| A preset that works like another app, the interface size, the ribbon, the inspector's tabs, the look of the page, typing, shortcuts, the status bar and the formatting toolbar | **Customize**. See [Customize](/docs/settings/customize). |
+| The getting-started checklist | The checklist itself, and the account menu. |
+
+## Workspaces
+
+A workspace holds projects and people. Everyone in it can open and edit every project in it; the plan and its limits belong to the workspace, not to a person. A workspace has a name and an address of the form `/w/your-workspace`.
+
+![A workspace's projects page, with the workspace switcher at the top, Settings and New project](/shots/workspace-projects.webp)
+
+Use more than one when groups of people shouldn't see each other's projects: one for your own writing, one for a writers' room. To let one person into one project, you don't need another workspace; [share the project](/docs/collaboration/sharing#sharing-a-project).
+
+### Your first workspace
+
+A new account is asked "First, name your workspace." The field already holds a suggestion, "*Your first name*'s workspace", so pressing `↵` accepts it. The address is made from the name. If that address is taken, a few letters are added to the end.
+
+Someone who signs up to open a project that was shared with them is not asked: with no workspace, Plotra opens on **Shared with you**, and **Start your own project** there leads to the same question when they want one.
+
+### Creating another
+
+1. On the workspace's home page, click the workspace's name in the top bar.
+2. Choose **New workspace**.
+3. Fill in **Workspace name** (up to 80 characters) and **URL**. The URL is filled in from the name as you type; edit it if you want another. It can hold lowercase letters, digits and hyphens, up to 48 characters.
+4. Click **Create workspace**.
+
+You are the owner of the new workspace, and it opens empty. If the URL is already used by another workspace, the form says so and you pick a different one.
+
+Each workspace has its own plan. On the hosted version a new workspace starts on Free; see [Plans and billing](/docs/settings/plans).
+
+### Switching
+
+Click the workspace's name in the top bar of the home page and choose another from the **Workspaces** list. A tick marks the one you are in. Plotra remembers the workspace you switched to and opens it next time.
+
+From inside a project, go back to the workspace first: the "Back to *Workspace*" command, or the button at the top of the ribbon.
+
+### Where Plotra opens
+
+| Your situation | Opens on |
+| --- | --- |
+| You have a workspace with projects | The workspace you last switched to, or the first one |
+| Your workspace has no projects yet | The questions that start a project |
+| You have no workspace, but projects are shared with you | **Shared with you** |
+| You have neither | Naming your first workspace |
+
+### The workspace's home page
+
+| Part | What it does |
+| --- | --- |
+| The workspace's name | The switcher described above. |
+| **Projects** | A card for each project, with its type and when it last changed. Every member sees every project. |
+| **Shared with you** | Projects from other workspaces that were shared with you. Shown only when there are some. |
+| **Settings** | The [workspace's settings](#workspace-settings). |
+| **New project** | Starts a project. Any member can. See [Your first project](/docs/get-started). |
+
+### What you can't do yet
+
+The app has no button to archive a project or move it to another workspace. Owners and admins can [delete a project](/docs/settings/project#deleting-a-project).
+
+## Workspace settings
+
+Open **Settings** on the workspace's home page. The page says "For everyone in *Workspace*. Your own settings are under your picture, top right."
+
+It has up to four tabs.
+
+| Tab | What it holds | Who |
+| --- | --- | --- |
+| **General** | The workspace's name and web address, leaving it, deleting it | Everyone sees it. Owners and admins can rename; anyone can leave; only an owner can delete. |
+| **Members & invites** | Inviting people, open invitations, the member list, roles | Owners and admins change them. A member sees the list of people, read-only: "Only owners and admins can invite people or change roles." |
+| **AI** | The switch that allows AI in the workspace | Owners and admins see it; only an owner can change it. |
+| **Plan & billing** | The plan, what the workspace uses, upgrading | Owners and admins see it; only an owner can change the plan. Not shown on a Plotra you host yourself. |
+
+### General
+
+| Part | What it does |
+| --- | --- |
+| **Workspace name** | Up to 80 characters. **Save** to rename it. |
+| **Web address** | Shown as the full address. **Change** to edit it: letters, numbers and dashes. Saving a new address asks first ("Change the web address?"), because links to the old one stop working, including bookmarks and links you've sent, and project links change too. |
+| **Leave this workspace** | **Leave** *Workspace*… You lose access to its projects at once, including ones shared with you directly; to come back you'd need a new invitation. The only owner can't leave. Not in a desktop library. |
+| **Delete this workspace** | Owners only. **Delete workspace…**, then type the workspace's name and choose **Delete forever**. It deletes the workspace and every project in it, with every note, snapshot, comment and file, for everyone. This can't be undone. Cancel a paid plan first. |
+
+### Members
+
+The **Members** list shows everyone in the workspace, by name, with their email and role. You are marked "(you)".
+
+| Role | In short |
+| --- | --- |
+| **Member** | Opens, writes in and comments on every project, and starts new ones. Sees the General and Members tabs, but can't change them. |
+| **Admin** | The same, plus manages projects (their settings, sharing and deleting them), invites and removes people, and changes the workspace's settings. |
+| **Owner** | The same as an admin, plus the AI switch, the plan and billing, and deleting the workspace. Whoever creates the workspace is its owner. |
+
+The same three lines are said under the invite form, so whoever invites can see what each role means.
+
+**To change a role**, pick another from the menu beside the person.
+
+- An admin can make people members or admins.
+- Only an owner can make someone an owner, and is asked first ("Make *name* an owner?"): owners can do everything you can, including removing you and deleting the workspace. A workspace can have several owners.
+- An admin can't change or remove an owner.
+- Nobody can change their own role. An owner who wants to step down asks another owner to do it.
+
+**To remove someone**, click the button at the end of their row and confirm. "They lose access to every project in this workspace at once, including ones shared with them directly. To come back, they'd need a new invitation." You can't remove yourself; to go, [leave the workspace](#general).
+
+What stays behind when someone is removed: everything they wrote. Their comments stay too, shown under the name "Former member".
+
+### Invitations
+
+**Invite people** is at the top of the same tab: an email address, **Member** or **Admin**, and **Send invite**. To let someone into one project only, or only to read or comment, share that project with them instead. Open invitations are listed beneath it, with who sent each and when it expires (after 48 hours), and three buttons: **Copy link**, **Resend** and **Revoke invite**. The whole flow, including what the invited person sees, is on [Working together](/docs/collaboration/sharing#inviting-people-to-the-workspace).
+
+How many members a workspace can have depends on its plan: 3 on Free and 25 on Pro, counting the owner and invitations still open. A Plotra you host yourself has no limit.
+
+### AI
+
+One switch, **Allow AI in this workspace**. Only an owner can change it, not admins. It is off until an owner turns it on, and while it is off no AI control is shown anywhere in the workspace's projects. Turning it on does not switch AI on in any project; each project has its own switch. See [The AI agent](/docs/ai#turning-it-on).
+
+### Plan & billing
+
+The plan belongs to the workspace, and everyone in it shares the same limits. The tab shows the current plan and how much of each limit is used: **Projects**, **Storage**, **Members**, and **AI credits this month** where the plan includes them. Owners also get the buttons to upgrade and to **Manage billing**; an admin sees "Only an owner of the workspace can change its plan."
+
+Plans, prices, upgrading and cancelling are on [Plans and billing](/docs/settings/plans), and the limits themselves on [Limits](/docs/settings/limits).
+
+## Guests
+
+Someone a project is shared with, who isn't a member of its workspace, is a guest there. A guest:
+
+- sees only the projects shared with them, on **Shared with you**
+- can't open the workspace's home page, its other projects or its settings
+- can be [mentioned](/docs/collaboration/comments-and-suggestions#mentions) in comments once they have opened the share, marked **Guest**, but can't be named a required reviewer
+- can't create projects in that workspace
+
+A guest can have a workspace of their own at the same time. The two don't affect each other.

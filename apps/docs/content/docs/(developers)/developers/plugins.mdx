@@ -1,0 +1,187 @@
+---
+title: Plugins
+description: "Scripts that add commands, panels and export formats to every project you open: your own, or installed from the plugin store. Run sandboxed in your browser with your own access."
+---
+
+A plugin is a script that adds to Plotra: a command in **All commands**, a panel in a pane, a format to export to, or note types for your world. You write one yourself, or install one someone else published in the [plugin store](#the-plugin-store). Either way it's kept in **Your settings**, and runs in every project you open.
+
+## Adding a plugin
+
+Open **Your settings** from the account menu and find **Plugins**.
+
+![Your settings, Plugins: Browse plugins, Paste code and Add from a file, and one plugin, Word count by chapter 1.0, with Edit code, Remove, its switch and Publish to the store](/shots/dev-plugins.webp)
+
+- **Add your own…** → **Add from a file** takes a `.js` file.
+- **Add your own…** → **Paste code** takes the code itself. **Start from an example** fills in a small plugin to change.
+- **Browse plugins** opens the [store](#the-plugin-store), to install someone else's.
+
+Each plugin in the list can be switched off and on, opened with **Edit code** to change it, or removed. Projects you already have open pick up a change when you reload them, or when you run **Reload plugins** from **All commands** (`⌘P`).
+
+What a plugin adds is listed under **Plugins** in **All commands**. Its commands can be given shortcuts in **Keyboard shortcuts**, like any other command.
+
+## What a plugin can do
+
+A plugin runs in a sandboxed frame in your browser, apart from Plotra's own page. It sees only the small API below, and everything it does on a project, it does as you:
+
+- It can read, search, make and change the notes **you** can, in the project you have open. A plugin in a project shared with you as a viewer can read but not write.
+- It can't see Plotra's page, your session, your other projects, or anything else in your browser.
+- It can't make requests: the frame's policy blocks `fetch`, `XMLHttpRequest`, WebSockets, remote images and scripts, forms, and leaving the frame for another page.
+
+That makes a plugin much safer than a script pasted into your browser's console, but not harmless. It can change or rewrite your notes, and browsers leave a few rare ways out of any sandbox (WebRTC is one; the frame takes it away, as far as a page can). **Add only plugins you wrote or trust**, as you would any program.
+
+A plugin whose header says `@access read` can only look: Plotra refuses it every call that would change something (`notes.create`, `notes.update`, `notes.write`, `kinds.add`). The check is on the server, by the plugin, so its code can't get round it.
+
+## The plugin store
+
+The store, at `/plugins` on your Plotra server (**Browse plugins** in Your settings), lists the plugins people on that server have published. It's open to browse without an account; installing needs one. Search it by name, or pick a category, and sort by most installed or newest.
+
+![The plugin store: a search box, categories from Writing tools to Other, Most installed and Newest, and one plugin card with its author, category, what it reads and its installs](/shots/dev-plugin-store.webp)
+
+Each plugin's page says who made it, how many people have it, whether it **reads your notes** or **reads and changes your notes**, its versions with what changed in each, and its whole code, to read before you install it.
+
+- **Install** asks once, saying what the plugin may do, then adds it to your plugins, switched on. It's a copy: it runs in your browser like a plugin of your own.
+- **Update to …** appears in Your settings, and on the plugin's page, when its author publishes a new version. An update that would let a plugin change notes, where it could only read them before, asks first.
+- **Edit code** on an installed plugin makes it your own copy. It leaves the store and gets no more updates.
+- **Report it**, at the foot of a plugin's page, writes to the people who run the server, when they've said where.
+
+A plugin taken down after a report leaves the store, and stops running for everyone who has it. Your settings says so beside it.
+
+The desktop app browses and installs from the store on plotra.ink: **Browse plugins** in Your settings opens the same pages. It needs the internet to browse, install and update, but the plugins you've installed keep running offline. When it's online it checks for updates, and for plugins taken down, which then stop running. Publishing needs a Plotra Cloud account: publish from app.plotra.ink.
+
+### The store's API
+
+The store can be read as JSON, with no sign-in. It's read-only: installing and publishing happen in Plotra. Each address answers `GET`, from any site, and allows 300 requests a minute from one address.
+
+| Address | What it gives |
+| --- | --- |
+| `/api/store/plugins?q=&category=&sort=popular\|new` | `{ plugins }`: the plugins anyone may install, each with its `slug`, `name`, `summary`, `category`, `access`, `author`, latest `version`, `installs` and `updatedAt` |
+| `/api/store/plugins/<slug>` | One plugin's page: the same, with its `about`, whether it's `withdrawn`, its `releases` (newest first, each with `id`, `version`, `notes`, `access`, `size`, `createdAt`) and the latest one's `code`. A plugin taken down is a 404 |
+| `/api/store/status?slugs=a,b,c` | `{ plugins: { <slug>: { status, latest } } }` for up to 50 plugins. `status` is `available`, `withdrawn`, `blocked` (taken down) or `missing`; `latest` is `{ id, version, access }` of its newest release, or `null` |
+
+### Publishing a plugin
+
+Any plugin of yours can go in the store. Give it a version in its header first (`// @version 1.0`), then choose **Publish to the store** below it in Your settings, and fill in:
+
+- **Its address**, `/plugins/<address>`: 3 to 50 lowercase letters, digits and dashes. It can't be changed, and no one else can take it.
+- **What it does, in a line**, a **category**, and, if you like, a longer **about**: how to use it, and what it adds where.
+
+Your name shows as its author. Anyone with an account on the server can then install it and read its code.
+
+Your copy stays linked to the store. When you change its code, **Publish version** appears: raise `@version` in the header, say what changed if you like, and everyone who has it is offered the update. A version, once published, never changes, so people can always read what they installed.
+
+**Edit its store page** changes the line, the category and the about. **Withdraw from the store** takes it out: no one new can install it, while the copies people have keep working. **Put back in the store** undoes it.
+
+## Writing a plugin
+
+A plugin is plain JavaScript. It runs as a module, so it can use `await` at the top. It starts with a header that names it:
+
+```js
+// ==Plotra plugin==
+// @name        Character sheet export
+// @description Every character, with their synopsis, as a CSV file
+// @version     1.0
+// @access      read
+// ==/Plotra plugin==
+```
+
+`@access read` is for a plugin that only reads notes, as this one does: people see that in the store, and Plotra holds it to it. Leave it out for a plugin that changes notes.
+
+Then it registers what it adds, through the `plotra` object.
+
+### A command
+
+```js
+plotra.registerCommand({
+  id: "count-chapters",
+  title: "Count words by chapter",
+  async run() {
+    const notes = await plotra.notes.list();
+    const chapters = notes.filter((note) => note.kind === "chapter");
+    plotra.ui.toast(chapters.map((c) => `${c.title}: ${c.wordCount}`).join(", ") || "No chapters yet.");
+  },
+});
+```
+
+### An export format
+
+`run` returns the file's text, or `{ content, name, type }`. The file is saved to your downloads, named after the project unless you name it.
+
+```js
+plotra.registerExport({
+  id: "characters-csv",
+  title: "Characters (CSV)",
+  extension: "csv",
+  async run() {
+    const notes = await plotra.notes.list();
+    const rows = notes.filter((n) => n.kind === "character").map((n) => [n.title, n.synopsis ?? ""]);
+    const cell = (text) => `"${String(text).replaceAll('"', '""')}"`;
+    return { content: [["Name", "Synopsis"], ...rows].map((row) => row.map(cell).join(",")).join("\n"), type: "text/csv" };
+  },
+});
+```
+
+It shows in **All commands** as **Export as Characters (CSV)**.
+
+### A panel
+
+A panel is a page of the plugin's own, in a pane beside your notes. `render` gets the panel's `<body>` to draw in. The same code runs in the panel's frame with `plotra.panel` set, so the plugin draws there rather than registering again.
+
+```js
+plotra.registerPanel({
+  id: "tags",
+  title: "Tag counts",
+  async render(body) {
+    const counts = {};
+    for (const note of await plotra.notes.list()) for (const tag of note.tags) counts[tag] = (counts[tag] ?? 0) + 1;
+    body.innerHTML = "<h3>Tags</h3><ul></ul>";
+    for (const [tag, count] of Object.entries(counts).sort((a, b) => b[1] - a[1])) {
+      const item = document.createElement("li");
+      item.textContent = `${tag}: ${count}`;
+      body.querySelector("ul").append(item);
+    }
+  },
+});
+```
+
+It opens with **Open Tag counts** in **All commands**, or `plotra.ui.openPanel("tags")`. The panel takes Plotra's colours as CSS variables: `--plotra-background`, `--plotra-foreground`, `--plotra-muted-foreground`, `--plotra-border`, `--plotra-primary` and the rest of the theme.
+
+## The API
+
+Every call that reaches Plotra returns a promise. A refusal (no access, no such note, a limit) rejects it with a message for a person.
+
+| Call | What it does |
+| --- | --- |
+| `plotra.project` | `{ id, title, type }` of the open project |
+| `plotra.user` | `{ name }` of whoever is signed in |
+| `plotra.panel` | `{ id }` in a panel's frame; `null` elsewhere |
+| `registerCommand({ id, title, run })` | A command in **All commands**. `id`: letters, digits, `.`, `-` or `_` |
+| `registerExport({ id, title, extension, run })` | An export format; `run` returns the file |
+| `registerPanel({ id, title, render })` | A panel; `render(body)` draws it |
+| `notes.list()` | Every note in binder order, without the trash: `id`, `parentId`, `kind`, `title`, `synopsis`, `tags`, `aliases`, `status`, `wordCount`, `updatedAt`, `canEdit` |
+| `notes.read(id)` | One note, with `markdown`: its text as Markdown (`null` for boards) |
+| `notes.search(query, limit?)` | Full-text search, best first: `id`, `title`, `kind`, `snippet` |
+| `notes.create({ title, kind?, parentId?, markdown?, tags?, synopsis? })` | Makes a note. `kind`: folder, chapter, scene, note, character or location |
+| `notes.update(id, { title?, synopsis?, tags?, aliases?, status? })` | Changes a note's details |
+| `notes.write(id, { mode, markdown, suggest? })` | `mode: "append"` adds to the end; `"replace"` rewrites the note, keeping what was there as a version. With `suggest: true` the change arrives as suggestions |
+| `notes.active()` | The id of the note open in front of you, or `null` |
+| `kinds.list()` | The project's kinds of world entry: `id`, `name`, `plural`, `icon`, `color`, `fields` |
+| `kinds.add({ name, plural?, icon?, color?, fields? })` | Adds a kind of world entry, with its fields as in [a kinds file](/docs/settings/project#note-types-as-a-file) |
+| `ui.toast(message, tone?)` | A short message, marked as from the plugin. `tone`: `"success"` or `"error"` |
+| `ui.download(name, content, type?)` | Saves text or bytes as a file |
+| `ui.openNote(id)` | Opens a note in a new tab |
+| `ui.openPanel(id)` | Opens one of the plugin's panels |
+
+Text is written the way the [API](/docs/developers/api) writes it: through the live document, so anyone with the note open sees the change at once, and `[[Links]]` find notes by title.
+
+## Limits
+
+| Fact | Detail |
+| --- | --- |
+| Plugins per person | 30, installed ones included |
+| Plugins one person may publish | 20 |
+| Code per plugin | 500 KB |
+| Calls on the project | 600 a minute, across all your plugins |
+| Calls waiting at once | 50 per frame |
+| A command or export | Given up on after 5 minutes |
+| A file to save | 20 MB |
+| Where | Plotra over https, or on localhost: the browser checks plugin frames by hashes it makes only there |

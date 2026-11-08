@@ -1,0 +1,231 @@
+---
+title: Configuration
+description: "Every setting of a self-hosted Plotra, in docker/.env: addresses, secrets, what runs, files, limits, sign-in and email, the digest, AI and billing."
+---
+
+Everything is set in `docker/.env`. After changing a value, run `docker compose up -d` again. The settings marked **Build** are compiled into the app, so they need `docker compose up -d --build app`.
+
+## Addresses
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `BETTER_AUTH_URL` | `http://localhost:3000` | The URL people open Plotra at, without a trailing slash. Sign-in cookies, links in emails and the collab server's token check use it, so it must match the browser's address bar exactly |
+| `NEXT_PUBLIC_COLLAB_URL` | `http://localhost:8787` | The URL browsers reach the collab server at. **Build** for an image you build yourself; the published images read it when the app starts |
+| `COLLAB_INTERNAL_URL` | `http://collab:8787` | Where the app itself reaches the collab server, inside the compose network. The AI agent edits notes through it. It is not in `.env.example`. Add `COLLAB_INTERNAL_URL=` (empty) to `.env` when the collab server is not the bundled one: the app then uses `NEXT_PUBLIC_COLLAB_URL` |
+| `APP_PORT`, `COLLAB_PORT` | `3000`, `8787` | The host ports the two are published on |
+| `APP_BIND`, `COLLAB_BIND` | `0.0.0.0` | The host address they bind to. Use `127.0.0.1` when a reverse proxy on the same machine is the only thing that should reach them |
+
+If you change `APP_PORT` without a reverse proxy, change the port in `BETTER_AUTH_URL` to match. The same goes for `COLLAB_PORT` and `NEXT_PUBLIC_COLLAB_URL`.
+
+## Secrets
+
+All five are empty in `.env.example` and filled by the command in the quick start.
+
+| Variable | What it does |
+| --- | --- |
+| `BETTER_AUTH_SECRET` | Signs sessions and tokens, and seals the GitHub tokens projects use for [a copy kept in GitHub](/docs/import-export/export#a-copy-kept-in-github). Changing it signs everyone out, and those projects need their token entered again. Required: the stack does not start without it |
+| `COLLAB_SECRET` | Shared by the app and the collab server, so each knows the other is calling. Required: the stack does not start without it |
+| `POSTGRES_PASSWORD` | Password of the bundled Postgres. It is set when the database volume is first created. Changing it in `.env` later does not change it in the database |
+| `S3_SECRET_ACCESS_KEY` | Password of the bundled file store, and what the app signs its requests with. MinIO needs at least 8 characters |
+| `AI_KEY_SECRET` | Encrypts the AI provider keys people save in Settings. It must be at least 16 characters; shorter or empty, nobody can save a key. Changing it makes saved keys unreadable, and people enter them again |
+
+## What runs
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `PLOTRA_VERSION` | `latest` | Which release of the published images to run, such as `0.1.0`. See [Upgrading](/docs/self-hosting/running#upgrading) |
+| `PLOTRA_IMAGE` | `ghcr.io/itzsudhan/plotra` | Where the images come from. `-app`, `-migrate` and `-collab` are added to it. Not in `.env.example`: set it only to run images you publish yourself |
+| `COMPOSE_PROFILES` | `postgres,minio,collab` | The optional services. Remove `postgres` to use [your own database](/docs/self-hosting/running#using-neon-or-another-postgres), `minio` to use [another file store or none](#files), `collab` to run [the collab worker on Cloudflare](/docs/self-hosting/running#the-self-hosted-collab-server-and-its-limits) |
+| `DATABASE_URL` | empty | Empty means the bundled Postgres. Otherwise a Postgres connection string |
+| `DATABASE_DRIVER` | empty | `pg` (plain TCP) or `neon` (Neon's WebSocket driver). Empty picks `neon` for a `neon.tech` or `neon.build` host and `pg` for everything else. Any other value stops the app from starting |
+
+## Files
+
+Uploads and version snapshots go to an S3-compatible store. The bundled one is MinIO; the defaults in `.env` point at it.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `S3_ENDPOINT` | `http://minio:9000` | The store's URL. The bucket is addressed as `<endpoint>/<bucket>/<key>` |
+| `S3_BUCKET` | `plotra` | The bucket. `minio-init` creates it in the bundled store |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | `plotra`, generated | Credentials. The bundled MinIO takes them as its root user and password |
+| `S3_REGION` | empty | The region requests are signed for. Empty means `us-east-1`, MinIO's default |
+
+The store is used only when the endpoint, the bucket and both credentials are set. Attachments are stored under `attachments/` and version snapshots under `versions/`. A [`.plotra` project file](/docs/import-export/import#plotra-project-files) being imported waits under `imports/` and is deleted when its import ends; one whose import never started (the tab was closed after the upload) stays. A lifecycle rule on the bucket that deletes objects under `imports/` after a day clears those.
+
+When the store's address is one browsers can reach, and its CORS rules allow the app's origin to `PUT`, attachments and `.plotra` files are sent straight to it. Otherwise, as with the bundled MinIO, the browser sends them to the app, which stores them.
+
+Nothing outside the stack talks to the store: the app reads and writes files on behalf of browsers. That is why MinIO has no published port.
+
+To use another S3 store (Cloudflare R2, Garage, SeaweedFS, AWS S3), set the five `S3_` values and remove `minio` from `COMPOSE_PROFILES`. Create the bucket yourself.
+
+To run with no store at all, also empty `S3_ENDPOINT`. Files and version snapshots then go into Postgres, with smaller limits: 10 MB a file and 100 MB a project.
+
+<Callout title="About the MinIO image">
+  MinIO stopped publishing its own Docker image, so the compose file uses `pgsty/minio`, a community-maintained build of the same server, pinned to one release. Set `MINIO_IMAGE` in `.env` to use a different build. Any S3-compatible store works in its place.
+</Callout>
+
+## Limits
+
+Your own instance has no limit on projects, storage or workspace members. What it does cap:
+
+| What | Limit |
+| --- | --- |
+| One uploaded file | 100 MB with a file store, 10 MB without |
+| One project's attachments together | 2 GB with a file store, 100 MB without |
+| Files attached to one research note | 100 |
+| People one project is shared with | 200 |
+| One [`.plotra` project file](/docs/import-export/import#plotra-project-files) | 1 GB, and no more than your proxy lets through when it goes through the app |
+
+The hosted version's limits belong to its Free and Pro plans, which exist only where billing is set up. See [Limits on the hosted version](/docs/settings/limits).
+
+## Sign-in and email
+
+Email and password sign-in works with nothing else set up. Anyone who can reach your instance can sign up. They get their own workspace and see nothing of yours, but if you don't want strangers on it, don't expose it to the internet, or put your reverse proxy's access control in front of it.
+
+Plotra does not verify email addresses at sign-up. **Forgot password?** on the sign-in page emails a link to choose a new password; the link works for an hour, once, and using it signs the account out everywhere else. Changing an account's email (in **Your settings → Profile and account**) sends a link to the old address to approve it, then one to the new address to confirm it. Both need a mail server: see `SMTP_URL` below.
+
+Sign-in is limited to 5 attempts a minute, and sign-up, password-reset requests and email changes to 5 an hour each, counted by client address. That is why your reverse proxy has to pass the client's address on.
+
+| Variable | What it does |
+| --- | --- |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional. The Google button appears when both are set. Register `<BETTER_AUTH_URL>/api/auth/callback/google` as the callback URL |
+| `SMTP_URL` | Optional. Sends email through an SMTP server, at any mail service or your own: `smtps://user:password@smtp.example.com:465`. Use `smtps://` for port 465 and `smtp://` for 587, and percent-encode special characters in the password |
+| `EMAIL_FROM` | The sender, such as `Plotra <plotra@example.com>`, at an address that server may send from. Unset, it is `Plotra <the SMTP login>`. If the login is not an email address, sending fails until you set this |
+
+With `SMTP_URL` set, Plotra sends these emails:
+
+- **Password reset links** and **email change** confirmations.
+- **Workspace invitations**, at most 40 an hour per person.
+- **Project shares**, at most 60 an hour per person.
+- **Notifications**, for people who chose "each one" in their settings, and the daily digest.
+
+Notification emails have a budget that is fixed in the code: 60 a day for the whole server and 12 an hour per person. It was sized for a free mail tier and cannot be changed in `.env`. A notification that goes over it is not lost. It waits for the next daily digest. Invitations, shares, password resets and email changes do not count toward it.
+
+**Without `SMTP_URL` no email is sent.** Each invitation, sharing link, notification, password reset or email change is written to the app's log instead, link included, and you pass it on yourself. Nobody can reset a forgotten password on their own until a mail server is set:
+
+```bash
+docker compose logs app | grep '\[plotra\]'
+```
+
+```
+[plotra] Invitation for grace@example.com to Test Press: http://localhost:3000/invite/WNHMQN8S…
+```
+
+Because addresses are not verified at sign-up, someone a project is shared with always opens it through the link in that email or log line, even when they already have an account.
+
+## The daily digest
+
+New accounts get notifications by email as a daily digest. The digest is sent when something asks the app for it: a `POST` to `/api/cron/digest` with a secret. Nothing in the compose stack does that, and the compose file does not hand the secret to the app, so on a fresh instance no digest goes out. Notifications still appear under the bell.
+
+To switch it on:
+
+1. Add `CRON_SECRET` to `.env`, with a value from `openssl rand -hex 32`.
+2. In `docker/compose.yaml`, under the `app` service's `environment`, add the line `CRON_SECRET: ${CRON_SECRET:-}`.
+3. Run `docker compose up -d`.
+4. Call the route once a day, for example from the host's crontab:
+
+   ```bash
+   41 6 * * * curl -fsS -X POST -H "Authorization: Bearer <CRON_SECRET>" http://127.0.0.1:3000/api/cron/digest
+   ```
+
+The route answers `{"ok":true,"sent":…,"held":…}`: how many emails went out and how many are waiting for the budget. Calling it twice sends nothing twice. Without `CRON_SECRET` the route answers 404, and with a wrong secret 401. A digest lists up to 20 unread notifications from the last seven days.
+
+## AI
+
+There are three ways a person on your instance gets a model. Their own settings win over the server's.
+
+- **Their own key.** Each person adds a provider key in Settings. This needs `AI_KEY_SECRET`.
+- **One model for the whole server.** Set the `AI_` values below. Nobody then needs a key.
+- **A local model.** Either of the above can point at Ollama or another model server on your machine or network, because `AI_ALLOW_PRIVATE_URLS` is `true` here.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `AI_PROVIDER` | empty | `anthropic`, `openai`, `openrouter`, `compatible` (any OpenAI-compatible endpoint) or `ollama`. Empty, there is no server-wide model |
+| `AI_MODEL_AGENT` | empty | The model for agent runs. Required with `AI_PROVIDER` |
+| `AI_MODEL_FAST` | the agent model | The cheaper model for inline actions |
+| `AI_API_KEY` | empty | The key. Required for `anthropic`, `openai` and `openrouter` |
+| `AI_BASE_URL` | empty | Required for `compatible`. For `ollama` it defaults to `http://localhost:11434/v1`, which inside the app container is the container itself, so set it: an Ollama on the Docker host is `http://host.docker.internal:11434/v1` |
+| `AI_ALLOW_PRIVATE_URLS` | `true` | Lets the server call model URLs on this machine or your network, which a local model needs. Only the exact value `true` switches it on. Set it to `false` if people you don't know can sign up: otherwise they can make your server send requests to addresses inside your network. With it off, a local address someone saves is called by their own browser instead |
+| `WEBHOOK_ALLOW_PRIVATE_URLS` | empty | `true` lets [webhooks](/docs/developers/webhooks) post to addresses on this machine or your network, and over plain `http://`: an n8n or Home Assistant beside Plotra. Leave it unset if people you don't know can sign up |
+| `PLOTRA_NO_AI` | empty | `1` takes AI out of the whole server: no workspace can switch it on, nobody can save a key or test a model, the AI settings say the server has none, and every workspace's home page says "No AI". Read when the server starts, so a restart applies it; nothing about AI is deleted, and unsetting it brings the switches back as they were |
+
+If a value the provider needs is missing, the server-wide model is off and nothing is logged about it. Settings → AI shows whether the server has one.
+
+For Ollama, raise its context: the default of 4,096 tokens is smaller than the agent's own instructions. Start Ollama with `OLLAMA_CONTEXT_LENGTH=16384` or more. See [A local model](/docs/ai/models-and-privacy#a-local-model).
+
+The agent edits notes through the collab server, so it needs `COLLAB_SECRET` and a collab server the app can reach (`COLLAB_INTERNAL_URL` under [Addresses](#addresses)).
+
+## Plans and billing
+
+**All of this is optional, and off by default.** Without `CREEM_API_KEY` there are no plans at all: no Free or Pro, no checkout, no Plan & billing tab, and no limits on projects or storage. Leave these empty unless you want to charge the people on your instance, the way the hosted version does.
+
+Payments go through [Creem](https://creem.io), a merchant of record. You need your own Creem account and two subscription products in it, one billed monthly and one yearly.
+
+| Variable | What it does |
+| --- | --- |
+| `CREEM_API_KEY` | Switches plans on. A key that starts with `creem_test_` uses Creem's test API, where no real money moves |
+| `CREEM_WEBHOOK_SECRET` | The signing secret of the webhook you register in Creem. The app uses it to check that a webhook really came from Creem. Without it the webhook address answers 404 |
+| `CREEM_PRODUCT_PRO_MONTHLY` | The Creem product id of the monthly Pro subscription. Empty, Pro is not sold monthly |
+| `CREEM_PRODUCT_PRO_YEARLY` | The Creem product id of the yearly Pro subscription. Empty, Pro is not sold yearly |
+
+In Creem, register the webhook URL `<BETTER_AUTH_URL>/api/billing/webhook`. Creem calls it when a subscription starts, renews, is cancelled or ends, which is how a workspace's plan changes. Your instance has to be reachable from the internet for that.
+
+With plans on, a workspace is on Free until it subscribes, and the limits of each plan are the ones in [Plans and billing](/docs/settings/plans). The plan is managed under Workspace settings → Plan & billing (`/w/<slug>/settings?tab=billing`). Owners and admins see the tab; only an owner can upgrade or open the billing page. The prices shown there ($10 a month, $96 a year) are fixed in the code. What is charged is the price of your Creem product.
+
+## Hosted AI
+
+Also optional. With plans on, the model set with `AI_PROVIDER` under [AI](#ai) stops being everyone's: it becomes the model that Pro workspaces use with their monthly credits (1,500 a month), so that their members need no key of their own. You pay for these calls.
+
+Without it, Pro workspaces have no hosted AI, and the agent runs on people's own keys as before.
+
+## Other
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `SENTRY_DSN` | empty | Optional error tracking. Server and browser errors go to that Sentry project, without request bodies, cookies or query strings. **Build** as well as run time: the browser's error reporter is left out of the bundle when it is empty |
+| `REPORT_EMAIL` | empty | Where readers report a public read-only link that breaks your rules. When set, the public reader shows a **Report** link that opens an email to it with the page's address. See [Reports and takedowns](/docs/self-hosting/running#reports-and-takedowns) |
+| `NEXT_PUBLIC_SITE_URL` | empty | The address the Plotra name links to on public read-only pages. Empty, it links to the app itself. **Build** |
+| `NEXT_PUBLIC_POSTHOG_KEY` | empty | Copies usage events to a PostHog project. **Build** |
+| `NEXT_PUBLIC_POSTHOG_HOST` | `https://us.i.posthog.com` | The PostHog server to send them to. **Build** |
+| `MINIO_IMAGE` | `pgsty/minio:RELEASE.2026-08-04T00-00-00Z` | The image of the bundled file store |
+
+Plotra records usage events, such as "signed up" and "project created", as rows in your own database's `event` table: a name and the ids involved, never content. Nothing leaves your server unless you set `NEXT_PUBLIC_POSTHOG_KEY`.
+
+## What the compose file sets for you
+
+These are read by the containers and are not in `.env`. You only meet them if you write your own compose file or entrypoint.
+
+| Variable | Container | Value | What it does |
+| --- | --- | --- | --- |
+| `APP_URL` | `collab` | your `BETTER_AUTH_URL` | The app's public address. The collab server checks every token against it |
+| `APP_INTERNAL_URL` | `collab` | `http://app:3000` | Where the collab server actually reaches the app |
+| `PORT` | `collab` | `8787` | The port it listens on inside the container |
+| `COLLAB_DATA_DIR` | `collab` | `/data` | Where it keeps its state |
+| `COLLAB_LOG_LEVEL` | `collab` | `log` | `wrangler`'s log level |
+| `X_LOCAL_EXPLORER`, `X_LOCAL_OBSERVABILITY`, `WRANGLER_SEND_METRICS` | `collab` | `false` | Switch off `wrangler`'s debugging interface, request tracing and usage reporting |
+| `NEXT_OUTPUT` | `app`, at build | `standalone` | Builds the app as a standalone server |
+| `NEXT_TELEMETRY_DISABLED` | `app` | `1` | Switches off Next.js telemetry |
+| `PORT`, `HOSTNAME` | `app` | `3000`, `0.0.0.0` | Where the app listens inside the container |
+
+## Settings for the desktop app
+
+These are set by the [desktop app](/docs/desktop) when it starts its own server on your computer. You don't set them on a server.
+
+| Variable | What it does |
+| --- | --- |
+| `PLOTRA_LOCAL` | `1` when the app is built puts it in local mode: one person, signed in automatically, nothing to share, no plans, no collab server. **Build** |
+| `DATABASE_URL=pglite:<folder>` | A database kept in a folder (PGlite) instead of a Postgres server |
+| `PLOTRA_LOCAL_TOKEN`, `PLOTRA_LOCAL_NAME` | The secret the app's window proves itself with, and the name shown for its one person (`You` when empty) |
+| `PLOTRA_MARKDOWN_DIR`, `PLOTRA_SNAPSHOTS_DIR` | Where the library's Markdown copy and snapshots go. Without them, neither is kept |
+| `PLOTRA_MIGRATIONS_DIR`, `PLOTRA_RESTORE_SNAPSHOT` | Where the database migrations are, and a snapshot to open the library from |
+| `PLOTRA_CLOUD_URL` | The address **Plotra Cloud** opens. `https://app.plotra.ink` when empty |
+
+## Why some settings need a rebuild
+
+Next.js compiles every `NEXT_PUBLIC_` value into the JavaScript it sends to browsers. They are fixed when the image is built, not when the container starts. The compose file passes them from `.env` to the build as build arguments, so the image you build carries your values:
+
+```bash
+docker compose up -d --build app
+```
+
+Everything else is read when the container starts.

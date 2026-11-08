@@ -1,0 +1,71 @@
+---
+title: Non-fiction and research
+description: "For non-fiction and research writers: keep sources beside the text, cite in APA, MLA or Chicago, clip web pages, attach files, fact-check claims and export with a reference list."
+---
+
+If your writing rests on facts, Plotra keeps each one next to where it came from. A source is a note in the project, with the details of the work in its properties and your summary on its page. You cite it from any chapter by typing `[@`, in APA, MLA or Chicago. Web pages can be clipped into sources, files attached to them, and any paragraph marked as a claim to verify. Exports add the reference list for you.
+
+![The Sources view: three sources listed as APA references, sorted by author](/shots/mod-sources.webp)
+
+<StartWriting />
+
+## Set up
+
+1. **Start the project.** On the workspace's projects page, press **New project**, give it a title and choose **Non-fiction / research** under "Other kinds". This makes a blank project with one empty scene. [The cold open](/docs/get-started/first-project#the-cold-open) works too, but its first questions are about a story's character and place; skip the ones that don't apply.
+2. **Check the tools.** A non-fiction project starts with **Research & sources** on. The rest of the type's tool set is under **More → More tools**: **Review & editorial** for approval stages, and **Publishing** for an EPUB.
+3. **Pick the citation style.** Open **Sources** from **More** in the ribbon and choose **APA**, **MLA** or **Chicago** under **Style**. APA is the default. The style belongs to the project and can be changed at any time without rewriting anything.
+4. **Rename the note types, if you like.** Under **Project settings → Rename things** a "Scene" can become a "Section". See [Rename things](/docs/settings/project#rename-things).
+
+An existing draft comes in as Markdown, Word or plain text with **⋯ → Import…** at the top of the binder. Citations in an imported file arrive as plain text.
+
+## Typical workflow
+
+1. **Collect sources.** In the Sources view, press **New source** for a book or a paper, or **Clip a web page** and paste an address. A clip saves the page's readable text and fills in the title, authors, date and address the page declares. See [Clipping a web page](/docs/modules/research#clipping-a-web-page).
+2. **Complete the details.** Each source has a type (Book, Article, Chapter, Website, Report, Interview, Film or Other) and the fields a reference needs. The list warns "Missing authors, year" until they are filled in. See [The fields](/docs/modules/research#the-fields).
+3. **Attach the files.** Drop the PDF of a paper or a scan onto a source's **Files** section. Everyone in the project can open it.
+4. **Take notes on the source's page.** A source is a research note, so it has a body for your summary and can be linked, tagged and searched like any other note.
+5. **Write, and cite as you go.** Type `[@`, then a few letters of the author, the title or the year, and press `↵`. Add "p. 44" in the box that opens. The citation follows its source: correct the year on the source and every citation of it changes. See [Citing a source](/docs/modules/research#citing-a-source).
+6. **Mark the claims.** Put the cursor in a paragraph, press `⌘⌥T` and set **Fact-check** to Unverified, Verified or Disputed, with the source it rests on. See [Fact-check status per claim](/docs/modules/research#fact-check-status-per-claim).
+7. **Work through the Claims tab.** It lists every claim in the project, unverified first, with buttons to change the status. Clear it before the text goes out.
+8. **Have it read.** Share the project by email. A commenter can comment on any passage; an editor can use suggesting mode, which marks every change until you accept or reject it. See [Working together](/docs/collaboration).
+9. **Export.** **Word (.docx)** is in standard manuscript format with the reference list at the end. **Bibliography** in the Sources view downloads the whole list as Markdown, plain text or BibTeX.
+
+## Who does what
+
+| Person | Role to give | Why |
+| --- | --- | --- |
+| A co-author | Workspace member, or **Editor** on the project | Writes, cites, adds sources |
+| A fact-checker who sets claim statuses | **Editor** | Changing a claim's status changes the note it is in, which needs edit access |
+| A reader who only queries the text | **Commenter** | Comments, and can open every attached file |
+| A required reviewer in an approval stage | Workspace member | Review rules can only name members of the workspace |
+
+## What to read next
+
+| For | Read |
+| --- | --- |
+| The Sources view: search, sort, "Cited in" | [The Sources view](/docs/modules/research#the-sources-view) |
+| How authors, dates and organisations are entered | [Adding a source](/docs/modules/research#adding-a-source) |
+| The three styles and how names are shortened | [Citation styles](/docs/modules/research#citation-styles) |
+| The downloadable bibliography | [The bibliography](/docs/modules/research#the-bibliography) |
+| File types, sizes and who can open a file | [Attachments and files](/docs/modules/research#attachments-and-files) |
+| What each export does with a citation | [How citations export](/docs/modules/research#how-citations-export) |
+| The Word manuscript, Markdown and plain text | [Export](/docs/import-export/export) |
+| Approval stages and locked chapters | [Review and editorial](/docs/modules/editorial) |
+| An e-book with the references as its last chapter | [EPUB](/docs/modules/publishing#epub) |
+| Chapter and project word targets | [Writing goals](/docs/writing/goals) |
+| An outline of every chapter with its status | [Outline](/docs/views/planning#outline) |
+
+## Things to know
+
+- **Sources are added by hand or by clipping.** None of the ways to add a source reads a BibTeX file or a reference manager's library. BibTeX is a download.
+- **There is no browser extension.** Clipping is done from the dialog, on pages of the public web. A page behind a sign-in can't be clipped, and a page that builds its text in the browser may come out empty. You can clip 60 pages an hour.
+- **A clip is plain text.** Images, tables, links and formatting in the page are not kept, and a clip holds about 120,000 characters.
+- **There is no bibliography block to place in a note.** The reference list is added on export, and holds only the sources cited in what you exported.
+- **Chicago is the author-date form**, 17th edition. APA is the 7th and MLA the 9th.
+- **Same author, same year.** In an export, two such works carry their letter (2019a, 2019b) in the reference list but not in the citation in the text. Check these by hand.
+- **A claim is a whole block**, a paragraph or a list item, not a few words. Its source is not a citation and does not print.
+- **Fact-check tags stay inside Plotra.** Exports print the text and leave the tags out.
+- **Uploaded files stay inside Plotra too.** An image uploaded into a note has no address outside Plotra, so exports, the EPUB and the series bible leave it out.
+- **File sizes on the hosted version.** One uploaded file can be 10 MB on Free (100 MB on Pro), a source can hold 100 files, and a Free workspace has 50 MB of storage for files and versions together. See [Limits](/docs/settings/limits).
+- **A citation does not survive a round trip.** Exported and imported again, it is plain text.
+- **The AI agent treats every research note as outside material**: it reads the text as information and does not follow instructions written in it.

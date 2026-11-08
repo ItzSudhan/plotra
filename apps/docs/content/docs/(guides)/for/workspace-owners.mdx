@@ -1,0 +1,104 @@
+---
+title: Workspace owners
+description: "For the person who owns or administers a workspace: members and roles, sharing projects, the plan and its limits, the AI switch, getting data out, and what happens when access is removed."
+---
+
+A workspace is where projects live and where the people you write with are gathered. If you created it, you are its owner: you decide who is in it, who may see which project, whether AI is allowed, and what plan it is on. An admin does the same except for the plan and the AI switch. This page is the route through those jobs. None of them takes long, and most are done once.
+
+![The workspace settings: an email field and a role to invite someone, and the list of members with their roles](/shots/workspace-settings.webp)
+
+<StartWriting />
+
+## Set up
+
+1. **Name the workspace.** A new account is asked "First, name your workspace." Its address is made from the name. To add another later, click the workspace's name on its home page and choose **New workspace**. See [Workspaces](/docs/settings/account#workspaces).
+2. **Open the settings.** **Settings** on the workspace's home page has up to three tabs: **Members & invites**, **AI** and **Plan & billing**. Members can't open them.
+3. **Invite people.** Under **Invite people**, enter an address, pick **Member** or **Admin** and press **Send invite**.
+4. **Decide about AI.** The **AI** tab has one switch, **Allow AI in this workspace**. It is off until you turn it on.
+5. **Look at the plan.** **Plan & billing** shows the plan and four meters: **Projects**, **Storage**, **Members** and, on Pro, **AI credits this month**.
+
+| | Owner | Admin | Member |
+| --- | --- | --- | --- |
+| Read, comment and edit in every project; create projects | Yes | Yes | Yes |
+| Change a project's settings and modules; share it | Yes | Yes | |
+| Invite, change roles between member and admin, remove people | Yes | Yes | |
+| Switch AI on or off for the workspace | Yes | | |
+| See the plan and what the workspace uses | Yes | Yes | |
+| Make someone an owner; change or remove an owner | Yes | | |
+| Upgrade, cancel, open **Manage billing** | Yes | | |
+
+## Typical workflow
+
+1. **Choose between a member and a guest.** A member can open and edit every project in the workspace. Someone who should see one project only, or only read or comment, is not invited: [share that project](/docs/collaboration/sharing#sharing-a-project) with them as **Editor**, **Commenter** or **Viewer**.
+2. **Add a second owner.** Only an owner can make someone an owner, and a workspace can have several. Nobody can change their own role, so a workspace with one owner has nobody who can take over billing.
+3. **Share projects.** In a project, click **Share project…** at the top of the binder. The same dialog lists everyone with access, changes roles, removes people and holds the read-only link.
+4. **Watch the meters.** A meter turns red when it is full. A full workspace can't add more of that thing; nothing is deleted and nothing becomes read-only.
+5. **Upgrade when a limit is in the way.** Under **Upgrade to Pro**, press **$96 a year** or **$10 a month** and pay on the checkout page. The workspace is on Pro at once. See [Upgrading](/docs/settings/plans#upgrading).
+6. **Turn AI on where it is wanted.** After the workspace switch, each project has its own under **Project settings → Tools → AI agent**. See [Turning it on](/docs/ai#turning-it-on).
+7. **Remove people who leave.** Click the button at the end of their row and confirm. Remove any review rule that names them, since nobody can give that approval any more.
+8. **Export what matters.** Take a copy of each project from time to time. See below.
+
+## Limits on the hosted version
+
+| | Free | Pro |
+| --- | --- | --- |
+| Projects | 10 | Unlimited |
+| Storage: uploaded files and versions, all projects together | 50 MB | 50 GB |
+| One uploaded file | 10 MB | 100 MB |
+| Members, counting the owner and open invitations | 3 | 25 |
+| People one project can be shared with | 5 | 200 |
+| Hosted AI | None | 1,500 credits a month |
+
+Every view and module is on both plans. The exact message at each limit is on [Limits](/docs/settings/limits#what-happens-when-you-reach-one).
+
+## Getting your data out
+
+Export is done one project at a time, and no limit ever blocks it. In a project, choose **⋯ → Export project…** at the top of the binder.
+
+| Format | What it is good for |
+| --- | --- |
+| **Markdown, a file per note (.zip)** | The closest thing to a copy of the whole project: folders and files that mirror the binder, with links kept |
+| **Word (.docx)** | The manuscript, in standard manuscript format |
+| **Markdown (.md)**, **Plain text (.txt)** | The manuscript as one file |
+| **PDF** | Printed from the Read view |
+
+The zip keeps the text, the structure, titles, tags and links. It does not keep properties, statuses, canon and reveal tags, comments, version history, canvases, timelines, dialogues, or uploaded images and files. See [Out and back in](/docs/import-export#out-and-back-in). There is no single export of a whole workspace.
+
+## When access is removed
+
+| You do this | What happens |
+| --- | --- |
+| Remove a member | They lose every project in the workspace, including ones shared with them directly. It takes effect on their next request; a note they have open stops updating within ten minutes. |
+| Remove someone from a project's Share dialog | The same, for that project. |
+| Switch off or reset a read-only link | The link stops working at once. Switched back on, the same link works again; reset, it gets a new address. |
+| Cancel an invitation | Its link stops working at once. |
+
+What stays behind: everything the person wrote, and their comments, which are shown under the name "Former member". What they exported while they had access is theirs to keep: every role, the viewer included, can export.
+
+## What to read next
+
+| For | Read |
+| --- | --- |
+| The member list, roles and invitations | [Workspace settings](/docs/settings/account#workspace-settings) |
+| The Share dialog and the read-only link | [Sharing a project](/docs/collaboration/sharing#sharing-a-project) |
+| Every role, action by action | [Roles and permissions](/docs/reference/roles-and-permissions) |
+| Free and Pro, credits, cancelling, refunds | [Plans and billing](/docs/settings/plans) |
+| Rate limits and fixed caps | [Limits](/docs/settings/limits#rate-limits) |
+| What the agent sends, and to whom | [What is sent, and where](/docs/ai/models-and-privacy#what-is-sent-and-where) |
+| Tools, the workflow and templates for each project | [Project settings](/docs/settings/project) |
+| Running a team in the workspace | [Teams](/docs/for/teams) |
+| Running the server yourself | [Self-hosters](/docs/for/self-hosters) |
+
+## Things to know
+
+- **The plan belongs to the workspace.** Each workspace has its own, and a new one starts on Free. Nobody pays per seat.
+- **Only an owner can manage billing.** An admin sees the plan and "Only an owner of the workspace can change its plan."
+- **Open invitations count as members** until they are accepted, cancelled or expire after 48 hours.
+- **A viewer reads everything and can export it.** Share a project only with people you would hand the file to.
+- **A read-only link for everything shows everything**, unrevealed notes and passages tagged Never included. Treat it like a public page, or set it to show the project as of a release.
+- **A project can't be archived.** Owners and admins can [delete a project](/docs/settings/project#deleting-a-project). A workspace can be renamed by owners and admins, and deleted by its owner, under **Settings → General**. See [General](/docs/settings/account#general). On Free, the two ways past 10 projects are another workspace or Pro.
+- **Members can leave.** **Leave this workspace** is under **Settings → General**. A guest shared into one project can't remove themselves: they ask an owner or admin.
+- **With AI on, a collaborator who can edit can run the agent on their own key**, and the notes it reads then go to their provider. Leave the project's switch off if you don't want that.
+- **Hosted AI credits are shared** by everyone in a Pro workspace, reset monthly and don't roll over. Runs on a person's own key use none.
+- **Going back to Free deletes nothing.** The workspace keeps every project, file and version, and only can't add beyond the Free limits. A first payment is refunded in full within 14 days.
+- **Version snapshots use storage.** Each note keeps its latest 40 automatic versions, named versions are kept until deleted, and a release that is cut snapshots every note.

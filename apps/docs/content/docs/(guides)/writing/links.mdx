@@ -1,0 +1,140 @@
+---
+title: Links
+description: Link a scene to its characters and places once, and find everything about them from then on. Wiki-links, embeds, what mentions a note, names that aren't linked yet, and the graph.
+---
+
+Links are what turn a folder of documents into a vault. Link a scene to the characters in it, and each character's page can tell you every scene they appear in. You stop searching your own draft for where someone was last seen.
+
+Links are part of every project; no tool needs to be on. Making one needs edit access to the note you are writing in.
+
+## Making a link
+
+Type `[[` in the editor. A list of notes appears; keep typing to narrow it, and press Enter. **Link to note** in the block menu (`/`) does the same.
+
+![Typing two square brackets and "Fr" in a scene opens Link to a note, offering Friar Laurence, Friar Laurence's cell and Create "Fr"](/shots/editor-link.webp)
+
+| You type | You get |
+| --- | --- |
+| `[[Mira Vale` | A link to the note called Mira Vale |
+| `[[Mira Vale#Backstory` | A link to the "Backstory" heading inside that note, shown as "Mira Vale › Backstory" |
+| `[[Mira Vale\|the archivist` | A link to Mira Vale that reads "the archivist" |
+| `[[Mira Vale#Backstory\|her past` | A link to that heading that reads "her past" |
+
+You pick the note from the list, so there is no need to type the closing brackets. The parts after `#` and `|` can be typed before you choose.
+
+A link goes to a note, or to a heading in a note. There are no links to a single paragraph.
+
+### The link picker
+
+- It searches names and **other names** (aliases). A note found by another name is marked "alias". Other names are set in the Properties panel; see [Properties and tags](/docs/writing/properties-and-tags).
+- Exact matches come first, then names that start with what you typed, then names with a word that starts with it, then names that contain it. Up to 12 notes are shown, each with the folder it is in.
+- Every type of note can be linked except a folder.
+- If no note has exactly that name, the last entry is **Create "…"**. It makes a new note with that name, without opening it, and links to it.
+- After `#`, the list changes to **Headings in** the note: its headings of levels 1 to 3, and in a script its scene and act headings. Up to 30 are shown; keep typing to narrow them.
+- With a [shared world](#shared-worlds), a second group, **From** and the world's title, offers up to six of its pages.
+
+### Opening and previewing
+
+| Do this | And |
+| --- | --- |
+| Hover over a link | A preview card opens after a moment. |
+| Click | The note opens in the current tab. A heading link scrolls to that heading. |
+| `⌘`-click | It opens in a new tab. |
+| `⌘⌥`-click | It opens to the side. |
+
+The preview shows the note's name and type, its synopsis, and the start of its text: about 700 characters. For a heading link it starts below that heading. A preview is kept for 30 seconds, so text written in the last half-minute may be missing from it.
+
+## Embeds
+
+Put an exclamation mark in front, `![[Note`, or choose **Embed note** in the block menu, and the note's content is shown inside the page you are writing. The embed is a live, read-only view: change the original and the embed changes too.
+
+- An embed is a block of its own, with the note's name at the top and an **Open** button. **Open** takes the same `⌘` and `⌘⌥` clicks as a link.
+- A long note scrolls inside the embed, which is at most 480 pixels tall.
+- An embed always shows the whole note. `![[Note#Heading` adds the heading to the label, and **Open** goes to it.
+- Embeds can nest: an embedded note can show its own embeds. A third level reads "Embedded too deeply to show here."
+- Pages of a shared world can be linked but not embedded.
+- An embed counts as a link. The embedded note lists the page under **Mentioned in** as "shown inside it".
+
+## The Links tab [#backlinks]
+
+The **Links** tab of the inspector shows, for the note that is open, three lists: **Mentioned in**, **This note links to** and **Named but not linked**. Open it with `⌘⌥⇧B` or "Show what mentions this note" in **All commands**. Each list has a count and can be folded. If the lists can't be loaded, the tab says why and offers **Try again**.
+
+![Juliet Capulet's page with the Links tab of the inspector open, listing the notes that mention her with the sentence around each one](/shots/inspector-links.webp)
+
+### Mentioned in
+
+Every note that links to this one (its backlinks), once each, with the sentence or paragraph around each link so you can see why. Three other things count as a link here:
+
+- an embed, shown as "shown inside it";
+- a field that points at this note, shown as "in its ‘…’ field" with the field's name, such as "pov". A scene whose **POV** is this character mentions it;
+- a citation of a research note. See [Research and sources](/docs/modules/research).
+
+Notes in the trash are left out. An empty list reads "No note links here yet. Type [[ in another note to link to this one."
+
+### This note links to
+
+Every note this one links to, once each. Links through fields and embeds are included. An empty list reads "No links in this note yet. Type [[ to link another note."
+
+### Named but not linked [#unlinked-mentions]
+
+Places where this note's name, or one of its other names, appears as plain text without a link (unlinked mentions). This is how you find the three scenes where you wrote a character's name before you gave them a page.
+
+Each mention shows the words around it. **Link** opens that note and turns the mention into a link. If the text was another name or differs from the note's name, the link keeps reading as you wrote it.
+
+- A mention is a whole word or phrase, in any capitalisation. "Mira" doesn't match "Miranda".
+- Names shorter than two characters are ignored.
+- **Link** is greyed out for a note you can't edit; point at it and it says "You can't edit that note".
+- If the text changed after the list was made, you are told "That mention has changed. Try again in a moment."
+- The list holds up to 100 mentions, from up to 200 notes. An empty one reads "No other note names ‘…’ without linking it."
+
+In all three lists, click a note to open it in the current tab, or `⌘`-click for a new tab.
+
+### How fresh the lists are
+
+The list of links is rebuilt from the text a few seconds after you stop typing. The Links tab then refreshes every ten seconds while the window is visible. A new link takes a moment to show up under **Mentioned in**. A note keeps up to 500 links in the index.
+
+## Renaming, trash and broken links
+
+A link points at the note itself, not at its name.
+
+| What happens | What the link does |
+| --- | --- |
+| The note is renamed | Every link to it shows the new name at once. A link with its own text, `[[Mira Vale\|the archivist`, keeps that text. |
+| The note is moved | Nothing changes. |
+| The note is moved to the trash | The link is struck through and can't be clicked, and an embed of it reads "You don't have access to this note." Restore the note and both work again. |
+| The note is deleted for good, or you can't open it | The link reads **Restricted note** with a lock. An embed reads "You don't have access to this note." |
+| A heading is renamed or removed | The link still shows the old heading and opens the note without scrolling. Headings are matched by their text, so make the link again. |
+
+Because links follow the note, there is no "broken links" report to work through. Use the graph's **Unlinked notes** to find notes that nothing links to.
+
+## The graph
+
+The graph view (`⌘G`) draws every note as a dot and every link as a line. "Open the graph around this note" in **All commands** draws only the note you are in and what surrounds it. Filters, groups, unlinked notes and the graph around a note are covered on [World views](/docs/views/world).
+
+## Shared worlds
+
+A project can use another project in the same workspace as its **world**: a book and its sequel, or a series, a show and a game, can share one set of characters and places.
+
+### Setting it up
+
+In **Project settings**, the **General** tab, choose the project under **Shared world bible**. "None: this project keeps its own world" is the default. Changing it needs someone who manages the project. See [Project settings](/docs/settings/project#shared-world-bible).
+
+- Only other projects of the same workspace that you can open are offered.
+- It goes one level deep. A project that itself uses a shared world can't be chosen, and a world's own world is not followed.
+- A project can't be its own world.
+
+### What you get
+
+- **In the Codex,** a switch at the top between **This project** and the world's title. The world's characters, locations and world entries are listed with their properties and canon status. They are read-only here: edit them in their own project.
+- **In the link picker,** the world's pages under **From** and the world's title, once you have typed something.
+- **In the text,** a link to a shared page has a small planet beside it. Hovering shows its name and the world it is from. Click it to open the page in the Codex; `⌘`-click opens the Codex to the side.
+
+Only characters, locations and world entries are shared. Scenes, notes, research and the world's releases stay in their own project.
+
+### Limits
+
+- **Access follows the world project.** Someone who can open your project but not the world sees those links as **Restricted note**, and gets no world switch in the Codex.
+- **Graph and Mentioned here.** Links into the shared world show in this project's graph, as the entry's name with ↗ (click it to open the entry), and on the entry's page in the Codex under **Mentioned here**. In the world's own project they show too: an entry's **Links** tab has **From projects using this world**, grouped by project, and its Codex page **Mentioned in projects using this world**, each opening the note in its own project. Only projects you can open are listed there; someone who can read the world but not a project using it doesn't see that project's notes. A note shows its links once it has been saved after October 2026. See [Entries of a shared world](/docs/views/world#entries-of-a-shared-world) in the graph and [A shared world](/docs/views/world#a-shared-world) in the Codex.
+- **No embeds and no hover preview** for shared pages.
+- **The spoiler horizon doesn't apply** to shared pages: the Codex shows all of them, whatever release you are looking at.
+- **If the shared world is set back to None,** existing links to its pages read **Restricted note**. Choosing the same world again brings them back.

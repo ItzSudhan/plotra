@@ -1,0 +1,26 @@
+{
+  "title": "Guides",
+  "description": "Learn Plotra and use every part of it",
+  "root": true,
+  "icon": "BookOpen",
+  "pages": [
+    "index",
+    "---[Rocket]Get started---",
+    "...get-started",
+    "for",
+    "---[PenLine]Write---",
+    "...writing",
+    "---[LayoutDashboard]Plan and see---",
+    "...views",
+    "---[ScrollText]Keep canon---",
+    "...canon",
+    "---[Users]Work together---",
+    "...collaboration",
+    "---[Sparkles]AI---",
+    "...ai",
+    "---[ArrowLeftRight]Import and export---",
+    "...import-export",
+    "---[Blocks]Modules---",
+    "...modules"
+  ]
+}

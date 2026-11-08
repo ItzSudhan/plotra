@@ -1,0 +1,424 @@
+---
+title: Deploying the hosted version
+description: The checklist for putting Plotra on Vercel, Cloudflare, Neon and R2, and switching on paid plans with Creem.
+---
+
+export const domain = "plotra.ink";
+export const site = `https://${domain}`;
+export const app = `https://app.${domain}`;
+export const docs = `https://docs.${domain}`;
+export const collab = `https://collab.${domain}`;
+
+This is the order to do things in the first time the hosted version goes up. Each step ends with a check; don't start the next one until it passes. To run Plotra on your own server instead, see [Self-hosting](/docs/self-hosting).
+
+Everything here except [Plans and billing](#plans-and-billing-creem) fits in a free tier. What each one allows, and what it would cost past that, is in [the README](https://github.com/ItzSudhan/plotra#what-it-costs-to-run).
+
+<Callout type="warn" title="Paid plans end the free hosting">
+  Vercel's Hobby plan is for non-commercial use. Once the Pro checkout is live, the app has to be on Vercel Pro (about $20 a month) or on another host. Do [Plans and billing](#plans-and-billing-creem) only after that move. Until `CREEM_API_KEY` is set there are no plans, nothing is sold, and Hobby is allowed.
+</Callout>
+
+## Addresses
+
+The page is written for one domain, <code>{domain}</code>. To use another, change `domain` at the top of this file and the `DOMAIN` line below.
+
+| What | Address | Runs on |
+| --- | --- | --- |
+| Marketing site (`apps/web`) | <code>{site}</code> | Vercel |
+| App (`apps/app`) | <code>{app}</code> | Vercel |
+| Docs (`apps/docs`) | <code>{docs}</code> | Vercel |
+| Collab worker (`apps/collab`) | <code>{collab}</code>, or its `workers.dev` address | Cloudflare Workers |
+
+The commands on this page use these shell variables. Set them once in the terminal you work in:
+
+```bash
+DOMAIN=plotra.ink
+APP_URL=https://app.$DOMAIN
+```
+
+Generate three secrets now and keep them in a password manager. You will paste the last two in two places each.
+
+```bash
+openssl rand -base64 32   # BETTER_AUTH_SECRET: signs sessions
+openssl rand -base64 32   # COLLAB_SECRET: shared by the app and the collab worker
+openssl rand -base64 32   # CRON_SECRET: shared by the app and the digest workflow
+```
+
+## 1. Database: Neon
+
+1. Create a Neon project. Choose **Postgres 18** and the region closest to where Vercel runs the app's functions (`iad1`, Washington D.C., unless you change it).
+2. From **Connect**, copy two connection strings:
+   - the **pooled** one (its host contains `-pooler`): the app's `DATABASE_URL`;
+   - the **direct** one (pooling switched off): for migrations and for backups.
+3. Run the migrations from the repository root, against the direct string:
+
+   ```bash
+   bun install
+   DATABASE_URL="<direct connection string>" bun run db:migrate
+   ```
+
+   A `DATABASE_URL` in the environment wins over `apps/app/.env.local`, so this does not touch your development database.
+
+**Check:** in Neon's SQL editor, `select count(*) from pg_policies;` returns more than zero, and `select rolname from pg_roles where rolname = 'plotra_app';` returns one row. The migrations create that role; the app's row-level security depends on it.
+
+## 2. Files: Cloudflare R2
+
+Version snapshots and attachments must go to R2 in production. Without it they are stored in Postgres, and Neon's free storage would be gone within weeks.
+
+1. In the Cloudflare dashboard, open **R2** and create two buckets: `plotra` for the app and `plotra-backups` for database dumps. Leave both private: no public access, no `r2.dev` address.
+2. Create two API tokens under **R2 → Manage API tokens**, each with **Object Read & Write** and limited to one bucket:
+   - one for `plotra`, used by the app;
+   - one for `plotra-backups`, used by the backup workflow. Kept apart, a leaked app credential can't delete the backups.
+3. Note each token's access key ID and secret access key, and your Cloudflare **account ID**.
+4. On the `plotra` bucket, open **Settings → CORS policy** and add a rule that lets the app upload from the browser. Files go straight to the bucket, so they aren't held to a Vercel Function's 4.5 MB limit:
+
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://app.plotra.ink"],
+       "AllowedMethods": ["PUT"],
+       "AllowedHeaders": ["content-type"],
+       "MaxAgeSeconds": 3600
+     }
+   ]
+   ```
+
+   Use your app's own address. Without this rule, uploads still work, through the app, up to 4 MB.
+5. Still on the `plotra` bucket, open **Settings → Object lifecycle rules** and add a rule that deletes objects with the prefix `imports/` one day after they were uploaded. A `.plotra` project file being imported waits there and is deleted when its import ends; the rule clears one whose import never started.
+
+**Check:** both buckets are listed and empty, and `plotra` has the CORS rule and the `imports/` lifecycle rule.
+
+## 3. The three Vercel projects
+
+Vercel's Hobby plan can't be connected to a repository owned by a GitHub organization. The repository has to be under a personal account. (On Vercel Pro, which paid plans need, that restriction goes away.)
+
+For each of `apps/app`, `apps/web` and `apps/docs`:
+
+1. **Add New… → Project**, import the repository, and set **Root Directory** to the app's folder. Leave "Include files outside the root directory" on: the shared packages live outside it.
+2. Leave the build settings alone. Each app has a `vercel.json` that sets the framework and the build command, and Vercel installs with Bun because the repository has a `bun.lock`.
+3. Add the environment variables below (Production environment), then deploy.
+4. Under **Settings → Domains**, add the app's address from the table above and create the DNS record Vercel asks for.
+
+Vercel skips a project's build when a commit changes nothing it depends on. That is on by default for new projects (**Settings → Build and Deployment → Root Directory → Skip deployment**) and works with Bun workspaces, so a docs change doesn't rebuild the app.
+
+### `apps/app`
+
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | Neon's **pooled** connection string |
+| `BETTER_AUTH_SECRET` | the first secret you generated |
+| `BETTER_AUTH_URL` | <code>{app}</code>, without a trailing slash |
+| `COLLAB_SECRET` | the second secret you generated |
+| `NEXT_PUBLIC_COLLAB_URL` | the collab worker's address. Set it in step 4, when you know it. |
+| `S3_ENDPOINT` | `https://<account ID>.r2.cloudflarestorage.com`, with the Cloudflare account ID from step 2 |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | the **app** token from step 2 |
+| `S3_BUCKET` | `plotra` |
+| `NEXT_PUBLIC_SITE_URL` | <code>{site}</code> |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | from step 5 |
+| `SMTP_URL`, `EMAIL_FROM` | from step 6 |
+| `CRON_SECRET` | the third secret you generated. Without it no daily digest is sent: `/api/cron/digest` answers 404. |
+| `SENTRY_DSN` | optional, see [Error tracking](#error-tracking) |
+| `AI_KEY_SECRET` | optional: `openssl rand -base64 32`. Lets people save their own AI provider key. It must be at least 16 characters; without it that feature is off. Changing it later makes every saved key unreadable. |
+| `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST` | optional, see [Usage analytics](#usage-analytics) |
+| `CREEM_…`, `AI_…` | optional, see [Plans and billing](#plans-and-billing-creem). Without `CREEM_API_KEY` there are no plans at all. |
+
+Leave these unset on Vercel. They exist for other setups, described in [Self-hosting](/docs/self-hosting/configuration):
+
+| Variable | Why |
+| --- | --- |
+| `S3_REGION` | R2 accepts the default, `us-east-1` |
+| `DATABASE_DRIVER` | The app picks Neon's driver for a `neon.tech` host by itself |
+| `COLLAB_INTERNAL_URL` | The app reaches the worker at `NEXT_PUBLIC_COLLAB_URL` |
+| `AI_ALLOW_PRIVATE_URLS` | It would let anyone who signs up send the server's requests into private networks. Unset, a local model someone saves is called by their own browser |
+
+Vercel sets `VERCEL`, `VERCEL_ENV` and `VERCEL_GIT_COMMIT_SHA` itself. The app reads them: the first caps uploads that pass through the app at 4 MB and switches on the missing-file-store warning, the others label error reports and `/api/health`. The commit is also filled in on the bug reports the account menu's **Report a bug** opens.
+
+<Callout type="info" title="Uploads go straight to R2">
+  A Vercel Function can't receive a request body larger than 4.5 MB. So with R2 configured, the browser sends each file straight to the bucket with a short-lived signed URL (`/api/files/direct`), and the app then checks what arrived and records it. The plans' file sizes apply: 10 MB on Free, 100 MB on Pro. A `.plotra` project file being imported goes the same way (`/api/import/direct`), under `imports/`, up to 66 MB on Free and 256 MB on Pro, and the import reads it from there. This needs the bucket's CORS rule from step 2. Without the rule, or without R2, files go through the app and stop at 4 MB on Vercel.
+</Callout>
+
+### `apps/web`
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_APP_URL` | <code>{app}</code> |
+| `NEXT_PUBLIC_DOCS_URL` | <code>{docs}</code> |
+| `NEXT_PUBLIC_SITE_URL` | <code>{site}</code> |
+| `NEXT_PUBLIC_MEDIA_URL` | optional: where the site's videos are served from. A production build uses `https://media.plotra.ink` (the `plotra-media` R2 bucket) unless this says otherwise |
+| `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST` | optional, see [Usage analytics](#usage-analytics) |
+
+### `apps/docs`
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_DOCS_URL` | <code>{docs}</code> |
+| `NEXT_PUBLIC_APP_URL` | <code>{app}</code> |
+| `NEXT_PUBLIC_SITE_URL` | <code>{site}</code> |
+| `FEEDBACK_WEBHOOK_URL` | optional: a Discord or Slack webhook that readers' feedback on a page is posted to. It is always written to the log as well |
+| `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST` | optional, see [Usage analytics](#usage-analytics) |
+
+Variables that start with `NEXT_PUBLIC_`, and `SENTRY_DSN`, are read when the project is built. After changing one, redeploy.
+
+**Check:**
+
+```bash
+curl -s $APP_URL/api/health
+```
+
+answers with `"ok":true`, `"database":"ok"`, `"objectStore":true` and an empty `warnings` list. `collab`, `email`, `googleSignIn` and `errorTracking` turn true as the next steps are done, and `commit` is the first seven characters of the deployed commit. The health endpoint only ever says whether a service is configured, never a value.
+
+The endpoint needs no sign-in. It answers 503 with `"database":"down"` when the database does not answer within five seconds. With `?db=0` it skips the database and reports `"database":"skipped"`, which is what the uptime check uses most of the time so that it does not keep Neon's compute awake. If the app runs on Vercel in production without a file store, `warnings` carries a message saying so, and the same message is logged as `[plotra] WARNING` when a server instance starts.
+
+```bash
+curl -sI $APP_URL/sign-in | grep -i -E "strict-transport|x-frame|x-content-type|referrer-policy"
+```
+
+prints four headers.
+
+## 4. Collab worker: Cloudflare Workers
+
+The worker's production settings are the `production` environment in `apps/collab/wrangler.jsonc`.
+
+1. If your app address is not <code>{app}</code>, change `APP_URL` under `env.production.vars` in `apps/collab/wrangler.jsonc`. It must equal the app's `BETTER_AUTH_URL` exactly: the worker checks every token against it.
+2. Deploy, then give the worker its secret (the same `COLLAB_SECRET` as the app):
+
+   ```bash
+   cd apps/collab
+   bunx wrangler login
+   bun run deploy                                         # wrangler deploy --env production
+   bunx wrangler secret put COLLAB_SECRET --env production
+   ```
+
+   Always deploy with `bun run deploy`. A plain `wrangler deploy` ships the local settings, and the worker's health check then answers 503.
+3. The `routes` line under `env.production` serves the worker at <code>{collab}</code> as a custom domain. That needs the domain's DNS zone to be on Cloudflare. For another domain, change the pattern. If the zone is not on Cloudflare, remove the `routes` line before deploying: the worker is then reached at `https://plotra-collab.<your-subdomain>.workers.dev`, the address the deploy prints, which works as it is.
+4. In the Vercel project for `apps/app`, set `NEXT_PUBLIC_COLLAB_URL` to the worker's address (with `https://`) and redeploy the app.
+
+**Check:**
+
+```bash
+curl -s https://<worker address>/health     # {"ok":true}
+```
+
+and `/api/health` on the app now shows `"collab":true`. The worker's health check answers 503 when it has no `COLLAB_SECRET`, or when a deployed worker's `APP_URL` still points at localhost.
+
+The production environment has `observability` on, so the worker's logs are in the Cloudflare dashboard.
+
+## 5. Google sign-in
+
+In the Google Cloud console, under **Google Auth Platform**:
+
+1. **Branding:** app name, support email, the app's home page (<code>{site}</code>), a privacy policy link (<code>{site}/privacy</code>) and terms link (<code>{site}/terms</code>), and the authorized domain (the registrable domain, <code>{domain}</code>).
+2. **Audience:** External, and **publish the app** so it is "In production". While it is in testing, only listed test users can sign in. Plotra asks only for name, email and profile picture, which need no sensitive-scope review; Google may still ask to verify the branding before it shows the app's name and logo.
+3. **Clients → Create client → Web application:**
+   - Authorized JavaScript origin: <code>{app}</code>
+   - Authorized redirect URI: <code>{app}/api/auth/callback/google</code>
+
+   Keep a separate client for `http://localhost:3000` rather than adding localhost to this one.
+4. Put the client ID and secret in the app's Vercel project as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, and redeploy.
+
+**Check:** the sign-in page shows "Continue with Google", and signing in with a Google account that is not yours works.
+
+## 6. Email: SMTP
+
+Plotra sends email over SMTP, so any mail service works. These steps use Resend.
+
+1. In Resend, **Domains → Add domain**. A subdomain kept for sending, such as `mail.plotra.ink`, keeps the app's mail reputation apart from everything else on the domain.
+2. Add the DNS records Resend lists: the **SPF** record (a TXT and an MX on the `send` subdomain) and the **DKIM** record (a TXT at `resend._domainkey`). Add a DMARC record too if the domain has none: a TXT at `_dmarc` with `v=DMARC1; p=none;`.
+3. Wait for Resend to show the domain as verified, then create an API key with **Sending access** limited to that domain. It is the SMTP password.
+4. In the app's Vercel project set `SMTP_URL` to `smtps://resend:<the API key>@smtp.resend.com:465`, and `EMAIL_FROM` to an address on the verified domain, for example `Plotra <hello@mail.plotra.ink>`. Redeploy.
+
+`EMAIL_FROM` is optional when the SMTP login is itself an email address. Resend's login is `resend`, so here it is required.
+
+Resend's free tier sends 3,000 emails a month and 100 a day. The app's own limits keep it inside that:
+
+| Email | Limit |
+| --- | --- |
+| Workspace invitations | 40 an hour per person |
+| Project shares | 60 an hour per person |
+| Notification emails, the daily digest included | 60 a day for the whole server, and 12 an hour per person |
+
+The notification budget is fixed in `apps/app/lib/notify.ts`. A notification that goes over it is held for the next digest, not dropped. Without `SMTP_URL` nothing is sent and each message is written to the function's log instead.
+
+Password reset links and email change confirmations go through the same SMTP server. They are limited to 5 an hour from each client address, and don't count toward the notification budget. Plotra sends no email to verify an address at sign-up.
+
+**Check:** invite an address at another mail provider to a workspace. The mail arrives in the inbox, not in spam, and its headers ("Show original" in Gmail) say `SPF: PASS` and `DKIM: PASS`.
+
+## 7. Repository secrets and variables
+
+The repository has seven workflows:
+
+| Workflow | When it runs | What it does |
+| --- | --- | --- |
+| `ci.yml` | every push to `master` and every pull request | Lint, build and typecheck. It deploys nothing |
+| `uptime.yml` | minutes 7 and 37 of every hour without the database, and four times a day with it | Asks the app's `/api/health` and the worker's `/health`, and fails when one is down |
+| `backup.yml` | 02:23 UTC every night | Dumps the database to the backup bucket. See [Backups and restore](/docs/deploying/backups) |
+| `digest.yml` | 06:41 UTC every day | Calls the app's `/api/cron/digest`, which emails the daily notification digest |
+| `dco.yml` | every pull request | Checks that every commit carries a `Signed-off-by` line matching its author |
+| `images.yml` | a tag like `v0.1.0`, or by hand | Builds the self-hosting images and publishes them to the GitHub Container Registry. See [Releases](#releases) |
+| `desktop.yml` | a tag like `desktop-v0.2.0` | Builds the desktop app and publishes it as a GitHub release. See [Releases](#releases) |
+
+`ci.yml`, `dco.yml` and `images.yml` need nothing, and `desktop.yml` only needs secrets to sign. The other three do nothing until these exist, under **Settings → Secrets and variables → Actions**.
+
+| Kind | Name | Value | Used by |
+| --- | --- | --- | --- |
+| Variable | `APP_URL` | <code>{app}</code> | `uptime.yml`, `digest.yml` |
+| Variable | `COLLAB_URL` | the worker's address, with `https://` | `uptime.yml` |
+| Variable | `BACKUP_BUCKET` | `plotra-backups` | `backup.yml` |
+| Variable | `BACKUP_KEEP` | optional: how many dumps to keep. Default 14. | `backup.yml` |
+| Variable | `PG_MAJOR` | optional: the database's Postgres major version. Default 18. | `backup.yml` |
+| Secret | `CRON_SECRET` | the same value as the app's `CRON_SECRET` | `digest.yml` |
+| Secret | `BACKUP_DATABASE_URL` | Neon's **direct** connection string | `backup.yml` |
+| Secret | `S3_ENDPOINT` | `https://<account ID>.r2.cloudflarestorage.com` | `backup.yml` |
+| Secret | `BACKUP_S3_ACCESS_KEY_ID` | the **backup** token's access key ID | `backup.yml` |
+| Secret | `BACKUP_S3_SECRET_ACCESS_KEY` | the **backup** token's secret access key | `backup.yml` |
+
+With the GitHub CLI:
+
+```bash
+gh variable set APP_URL --body "$APP_URL"
+gh variable set COLLAB_URL --body "https://<worker address>"
+gh variable set BACKUP_BUCKET --body "plotra-backups"
+gh secret set CRON_SECRET                  # paste when asked
+gh secret set BACKUP_DATABASE_URL
+gh secret set S3_ENDPOINT
+gh secret set BACKUP_S3_ACCESS_KEY_ID
+gh secret set BACKUP_S3_SECRET_ACCESS_KEY
+```
+
+The uptime check runs every half hour, about 1,500 runner minutes a month. That is free in a public repository. A private one gets 2,000 minutes a month for everything, so leave `APP_URL` and `COLLAB_URL` unset until the repository is public. Leaving `APP_URL` unset also holds the digest back.
+
+The digest is called from GitHub because Vercel's Hobby plan runs a cron job only once a day and at no fixed minute. The route also accepts Vercel Cron's own call, a `GET` with the same `Authorization: Bearer` header, if you would rather schedule it there. Running it twice sends nothing twice.
+
+In a public repository GitHub switches scheduled workflows off after 60 days without a commit. It emails first, and any push resumes them.
+
+A failed scheduled run emails the person who last edited the workflow file. Make sure GitHub may send it: **your profile → Settings → Notifications → Actions**, with email on for failed workflows.
+
+**Check:** `gh workflow run uptime.yml`, then `gh run watch`. The run is green. Then `gh workflow run digest.yml`: its log prints `{"ok":true,"sent":…,"held":…}`.
+
+## 8. First backup, and a restore
+
+```bash
+gh workflow run backup.yml
+gh run watch
+```
+
+**Check:** the run is green and `plotra-backups` holds one object under `backups/`.
+
+Then restore it. A backup that has never been restored is a guess. The steps are in [Backups and restore](/docs/deploying/backups#rehearse-a-restore), and they take about fifteen minutes. Do it before inviting anyone.
+
+## Plans and billing: Creem
+
+Optional, and the last thing to switch on. Without `CREEM_API_KEY` the app has no plans: no Free or Pro, no checkout, no Plan & billing tab. What the plans are is in [Plans and billing](/docs/settings/plans).
+
+Before you start, move the app's Vercel project to Vercel Pro, or to another host. See the note at the top of this page.
+
+1. Run the migration that adds the billing tables, if the database was created before it existed: `DATABASE_URL="<direct connection string>" bun run db:migrate`.
+2. In [Creem](https://creem.io), switch to **test mode** and create two subscription products: Pro monthly at $10, and Pro yearly at $96. Note each product's id.
+3. Create a test API key. It starts with `creem_test_`, and the app then talks to Creem's test API.
+4. Register a webhook at <code>{app}/api/billing/webhook</code> (in Creem under **Developers → Webhooks**) and copy its signing secret. Until both `CREEM_API_KEY` and `CREEM_WEBHOOK_SECRET` are set, that address answers 404.
+5. Set these on the app's Vercel project and redeploy:
+
+| Variable | Value |
+| --- | --- |
+| `CREEM_API_KEY` | the API key. One that starts with `creem_test_` uses Creem's test API |
+| `CREEM_WEBHOOK_SECRET` | the webhook's signing secret |
+| `CREEM_PRODUCT_PRO_MONTHLY` | the Creem product id of the monthly product |
+| `CREEM_PRODUCT_PRO_YEARLY` | the Creem product id of the yearly product |
+
+For hosted AI, the model Pro workspaces use with their credits, also set:
+
+| Variable | Value |
+| --- | --- |
+| `AI_PROVIDER` | the provider: `anthropic`, `openai`, `openrouter` or `compatible` |
+| `AI_API_KEY` | the project's own key at that provider. These calls are on the project's bill |
+| `AI_BASE_URL` | only for `compatible`, which needs a URL |
+| `AI_MODEL_AGENT` | the model for agent runs. Required: without it there is no hosted AI |
+| `AI_MODEL_FAST` | the cheaper model for inline actions. Unset, the agent model is used |
+
+All of these are optional. Without the `AI_` values, Pro has no hosted AI and the agent runs on people's own keys only. A Pro workspace gets 1,500 credits a month; a credit is a thousand input tokens, and output tokens count five times.
+
+How the app behaves once billing is on:
+
+- A workspace is on Free until a subscription makes it Pro. It stays Pro while the subscription is active, in a trial, set to cancel at the period's end, or past due with a payment being retried.
+- Only a workspace's owner can start a checkout or open Creem's billing page. Owners and admins see the **Plan & billing** tab.
+- When the buyer lands back from the checkout, the app asks Creem about that checkout directly, so the workspace is on Pro at once. The webhook does the same job when it arrives.
+- The webhook acts on `checkout.completed` and on every `subscription.` event. It checks the `creem-signature` header against the raw body, applies an event only once, and answers 500 when it could not store one, which makes Creem deliver it again.
+- The prices shown in settings ($10 a month, $96 a year) are fixed in `apps/app/lib/billing/plans.ts`. What is charged is the Creem product's own price, so keep the two the same.
+
+**Check, in test mode:** open a workspace's settings at `/w/<slug>/settings?tab=billing`, upgrade with one of Creem's test cards, and see the workspace on Pro when you come back. Cancel it, and see that it says Pro runs until the end of the period. In Creem's dashboard the webhook deliveries show as successful.
+
+6. When that works, repeat steps 2 to 5 in Creem's live mode: live products, a live API key, a live webhook and its secret. Name the hosted AI provider on the site's privacy page before the first person pays.
+
+## Error tracking
+
+Optional. Create a project in Sentry (the free plan is enough), copy its DSN, set `SENTRY_DSN` on the app's Vercel project and redeploy. Server errors and browser errors then arrive with a stack trace and the route they happened on. Request bodies, cookies and query strings are never sent, so no one's writing leaves the app in an error report. Without `SENTRY_DSN` nothing is sent and the browser loads no reporting code.
+
+What to expect in Sentry:
+
+- The app posts to Sentry's envelope endpoint itself and does not use Sentry's SDK. There are no source maps, breadcrumbs, traces or replays, so browser stack traces show the minified bundle.
+- Events are tagged `side: server` or `side: client`. The environment is Vercel's (`production` or `preview`) and the release is the commit SHA.
+- Browser errors go through the app's own `/api/monitoring`, so the DSN stays on the server and ad blockers don't drop reports. One page load reports at most 5 distinct errors, and one address at most 30 an hour.
+- Errors the app raises on purpose, such as a message shown to the user, a redirect or a not-found, are not reported.
+- Error messages are cut to 500 characters, and failed-query parameters and long quoted values are removed from them.
+
+**Check:** open the app, open the browser console and run:
+
+```js
+setTimeout(() => { throw new Error("Sentry test from the console") });
+```
+
+The error appears in Sentry within a minute.
+
+## Usage analytics
+
+The app records usage events, such as "signed up", "project created" and "subscribed", as rows in the database's `event` table: the event's name and the ids involved, never content. That needs no setup.
+
+Optional: set `NEXT_PUBLIC_POSTHOG_KEY` to a PostHog project's API key, and `NEXT_PUBLIC_POSTHOG_HOST` if the project is not on `https://us.i.posthog.com`. Set them on all three Vercel projects, with the same key, and redeploy. Then:
+
+- The app copies each usage event to PostHog from the server.
+- The site, the docs and the app send page views and clicks from the browser. They go to `/ingest` on each one's own address, which forwards to PostHog, so ad blockers that block PostHog's address let them through. The cookie is shared across the subdomains, so a visit to the site and the account it signs up with are one person in PostHog.
+- In the app, the text and attributes of what was clicked are masked, sessions are never recorded, and addresses are sent without their query string or the token in a reader, invitation or share link.
+
+Without the key nothing is loaded, and the site's privacy page has to name PostHog when it is set.
+
+## 9. Smoke test, in two browsers
+
+Use two different browsers (or one normal window and one private window), with two accounts: **A** and **B**. Every line should work. If one doesn't, stop and fix it before the next.
+
+1. **A** signs up with email and password. **B** signs in with Google.
+2. **A** creates a project, opens a scene and writes a paragraph. Reload the page: the paragraph is still there.
+3. **A** shares the project with **B**'s email as an editor. The email arrives; **B** opens the link and sees the project.
+4. Both open the same scene. Each sees the other's cursor. Both type at once, in different paragraphs and then in the same one: both screens end up with the same text.
+5. **B** turns off the network, types a sentence, and turns it back on. The sentence reaches **A**.
+6. **A** saves a named version, changes the text, and restores the version. In the Cloudflare dashboard the `plotra` bucket now has an object under `versions/`.
+7. **A** creates a research note and attaches an image of about 8 MB. **B** can open it. The bucket has an object under `attachments/`. (If the upload is refused at 4 MB, the bucket's CORS rule is missing.)
+8. **B** comments on a passage; **A** replies and resolves it.
+9. **A** changes **B** to a viewer. **B** can still read and can no longer type.
+10. **A** exports the project and opens the file.
+11. **A** switches on the read-only link in the Share dialog and opens it in a window that is not signed in.
+12. `curl -s $APP_URL/api/health` shows every service `true` and no warnings.
+13. In the Vercel project's logs for the last hour there is no line starting with `[plotra] WARNING`.
+
+When all of it passes, add the uptime variables if you held them back in step 7, and the hosted version is up.
+
+## Releases
+
+**Self-hosting images.** Push a tag like `v0.1.0`. `images.yml` builds `ghcr.io/<owner>/plotra-app`, `-migrate` and `-collab` for amd64 and arm64, and tags them `0.1.0`, `0.1` and `latest`; run it by hand for an `edge` build. The app image is built with a placeholder collab address, which the container replaces with its `NEXT_PUBLIC_COLLAB_URL` when it starts. After the first run, make each package public once: the repository's **Packages** page → the package → **Package settings** → **Change visibility**.
+
+**The desktop app.** Set `version` in `apps/desktop/package.json`, then push the matching tag, such as `desktop-v0.2.0`. `desktop.yml` builds macOS, Windows and Linux and publishes a GitHub release, which installed apps update from and [plotra.ink/download](https://www.plotra.ink/download) links to. Without these repository secrets the builds are unsigned:
+
+| Platform | Secrets |
+| --- | --- |
+| macOS | `MAC_CSC_LINK`, `MAC_CSC_KEY_PASSWORD` (a Developer ID certificate, a base64 `.p12`), and `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` for notarizing, with `notarize: true` in `apps/desktop/electron-builder.yml` |
+| Windows | `WIN_CSC_LINK`, `WIN_CSC_KEY_PASSWORD` |
+
+See [The desktop app](/docs/desktop).
+
+## After the first deploy
+
+- **App, site, docs:** pushing to `master` deploys them. Nothing to run.
+- **Collab worker:** `bun run deploy` in `apps/collab` when `apps/collab` changes. It is not deployed automatically.
+- **Database migrations:** when a release adds one, run `DATABASE_URL="<direct connection string>" bun run db:migrate` before the push that needs it reaches `master`.
+- **Postgres upgrade:** when the database moves to a new major version, set the `PG_MAJOR` variable to match, or the nightly backup fails.
+- **Rotating a secret:** a new `BETTER_AUTH_SECRET` signs everyone out. A new `COLLAB_SECRET` has to be set on the app and on the worker (`wrangler secret put`) together. A new `CRON_SECRET` has to be set on the app and as the repository secret. A new `AI_KEY_SECRET` makes every saved AI key unreadable.
+
+For questions about a deploy, ask on [the Plotra Discord](https://discord.gg/PxXr7Y4QrU). To work on the code itself, see [CONTRIBUTING.md](https://github.com/ItzSudhan/plotra/blob/master/CONTRIBUTING.md).

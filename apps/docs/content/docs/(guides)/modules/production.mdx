@@ -1,0 +1,278 @@
+---
+title: Production
+description: "The Production view: break a script down scene by scene, tag props and wardrobe in the text, track which lines are recorded, and read shot lists off your storyboards."
+---
+
+The **Production** module turns a finished script into the lists a shoot or a recording session runs on. It reads your scripts and storyboards and reports what they need: who and what is in each scene, every line each actor has to record, and every shot on a storyboard in order. You write nothing twice. The lists are worked out from the script each time you open them.
+
+## Switching it on
+
+Production is off in a new project of every type. Switch it on in [Project settings](/docs/settings/project#tools), under **Tools**. That takes the right to manage the project. Once on, it is on for everyone in the project. See [Modules](/docs/modules#switching-a-module-on).
+
+The module adds:
+
+- the **Production** view;
+- a **breakdown tag** button in the toolbar that appears when you select text;
+- a **Played by** property on character notes, a line of text for the actor's name.
+
+It works on notes written in a script format, so it is used together with [Script formats](/docs/modules/scripts). Shot lists need only a [canvas](/docs/views/timeline-and-canvas#canvas).
+
+## The Production view
+
+Open it:
+
+- from the ribbon, under **More**, in the **Tools** group;
+- from **All commands**, with "Open production";
+- by right-clicking a folder or a chapter in the binder and choosing **Production**.
+
+The toolbar has:
+
+| Control | What it does |
+| --- | --- |
+| **Breakdown**, **Recording sheets**, **Shot lists** | The three parts of the view. It opens on **Breakdown**. |
+| **Script** | Which part of the project the breakdown and the recording sheets cover: **The whole project**, or any folder or chapter. Opened from a folder's right-click menu, the view starts on that folder. Opened from the ribbon or the palette, it starts on the folder you have selected or open; see [Views that work on a folder](/docs/views#views-that-work-on-a-folder). Shot lists always cover the whole project, so the control is hidden there. |
+| **Reload** | Reads the scripts and storyboards again. |
+
+If the lists can't be read, the view says "Couldn't load this", with **Try again**.
+
+The view does not follow typing. As the toolbar says, it is "Read from the scripts and storyboards as last synced." After you or a co-writer change a script, click **Reload**.
+
+### Which notes count as script
+
+The breakdown and the recording sheets read every note under the chosen folder that is written in a script format, and any other note that contains script elements. A prose note with no script elements is skipped. Notes are read in binder order, up to 400 of them.
+
+The view shows the whole script whatever the [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) is set to.
+
+## Script breakdown
+
+A breakdown lists, for each scene, what has to be there on the day: the cast, the props, the costumes, the vehicles.
+
+![The Production view's Breakdown tab for a three-scene screenplay: each scene's heading, time and word count, with its cast, and 3 locations · 3 speaking parts at the top right](/shots/mod-production.webp)
+
+### What a scene is
+
+- Each **scene heading** starts a scene. A note with three scene headings is three scenes.
+- A note with no scene heading is one scene, named after the note.
+- Text before a note's first scene heading is a scene named after the note.
+- A scene never runs on from one note into the next.
+- Act headings are not scenes. A note with no text in it is left out, and so is a scene heading with nothing under it unless it starts with `INT.`, `EXT.` or one of the other settings.
+
+Scenes are numbered in script order, from 1. The numbers are positions: add a scene in the middle and the ones after it move up.
+
+A scene heading is split into its parts. `INT. KITCHEN - NIGHT` gives the setting **INT**, the location **KITCHEN** and the time **NIGHT**. The setting is read from `INT.`, `EXT.`, `EST.`, `INT./EXT.` or `I/E.` at the start. The time is whatever follows the last dash.
+
+### Cast
+
+Everyone with a line is listed as cast without any tagging. The name is taken from the character element, in capitals, without anything in brackets: `JANE (V.O.)` is JANE. Tag a name as **Cast** yourself for someone who is in the scene and says nothing.
+
+### Tagging an element
+
+1. In a note you can edit, select the words: "a revolver", "the red coat".
+2. In the toolbar that appears above the selection, click the tag button. Its tooltip reads "Tag for the breakdown (cast, props, wardrobe…)".
+3. Choose a category.
+
+| Category | |
+| --- | --- |
+| **Cast** | **Vehicles** |
+| **Extras** | **Animals** |
+| **Props** | **Stunts** |
+| **Wardrobe** | **Special effects** |
+| **Hair & make-up** | **VFX** |
+| **Set dressing** | **Sound & music** |
+
+The tagged words are underlined in the category's colour on a faint tint of it. Hover over them to see the category.
+
+- **To change a tag,** select the words and choose another category. A piece of text has one breakdown tag.
+- **To remove a tag,** select the tagged words, or any part of them, open the same menu and choose **Remove tag**. The whole tag goes, not just the part you selected. When the selection starts in tagged words, the button shows the category's name.
+
+A tag is formatting on the text, like bold. It is saved with the note, travels with the words when they are moved, and everyone sees it. It is not written into exports or printed pages.
+
+The button is in the toolbar only while the module is on, and only for people who can edit the note. Tags already in the text stay visible when the module is switched off.
+
+The button is called **Breakdown tag** under **Formatting toolbar** in [Customize](/docs/settings/customize#what-you-can-change), where you can hide it or move it along the toolbar.
+
+How tagged words are counted:
+
+- An element is listed once per scene, however many times it is tagged there, ignoring capitals. It is written the way it first appears in the scene.
+- The same words tagged in the same category in another scene are the same element. "Revolver" and "the revolver" are two elements, so tag the same words each time.
+- Tags in a note that does not count as script are not read.
+- A tag inside a [writer's note](/docs/modules/scripts#writers-notes) is not read.
+
+### The breakdown sheet
+
+Above the table, a line counts the script: "6 locations · 9 speaking parts". Two buttons choose how the sheet is laid out.
+
+**By scene (N)** is a table with a row for each scene:
+
+| Column | What it shows |
+| --- | --- |
+| **#** | The scene's number. |
+| **Scene** | The heading. Click it to open the note in a new tab. Under it: the setting, the time and the number of words in the scene. |
+| One column per category | The elements needed in that scene. Only categories used somewhere in the script get a column. |
+
+**By element (N)** turns the sheet round: a list for each category in use, each element with the scenes it is needed in ("scenes 2, 5, 11"). Within a category, the elements needed in the most scenes come first.
+
+### Exporting the breakdown
+
+Click **CSV** to save the sheet as it is laid out, named after the folder or the project: `the-long-night-breakdown.csv`.
+
+| Layout | Columns in the file |
+| --- | --- |
+| By scene | Scene, Heading, Int/Ext, Location, Time, Words, then one column per category in use. Several elements in one cell are separated by semicolons. |
+| By element | Category, Element, Scenes, Count |
+
+The file opens in any spreadsheet app. A cell that starts with `=`, `+`, `-` or `@` gets an apostrophe in front, so a spreadsheet shows it as text instead of running it as a formula.
+
+Click **Print or save as PDF** to print the sheet as it is laid out, or save it as a PDF from your browser's print dialog (choose "Save as PDF" as the printer). See [Printed sheets](#printed-sheets) for how they look.
+
+| Layout | The printed sheet |
+| --- | --- |
+| By scene | "Breakdown by scene": a row per scene with its number, heading, setting, time and words, and a column per category in use. With more than three categories the page turns to landscape. |
+| By element | "Breakdown by element": a section per category, each element with the scenes it is needed in and how many. |
+
+### Empty state
+
+With no script under the chosen folder, the view reads "No script to break down" and says how to start: write scenes in a script format, then tag words from the toolbar. People who can edit get a **New script scene** button, which makes a scene in the project's script format (Screenplay if the project writes prose).
+
+## Recording sheets
+
+A recording sheet lists every line of dialogue with who says it and how, for a voice session or an audio drama. Each line has a status, so you can see what is left to record.
+
+![Recording sheets: every line grouped by scene with its character, a status of Written, and a box for notes for the session, filtered by character and status, 0 of 7 recorded](/shots/mod-production-sheets.webp)
+
+### What is on a sheet
+
+Every **dialogue** element with text in it is a line, in script order. Lines are grouped under the scene heading they belong to, or the note's title when the note has no scene heading. Click a scene's row to open the note in a new tab.
+
+| Column | What it shows |
+| --- | --- |
+| **#** | The line's number in the whole script. It does not change when you filter. |
+| **Character** | The speaker, from the character element above the line. Dialogue with no character above it is listed under "Unknown". |
+| **Line** | The words. A parenthetical (a delivery note in an audio script) just before the line is shown above it in italics, as the direction for that line. |
+| **Status** | **Written**, **Approved** or **Recorded**. |
+| **Notes for the session** | A note about the line: the take, a pickup, a pronunciation. Up to 1,000 characters. |
+
+Above the table:
+
+| Control | What it does |
+| --- | --- |
+| **Character** | Shows one character's lines. The list gives each character's line count, the biggest part first. **Everyone** shows them all. |
+| **Status** | Shows only lines with one status. **Any status** shows them all. |
+| **CSV** | Saves the lines shown. |
+| **Print or save as PDF** | Prints the lines shown. |
+| "12 of 240 recorded" and a bar | Progress through the whole script under the chosen folder, whatever the filters. |
+| "Played by …" | With one character chosen, the actor's name. |
+
+### Line status
+
+Every line starts as **Written**. Choose **Approved** when the line is signed off for recording and **Recorded** when it is in the can. A recorded line is greyed.
+
+To leave a note, type it in **Notes for the session** and press `Enter` or click away. `Esc` puts the old note back.
+
+The status and the note belong to the line, not to its wording. Fix a typo in the script and the line keeps its status. Delete the line from the script and it leaves the sheet.
+
+Changing a status or a note takes the right to **comment** on the note the line is in. It does not take edit access, so the person running the session can tick lines off without being able to change the words, and it works on a note that is in a [locked stage](/docs/modules/editorial) too. If you may only read, the status and the note are greyed out and can't be changed.
+
+Other people's changes to statuses and notes appear when you click **Reload** or open the view again. **Reload** keeps the character and status you chose.
+
+One person can change up to 3,000 statuses and notes an hour. That is far more than a session needs; it only stops a runaway script.
+
+When no line matches the filters, the sheet says so, with a link to show every line again.
+
+### The actor
+
+The actor comes from the **Played by** property of a [character note](/docs/writing/binder). The script's character name is matched to a character note by its title or one of its aliases, ignoring capitals. So for lines spoken by `JANE` to show an actor, the project needs a character note titled "Jane", or with "Jane" as an alias, and its **Played by** filled in.
+
+### Exporting a sheet
+
+**CSV** saves the lines that are showing, so choose a character first to make one actor's sheet. The columns are #, Character, Actor, Scene, Direction, Line, Status and Notes. The file is named after the folder or the project, then `lines` or the character: `the-long-night-lines.csv`, `the-long-night-jane.csv`.
+
+**Print or save as PDF** prints the same lines, with the **Character** and **Status** filters applied, grouped under their scenes. The columns are #, Character, Line (with the direction above it), Status and Notes for the session. With one character chosen, the sheet is titled "Recording sheet: JANE" and says who plays the part; otherwise the actor is under each character's name. The top of the sheet lists the filters, the number of lines and how many lines of the whole script are recorded. The button is greyed out when no line matches the filters.
+
+### Empty state
+
+With no dialogue under the chosen folder, the view reads "No lines to record", with the same **New script scene** button.
+
+## Shot lists
+
+A shot list is a storyboard read off in order. Every [canvas](/docs/views/timeline-and-canvas#canvas) in the project that has shots on it gets a list, in alphabetical order of the canvases' titles.
+
+### What counts as a shot
+
+- Every **image / shot panel** on the canvas.
+- Any other card that has been given a shot type, a camera move or a duration.
+
+Groups are not shots. To make a storyboard, add image or shot panels to a canvas and fill in their details; see [Kinds of card](/docs/views/timeline-and-canvas#kinds-of-card).
+
+### The order
+
+Shots are numbered in reading order: rows from top to bottom, and left to right within a row. Cards whose tops are close to level count as one row, so a row does not have to be lined up exactly. Lay the panels out the way they should be read and the numbers follow.
+
+### The list
+
+Each canvas has a heading with its title (click it to open the canvas in a new tab), the number of shots and, when any shot has a duration, the total running time as minutes and seconds.
+
+| Column | What it shows |
+| --- | --- |
+| **#** | The shot's number. |
+| (picture) | A small copy of the panel's image, or a grey block when it has none. |
+| **Sequence** | The label of the group the card sits in, if it is in one. |
+| **Shot** | The shot type: Wide, Close-up and so on. |
+| **Move** | The camera move. |
+| **Time** | The duration in seconds. |
+| **Description** | The panel's caption, or the text of a text card. |
+
+A dash stands for anything not filled in.
+
+### Exporting a shot list
+
+Each canvas has its own **CSV** button. The file is named after the canvas, `opening-sequence-shot-list.csv`, with the columns #, Sequence, Shot, Move, Seconds and Description. Pictures are not in the file.
+
+Beside it, **Print or save as PDF** prints that canvas's shot list, with the canvas's title and the number of shots and running time at the top. Shots in a group are listed under the group's label. The columns are #, Frame (the panel's picture, when any shot has one), Shot, Move, Time and Description.
+
+### Empty state
+
+With no shots on any canvas, the view reads "No shots yet", with a **New canvas** button for people who can edit.
+
+Canvases in the trash, and canvases you are not allowed to read, are left out.
+
+## Printed sheets
+
+The three **Print or save as PDF** buttons open your browser's print dialog, the same way the [Read view](/docs/views/planning#printing-and-saving-a-pdf) prints a manuscript. Print on paper, or choose "Save as PDF" as the printer to save a file. The sheets are laid out as production paperwork:
+
+- At the top: the sheet's title, the project (and the folder or canvas it covers), today's date, and a line with the filters and totals.
+- The column headings, with the project, title and date above them, repeat at the top of every page.
+- A row is never split between two pages. A scene on a recording sheet, a category of the element breakdown and a sequence of a shot list move to the next page whole when they fit on one page; longer ones run on.
+- Black on white with grey rules, so they photocopy and print well in black and white. Pages are numbered in browsers that support it.
+- Nothing of the app is printed: no toolbar, no buttons, no menus.
+
+The paper size is the one your print dialog is set to. The browser may add its own header and footer (the page address, the date); turn off "Headers and footers" in the print dialog to leave them out.
+
+## Who can do what
+
+The Production view itself changes nothing in your scripts or storyboards. Everything in it is read from them, except the status and note of a line.
+
+| To | You need |
+| --- | --- |
+| Open the view, read the three parts, save any CSV or print any sheet | Read access. Each person sees only the notes and canvases they can read. |
+| Set a line's status or its session note | Comment access to the note the line is in |
+| Tag or untag words for the breakdown | Edit access to the note |
+| Fill in **Played by** | Edit access to the character note |
+| Set a panel's shot, camera move and duration | Edit access to the canvas |
+| Switch the module on or off | The right to manage the project |
+
+See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+## Things to know
+
+- The three parts are reports, not documents. There is nothing to save, and no way to edit a breakdown or a shot list in the view: change the script or the canvas and click **Reload**.
+- The exports are the CSV files and the printed sheets. There is no call sheet or shooting schedule.
+- Switching the module off hides the view and the tag button. Tags, line statuses, session notes and **Played by** values are kept, and are there again when you switch it back on.
+
+## Related
+
+<Cards>
+  <Card title="Script formats" href="/docs/modules/scripts" description="The script elements the breakdown and recording sheets are read from." />
+  <Card title="Timeline and canvas" href="/docs/views/timeline-and-canvas#canvas" description="Storyboards: image and shot panels, groups and their details." />
+  <Card title="Modules" href="/docs/modules" description="What modules are and how to switch them on." />
+</Cards>

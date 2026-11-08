@@ -1,0 +1,73 @@
+name: Backup
+
+# Nightly database dump to an object-store bucket, keeping the last N
+# (scripts/backup.ts; plan.md Phase 8 "Backups"). How to restore one, and the
+# restore to rehearse before anyone's manuscript depends on this, is in the
+# docs: Deploying → Backups and restore.
+#
+# It does nothing until the repository variable BACKUP_BUCKET exists.
+#
+# Repository variables (Settings → Secrets and variables → Actions → Variables):
+#   BACKUP_BUCKET   the bucket the dumps go to. Give backups a bucket of their own.
+#   BACKUP_KEEP     optional: how many dumps to keep (default 14)
+#   PG_MAJOR        optional: the database's Postgres major version (default 18).
+#                   pg_dump must be that version or newer, or it refuses to run.
+#
+# Repository secrets (same page, Secrets):
+#   BACKUP_DATABASE_URL            the database's direct connection string (on Neon:
+#                                  Connect, with "Connection pooling" switched off)
+#   S3_ENDPOINT                    the store's URL (R2: https://<account id>.r2.cloudflarestorage.com)
+#   BACKUP_S3_ACCESS_KEY_ID        credentials limited to the backup bucket,
+#   BACKUP_S3_SECRET_ACCESS_KEY    with Object Read & Write
+
+on:
+  schedule:
+    # 02:23 UTC. Off the hour, when GitHub's scheduler is least delayed.
+    - cron: "23 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Dump and upload
+    if: vars.BACKUP_BUCKET != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PG_MAJOR: ${{ vars.PG_MAJOR || '18' }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      # The runner's own pg_dump is whatever Ubuntu ships, usually older than
+      # the database. PostgreSQL's apt repository has every supported version.
+      - name: Install pg_dump ${{ env.PG_MAJOR }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq "postgresql-client-${PG_MAJOR}"
+          echo "/usr/lib/postgresql/${PG_MAJOR}/bin" >> "$GITHUB_PATH"
+
+      - name: Dump, upload, prune
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+          S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+          S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET }}
+          BACKUP_KEEP: ${{ vars.BACKUP_KEEP }}
+        run: |
+          pg_dump --version
+          bun scripts/backup.ts

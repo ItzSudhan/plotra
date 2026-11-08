@@ -1,0 +1,278 @@
+---
+title: Planning views
+description: "The Outline, Corkboard, Plot grid, Manuscript and Read views in detail: every column and control, what you can edit in place, and how printing works."
+---
+
+Five views show the structure of the story instead of one note at a time. The Outline is a table of everything. The Corkboard is a folder as index cards. The Plot grid sets scenes against plot threads. The Manuscript stitches a folder into one editable page. Read lays the same folder out as printed pages.
+
+They all read the same notes as the binder and the editor. Change a title, a status or a synopsis in one of them and it changes everywhere. How to open each one, and how a view picks its folder, is in [Views](/docs/views).
+
+None of these views needs a module.
+
+## Outline
+
+A table with one row for every note in the project. Open it from the ribbon, or run "Open outline" from **All commands**. It always covers the whole project.
+
+![The Outline: a row for every note with its kind, status, synopsis and point of view, and filters for kind and status above](/shots/view-outline.webp)
+
+### Columns
+
+| Column | What it shows | Editable in place |
+| --- | --- | --- |
+| **Title** | The note's icon and title, indented as in the binder. | Yes. Type and press `↵` or click away. An empty title is not saved. |
+| **Kind** | Scene, Chapter, Character and so on, in the project's own words. | No |
+| **Status** | The note's workflow status. | Yes, from a list of the project's statuses. |
+| **Synopsis** | The one-line summary. | Yes. Clearing it removes the synopsis. |
+| Property columns | One column for each property you switch on. | Yes, with the same control as the **Properties** panel. |
+| **Words** | The note's word count, as last saved. | No |
+
+Press `Esc` while typing in a cell to put back what was there.
+
+A property cell is editable only on a row whose type has that property. A scene has a **POV**; a character does not, so its POV cell shows a dot.
+
+To open a note, point at its row and click the arrow at the end of the title. `⌘`-click opens it in a new tab.
+
+The bottom row counts the rows shown and adds up their words.
+
+### Choosing the property columns
+
+Click **Columns** on the right of the toolbar and tick the properties you want. The list has every property defined for the built-in types of note, including your [custom fields](/docs/writing/properties-and-tags#custom-fields). The fields of world-entry types are not offered as columns. A new project shows **POV** and **Story date**.
+
+Your choice is kept with your account and follows you to every project and computer; your co-writers choose their own. A column for a property a project doesn't have is simply not shown there.
+
+### Filters
+
+| Control | What it does |
+| --- | --- |
+| **Filter by title or synopsis** | Keeps rows whose title or synopsis contains the text. |
+| **Kind** | One kind, or **All kinds**. |
+| **Status** | One status, or **Any status**. |
+| **Tag** | One tag, or **Any tag**. A tag also matches its nested tags: `place` matches `place/city`. The list appears once the project has tags. |
+
+Filters combine. They are not saved: they reset when you close the tab.
+
+### Sorting
+
+Click a column heading to sort by it. Click again to reverse the order, and a third time to go back to binder order. **Title**, **Kind**, **Status**, **Words** and every property column sort; **Synopsis** does not.
+
+- **Status** sorts in the order of the project's workflow, not alphabetically.
+- A property that points at a note (a POV, a location) sorts by that note's title.
+- Rows with no value for the property go last.
+
+The order you choose is remembered, like the columns.
+
+### Tree or flat list
+
+With no filter and no sort, the outline is the binder's tree. Click the arrow before a title to collapse or expand what is inside it.
+
+As soon as you filter or sort, the outline becomes a flat list with no indentation, so that every match is visible whatever folder it is in.
+
+### Who can edit
+
+You can edit a row if you can edit that note. Otherwise its cells are greyed out. See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+### Under a spoiler horizon
+
+When a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) is on, the outline lists only what the audience knows by then, and the folders that hold it.
+
+## Corkboard
+
+The notes inside one folder or chapter, as index cards in binder order. Open it from the ribbon, with "Open corkboard of current folder" from **All commands**, or by right-clicking a folder in the binder and choosing **Corkboard**.
+
+![The Corkboard of the chapter Two Households: one index card for each scene, with its synopsis and word count](/shots/view-corkboard.webp)
+
+Canvases, maps and timelines are not shown as cards. Everything else directly inside the folder is.
+
+### A card
+
+| Part | What it shows |
+| --- | --- |
+| Coloured strip along the top | The note's label, if it has one. Point at it for the label's name. |
+| Number | The card's place in the folder. |
+| Title | Click to open the note. `⌘`-click opens it in a new tab. |
+| Dot | The status. Point at it for the name. |
+| **⋯** | **Open**, **Edit synopsis**, **Open its cards** when the note has notes inside it, and **Move left** / **Move right**. |
+| Body | The synopsis. Double-click to write or change it. |
+| Foot | The word count, and **Open cards** when the note has notes inside it. |
+
+To edit a synopsis, double-click the body of the card (or press `↵` or `F2` on a card you have moved to with `Tab`, or choose **Edit synopsis** in its **⋯** menu), type, and click away to save. `Esc` cancels. An empty card reads "No synopsis".
+
+### Card size and what cards show
+
+**Cards** in the toolbar sets the cards' size (**Small**, **Medium** or **Large**) and which parts they show: the synopsis, the status, the label colour, the word count and the number. The title always shows. Under **Fields** it lists the [properties](/docs/writing/properties-and-tags#properties) of the types of note on the board (a scene's POV, a chapter's date…): tick one and each card that has a value for it shows it under the synopsis. Your choice is kept with your account, in every project.
+
+### Moving between folders
+
+The trail at the top left starts with the project's name and ends with the folder you are in. Click any part of it to go there. Click the project's name for the top level of the binder.
+
+**Open cards** on a card goes into that note and shows what is inside it.
+
+### Reordering
+
+Drag a card onto another card. Drop on its left half to put your card before it, on its right half to put it after. An orange bar shows where it will land.
+
+Without a mouse, press `⌥←` or `⌥→` on a card, or choose **Move left** or **Move right** in its **⋯** menu, to move it one place.
+
+The binder order changes with it, for everyone. A card moves within its own folder only; to move a note to another folder, drag it in the binder.
+
+You can drag a card only if you can edit that note, and not while you are editing its synopsis.
+
+### Adding cards
+
+**Scene** and **Chapter** on the right of the toolbar add a new scene or chapter at the end of the folder, without opening it. They are greyed out if you cannot edit the folder.
+
+An empty folder shows "No cards here" and a **New scene** button.
+
+## Plot grid
+
+Scenes down the side, in reading order. Plot threads across the top. Each cell says what happens to that thread in that scene. Open it from the ribbon, with "Open plot grid", or from a folder's right-click menu to see only that folder.
+
+![The Plot grid: scenes down the side grouped by chapter, a column for each of two plot threads, and a line in each cell](/shots/view-plot-grid.webp)
+
+Reading down a column shows you where a thread goes quiet. Reading across a row shows you what a scene is doing.
+
+### Rows
+
+Every scene and chapter inside the folder, at any depth, in binder order. Chapters are heading rows with no cells. A scene row shows the status dot, the title and the first two lines of the synopsis. Click a title to open the note in a new tab.
+
+Other types of note are not rows.
+
+**Rows** in the toolbar changes what they show, kept with your account:
+
+| Option | What it does |
+| --- | --- |
+| **Chapters as rows** | On to begin with. Off, only scenes are listed. |
+| **Each scene's synopsis** | On to begin with. Off, a row is just its title. |
+| **Fields as columns** | Any of the scenes' [properties](/docs/writing/properties-and-tags#properties) (POV, story date, location…) as a column between the scenes and the threads. |
+
+### Threads
+
+Click **Thread** in the toolbar to add a plot thread. It is called "Thread 1", "Thread 2" and so on, and takes the first colour no other thread uses. A thread belongs to the project, so it is the same column in every plot grid, whichever folder the grid is open on.
+
+- **Rename:** click the name at the top of the column, type, and press `↵`. A name can be 80 characters.
+- Click the three dots beside the name for the rest:
+
+| Option | What it does |
+| --- | --- |
+| Colour dots | Changes the thread's colour. |
+| **← Move** / **Move →** | Moves the column one place left or right. |
+| **Resolved in** | The scene where the thread ends, or **Still open**. The list has the scenes in the grid. A scene in the thread after that point becomes a [continuity warning](/docs/canon/secrets-and-continuity#continuity-checks). |
+| **Delete thread** | Deletes the thread and every cell in its column. Plotra asks first, and says how many cells go with it. This can't be undone. |
+
+Adding, renaming, moving and deleting threads needs edit access to the project.
+
+### Cells
+
+Choose a cell and write what happens to the thread in that scene. Click away, or press `⌘↵`, to save. `Esc` cancels. A cell holds up to 4,000 characters and shows its first five lines.
+
+Writing in a cell puts the scene **in the thread**: the cell is tinted in the thread's colour. A scene can be in any number of threads.
+
+| To do this | Do this |
+| --- | --- |
+| Put a scene in a thread | Click the cell and write a note. |
+| Keep the scene in the thread with no note | Clear the note's text. The cell shows a dot. |
+| Take the scene out of the thread | Point at the cell and click the `×` in its corner. **Undo** in the message that appears puts it back, note and all. |
+
+You can fill a cell if you can edit that scene.
+
+Being in a thread is also what puts a scene in a thread's lane on a [timeline](/docs/views/timeline-and-canvas#lanes).
+
+### Empty states
+
+With no scenes, the grid shows "No scenes yet" and a **New scene** button. With scenes but no threads, the heading row reads "Add a plot thread to start the grid."
+
+## Manuscript
+
+Every text note in a folder, one after another on a single page, and every one of them editable. Open it from the ribbon, with "Read the whole draft (manuscript of current folder)", or from a folder's right-click menu.
+
+![The Manuscript view of a chapter: its scenes one after another on a single page, each under its own title](/shots/view-manuscript.webp)
+
+Use it to read and revise across scene breaks without opening scenes one at a time.
+
+### What is included
+
+The folder itself and everything inside it, at any depth, in binder order: folders, chapters, scenes, notes, characters, locations and research notes. Canvases, timelines, dialogue trees and world entries are left out.
+
+The toolbar shows the folder's name, the number of sections and their total word count. Folders are not counted as sections.
+
+### Sections
+
+Each note is a section with a small line above it: its type, its status dot, and **Open ↗** when you point at it or move to it with the keyboard. Click that line to open the note on its own to the right. `⌘`-click opens it in a new tab.
+
+Folders and chapters get a large heading. Other notes get a smaller heading and a dashed line above. A folder shows only its heading, not the text of its own page.
+
+### Editing
+
+Each section is the real note, in a live editor. What you type is saved to that note, your co-writers see it as you type, and their cursors show here too. The page uses your [page settings](/docs/writing/editor#how-the-page-looks): font, size and column width.
+
+- If **suggesting** is on, your changes in the manuscript are suggestions, as in the editor.
+- A section you cannot edit is read-only.
+- Sections load as you scroll to them, so a long manuscript opens quickly. A grey block stands in for a section until it loads.
+
+The Manuscript view shows everything, whatever the spoiler horizon is.
+
+An empty folder shows "Nothing to stitch together" and a **New scene** button.
+
+## Read
+
+The folder laid out as pages, the way it would print. Open it from the ribbon, with "Read and print preview of current folder", or from a folder's right-click menu. **Export project…** with **PDF** chosen opens this view and prints it.
+
+![The Read view in Book layout, on the title page of a chapter, with Submission format, Book and Print / PDF in the toolbar](/shots/view-read.webp)
+
+The toolbar shows the title, the number of pages and the word count.
+
+**Zoom out**, **Zoom in** and the percentage between them change how big the pages look (from 50% to 200%); click the percentage to go back to 100%. **Fit width** makes a page fill the width of the view. With the pages selected, `⌘+`, `⌘−` and `⌘0` do the same. The zoom is kept on this device, and changes only the screen: the pages break in the same places and print at full size.
+
+### What is included
+
+Every text note in the folder, at any depth, in binder order, up to 400 notes. The text is as last saved. Empty paragraphs are dropped.
+
+The pages do not follow your typing. Click **Refresh pages** to lay them out again from the latest saved text. They also refresh when you come back to the window.
+
+### Formats
+
+Choose the layout with the buttons on the right of the toolbar.
+
+| Format | Layout |
+| --- | --- |
+| **Submission format (Courier)** | Standard manuscript format for sending to agents and publishers: a monospaced 12-point face, double-spaced, paragraphs indented half an inch. From the second page, the top right reads your surname, the title and the page number. Scenes are separated by a centred `#`. |
+| **Book** | A typeset page: a serif face, justified and hyphenated, indented paragraphs. The title runs along the top in italics and the page number is at the foot. Scenes are separated by `⁂`. |
+| **Screenplay**, **Stage play**, **Comic script**, **Audio script** | The script's own layout. Offered when part of the folder is written in that format, or when it is the project's format. See [Scripts](/docs/modules/scripts). |
+
+When more than half of the notes with text in them are written in a script format, the view opens in that format. Otherwise it opens in **Submission format (Courier)**.
+
+Pages are US Letter with one-inch margins, or A4 if you chose it under **Paper** in [Customize](/docs/settings/customize#what-you-can-change) (**Opening and printing**). The choice is yours, kept with your account, so a co-writer can print the same folder on the other size. Screenplays and stage plays have an inch and a half on the left.
+
+### The title page
+
+The first page is always a title page.
+
+- **Submission format:** your name and email address at the top left, "about N words" at the top right (rounded to the nearest hundred), then the title in capitals and "by" your name.
+- **Book:** the title in large type and "by" your name.
+- **Scripts:** the title underlined in capitals, "Written by" and your name, your email address at the bottom left. If the folder was imported from a Fountain file with a title page, its Credit, Author, Source, Contact and Draft date are used instead.
+
+The name and email address are those of whoever is looking at the view, not the project's owner. The title is the folder's name, or the project's name when the view covers the whole project.
+
+### Headings and breaks
+
+- A chapter starts on a new page, and so does a top-level folder. Its title is a centred heading.
+- In **Screenplay** and **Audio script**, folder and chapter headings are not printed: the script runs on from scene to scene.
+- In a script, a horizontal rule is a page break. In a comic script, each comic page starts a new sheet.
+- In a script, a scene heading or a character cue is never left alone at the foot of a page. It goes over with what follows it.
+- In a **Screenplay**, a speech that doesn't fit at the foot of a page is split, as on a printed script: the first part ends with "(MORE)", and the next page starts with the character's name and "(CONT'D)" before the rest. It is split between sentences where one fits, otherwise between words, and only when the cue and at least two lines of the speech fit at the foot. A speech longer than a page is split again on each page.
+- Dual dialogue, two speeches side by side, is split the same way, both columns in step. A pair taller than a page is always split rather than cut off.
+- Scripts number their pages at the top right, starting with "2." on the second page of the script itself.
+
+### Printing and saving a PDF
+
+Click **Print / PDF**. Your browser's print dialog opens with only the pages in it. Choose your printer, or choose "Save as PDF" to make a PDF file. The paper size is set to Letter, or A4 if that is your **Paper** setting.
+
+There is no separate PDF export: this is how Plotra makes PDFs. Other formats are in [Import and export](/docs/import-export).
+
+### Under a spoiler horizon
+
+When a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) is on, the toolbar shows **As of** and the release's name. Notes the audience does not know yet are left out, and so are passages tagged for a later release. A folder kept only for what is inside it shows its title, not its own text.
+
+### Empty state
+
+A folder with nothing to show reads "Nothing to read yet" with a **New scene** button.

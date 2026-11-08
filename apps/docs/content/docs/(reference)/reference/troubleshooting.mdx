@@ -1,0 +1,82 @@
+---
+title: Troubleshooting
+description: "What the common messages mean and what to do: offline and connecting, undone changes, permission and lock errors, missing views, broken links and missing emails."
+---
+
+Find the message or the behaviour you see. Running your own server? See [Self-hosting troubleshooting](/docs/self-hosting/troubleshooting) too.
+
+## The status bar says Offline or Connecting…
+
+| State | Meaning | What to do |
+| --- | --- | --- |
+| **Saved** | Every change is saved. | Nothing. |
+| **Saving…** | Your latest changes are on their way. | Nothing. |
+| **Connecting…** | Plotra is reaching its server. What you type is kept on this device meanwhile. | Wait a moment. |
+| **Offline — changes kept on this device** | You're offline. | Keep writing. They are saved when you are back online. |
+
+Offline, you can keep writing in any note you have opened on this device before, or in any note of a project you [keep on this device](/docs/writing/editor#keeping-a-whole-project-on-this-device). Its tab shows a dot until the changes have gone up. When the connection returns, your changes and everyone else's are merged, and nothing is lost. See [Saving and working offline](/docs/writing/editor#saving-and-working-offline).
+
+## "You're offline. This note will open when you're back online."
+
+You are offline and have never opened this note on this device, so there is no local copy to show. It opens once the connection is back. To have every note ready for next time, [keep the project on this device](/docs/writing/editor#keeping-a-whole-project-on-this-device).
+
+## A new note, a rename or a move was undone.
+
+The server refused it, for example because someone else had moved or deleted the note, or you no longer have edit access. Made offline, a change to the binder waits and is sent when you're back, as long as the tab stays open; comments, versions and sharing need the connection. Try again when the status bar says **Saved**. See [If your connection drops](/docs/collaboration#if-your-connection-drops).
+
+## "That's a lot in a short time. Try again in a minute."
+
+You reached a rate limit: a cap on how often one person does one thing. The message says how many minutes to wait, and the count starts again after that. The limits are the same on every plan. A few of them:
+
+| What | Limit per person |
+| --- | --- |
+| Comments, replies and reactions | 600 an hour |
+| Sharing a project | 60 an hour |
+| Workspace invitations | 40 an hour |
+| File uploads | 200 an hour |
+| Imports | 30 every 10 minutes |
+| Messages to the AI agent | 40 every 10 minutes |
+
+The whole list is under [Rate limits](/docs/settings/limits#rate-limits).
+
+## "You don't have permission to edit in this project."
+
+Your role does not allow the action. The message names it: read, comment, edit, delete or manage. A few menu items are not greyed out for people who can't use them, such as **Duplicate** for a viewer; the server refuses and nothing changes. See [The five actions](/docs/reference/roles-and-permissions#the-five-actions).
+
+## A change is refused because the note is locked.
+
+The message reads "*Note* is *stage* and locked. Ask an approver to change it, or to move it out of *stage*." A folder with a locked note inside can't be trashed either. See [A note says Locked](/docs/reference/faq#a-note-says-locked-and-i-cant-edit-it) above.
+
+## A view or a command is missing.
+
+Check these in order:
+
+1. **It is under More.** The ribbon shows only the views you pinned.
+2. **Its tool is off.** Continuity needs World bible; Release roadmap and Secrets & setups need Releases & reveals; Sources, Reviews, Production, Quests, Strings, Translate and Publish each need their own tool. A view whose tool is off is not in the ribbon, under **More** or in **All commands**. Someone who manages the project switches tools on in **Project settings → Tools**.
+3. **You can't use it.** The AI view is offered only while AI is on for the workspace and the project, and only to people who can edit.
+
+See [Views that come with a module](/docs/views#views-that-come-with-a-module).
+
+## "This link no longer works."
+
+The project may have been deleted, or your access was removed. Ask whoever shared it to send it again. A read-only link that was switched off or reset shows a "not found" page instead.
+
+## A notification email didn't come.
+
+Notifications always appear under the bell. Email follows your setting under **Your settings → Email notifications**, which starts as a daily digest. Emails are also limited to twelve an hour for each person and to a daily budget for the whole server; what doesn't fit arrives in the next digest. See [Email](/docs/collaboration/notifications#email).
+
+## The text looks wrong after two people edited it, or I want yesterday's text back.
+
+Use the note's version history: **Review → History** in the inspector. See [Version history](/docs/collaboration/version-history).
+
+## The copy in GitHub stopped updating.
+
+The error shows under the repository's name in **Project settings → GitHub**, for example an expired access key or a branch that moved. Fix it there, or press **Copy now** to try again at once. See [A copy kept in GitHub](/docs/import-export/export#a-copy-kept-in-github).
+
+## "This library is already open in Plotra."
+
+In the [desktop app](/docs/desktop), only one copy of Plotra may have a library open. Close the other window or computer first. "This library is open in Plotra on another computer" means a synced folder: close it there, and wait for the sync. A lock left by an app that crashed is taken over after two minutes.
+
+## Reporting a problem
+
+If something is broken, or an answer here is wrong, choose **Report a bug** in the account menu. It opens a new issue on GitHub with your browser and the app's version filled in, and nothing from your projects. Or open one yourself at [github.com/ItzSudhan/plotra/issues](https://github.com/ItzSudhan/plotra/issues). Say what you did, what you expected and what happened, and include the exact message if there was one. Don't paste your manuscript or anything private: issues are public.

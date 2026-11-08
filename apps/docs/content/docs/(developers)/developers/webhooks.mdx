@@ -1,0 +1,74 @@
+---
+title: Webhooks
+description: "Tell another service when something changes in a project: setting up a webhook, checking its signature, and the deliveries log."
+---
+
+A webhook calls an address of yours when something changes in a project, so another service can react without asking over and over.
+
+It is the other direction from the [REST API](/docs/developers/api): instead of a script asking Plotra, Plotra tells a service. A Discord bot that posts "Chapter 12 is done", a site that rebuilds when a note changes, an automation in n8n, Zapier or Make.
+
+Open **Project settings → Webhooks**. Only people who manage the project see it. Enter the address that should be told, choose which events (every event, including ones added later, to begin with) and click **Add webhook**. A project can have 10.
+
+![Project settings, Webhooks: an address box, Every event, including ones added later, ticked, and Add webhook](/shots/settings-webhooks.webp)
+
+| Event | When |
+| --- | --- |
+| `note.created` | A note is made |
+| `note.updated` | A note is saved. At most once every five minutes a note, because a writer's note saves every few seconds |
+| `note.renamed` | A note is renamed. `data.from` is the old title |
+| `note.trashed`, `note.restored` | A note goes into the trash, or comes back |
+| `comment.added` | A comment or a reply |
+| `version.named`, `version.restored` | A version is named, or restored. `data.name` is the version's name |
+| `release.cut` | A release is made ("A release is made" in the list of events). `data.count` is how many notes it holds |
+| `project.shared` | The project is shared with someone. `data.role` is the role; who it was shared with is left out |
+| `ping` | Only from **Send a test** |
+
+Each event is a `POST` with a JSON body:
+
+```json
+{
+  "id": "6f1c…",
+  "type": "note.renamed",
+  "createdAt": "2026-10-19T09:12:44.512Z",
+  "project": { "id": "…", "title": "The Long Night" },
+  "note": { "id": "…", "title": "The ramparts", "kind": "scene" },
+  "actor": { "id": "…", "name": "Asha" },
+  "data": { "title": "The ramparts", "from": "Ramparts" }
+}
+```
+
+It carries ids and titles, never the text. To read a note's text, call the [REST API](/docs/developers/api#the-rest-api) with a token. `actor` is null for `note.updated`: a save doesn't say who typed. `note` is null where the event isn't about one.
+
+| Header | What it holds |
+| --- | --- |
+| `Plotra-Event` | The event's type |
+| `Plotra-Delivery` | The delivery's id, the same as `id` in the body and the same on every retry, so a receiver can skip one it has seen |
+| `Plotra-Signature` | `t=<unix seconds>,v1=<signature>` |
+
+## Checking the signature
+
+Every webhook has its own **Secret key** (it starts with `whsec_`; developers call it a signing secret). **Show** or **Copy** it in Project settings, and give it to the receiver. The signature is the hex HMAC-SHA256 of the timestamp, a full stop and the raw body, made with the key. To check a delivery, make the same and compare, and refuse a timestamp more than five minutes old:
+
+```js
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+function isFromPlotra(header, rawBody, secret) {
+  const { t, v1 } = Object.fromEntries(header.split(",").map((part) => part.split("=")));
+  const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
+  const fresh = Math.abs(Date.now() / 1000 - Number(t)) < 300;
+  return fresh && expected.length === v1.length && timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
+}
+```
+
+**New key** replaces it, after asking ("Make a new secret key?"). The old key stops working at once, and deliveries are signed with the new one.
+
+## Deliveries
+
+- Events are sent after the change is saved. One that was undone because the change failed is never sent.
+- The receiver has 10 seconds to answer. Any `2xx` answer counts as delivered. Redirects aren't followed.
+- No answer, a `5xx`, `408` or `429` is tried again after 2 seconds and after 10 more. Other answers aren't retried.
+- After each delivery the webhook shows how the last one went ("Last message, …"). 20 in a row that don't get through switch it off; switch it on again once the receiver is fixed.
+- **Send a test** sends a `ping` at once and says what the receiver answered.
+- **Remove** takes the webhook away, after asking. Nothing more is sent to it, and its secret key is forgotten.
+- The event names, and a line on the `Plotra-Signature` header, are under **Details for developers** in the Webhooks tab: the list of events above it is in plain words.
+- The address has to start with `https://` and lead to the public internet. A self-hosted server can allow addresses on its own network, and `http://`, with `WEBHOOK_ALLOW_PRIVATE_URLS=true` (see [Self-hosting](/docs/self-hosting)). The desktop app allows them always.

@@ -1,0 +1,18 @@
+{
+  "title": "Self-hosting",
+  "description": "Run Plotra on your own server or your own computer",
+  "root": true,
+  "icon": "Server",
+  "pages": [
+    "self-hosting/index",
+    "---[Container]Your own server---",
+    "self-hosting/configuration",
+    "self-hosting/running",
+    "self-hosting/troubleshooting",
+    "---[Laptop]On your computer---",
+    "desktop/index",
+    "---[Cloud]The hosted version---",
+    "deploying/index",
+    "deploying/backups"
+  ]
+}

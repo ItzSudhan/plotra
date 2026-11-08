@@ -1,0 +1,204 @@
+---
+title: Running your server
+description: "Keep a self-hosted Plotra healthy: a reverse proxy and TLS, nightly backups, upgrading, using Neon or another Postgres, the collab server, and reports and takedowns."
+---
+
+Once Plotra is up, these are the jobs that keep it up. Every setting named here is described on [Configuration](/docs/self-hosting/configuration).
+
+## Reverse proxy and TLS
+
+Browsers need to reach two things: the app and the collab server's WebSocket. Neither container does TLS, so put a reverse proxy in front.
+
+Browsers only ever talk to the collab server under `/parties/`, and the app has no pages there. So one domain is enough: send `/parties/*` to the collab server and everything else to the app.
+
+In `.env`:
+
+```bash
+BETTER_AUTH_URL=https://plotra.example.com
+NEXT_PUBLIC_COLLAB_URL=https://plotra.example.com
+APP_BIND=127.0.0.1
+COLLAB_BIND=127.0.0.1
+```
+
+Then `docker compose up -d` with the published images, or `docker compose up -d --build` if you build them yourself, because `NEXT_PUBLIC_COLLAB_URL` is compiled into a built image.
+
+With [Caddy](https://caddyserver.com), which gets certificates by itself and handles WebSockets without extra settings:
+
+```
+plotra.example.com {
+    handle /parties/* {
+        reverse_proxy 127.0.0.1:8787
+    }
+    handle {
+        reverse_proxy 127.0.0.1:3000
+    }
+}
+```
+
+With nginx, inside a `server` block that already has your certificate:
+
+```nginx
+location /parties/ {
+    proxy_pass http://127.0.0.1:8787;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_read_timeout 1h;
+}
+
+location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    client_max_body_size 110m;
+}
+```
+
+Things that matter whichever proxy you use:
+
+- **Pass the `Host` header through** and set `X-Forwarded-Proto`. The app builds its redirects from them.
+- **Set `X-Forwarded-For`.** Rate limits for requests that are not signed in count by client address. Without it everyone shares one limit.
+- **Allow WebSocket upgrades and long-lived connections** on `/parties/`.
+- **Allow large request bodies** on the app if you want large uploads. A file can be up to 100 MB.
+- **Send only `/parties/` to the collab server.** Browsers need nothing else from it.
+- Two domains work as well: point `NEXT_PUBLIC_COLLAB_URL` at the second one, such as `https://collab.plotra.example.com`.
+
+The app sends `Strict-Transport-Security` with every response. Browsers ignore it over plain HTTP, so it does nothing on `http://localhost`; once the instance is on HTTPS, browsers that have visited it refuse to go back to HTTP for that host.
+
+The collab container reaches the app directly inside the compose network (`http://app:3000`), not through your proxy. It still needs `BETTER_AUTH_URL` to be the public address, because the tokens it checks name that address as their issuer. The compose file passes both.
+
+## Backups
+
+Three volumes hold data, plus your `.env`:
+
+| What | Holds | If it is lost |
+| --- | --- | --- |
+| `plotra_postgres-data` | Accounts, workspaces, projects, every note's text, comments, links | Everything is gone |
+| `plotra_minio-data` | Uploaded files and version snapshots | Notes survive. Attachments and older versions don't |
+| `plotra_collab-data` | The live state of every note that has been opened | Little: the collab server copies each note to Postgres within 10 seconds of an edit, and reloads from there |
+| `docker/.env` | The secrets | Sessions end, and saved AI keys can't be decrypted |
+
+Without a file store, attachments and version snapshots are in Postgres, and the database dump holds them too.
+
+**The database.** `pg_dump` works while the stack is running:
+
+```bash
+docker compose exec -T postgres pg_dump -U plotra -Fc plotra > plotra-$(date +%F).dump
+```
+
+**The file store.** Archive the volume. Stop the store first for a consistent copy:
+
+```bash
+docker compose stop minio
+docker run --rm -v plotra_minio-data:/data:ro -v "$PWD":/backup alpine \
+  tar czf /backup/minio-$(date +%F).tar.gz -C /data .
+docker compose start minio
+```
+
+The same command with `plotra_collab-data` copies the collab server's state; stop `collab` for it.
+
+**Restoring the database** into a new, empty instance. `pg_dump` does not include roles, so create the one Plotra's row-level security uses before loading the dump:
+
+```bash
+docker compose up -d postgres
+docker compose exec -T postgres psql -U plotra -d plotra \
+  -c "create role plotra_app nologin nobypassrls; grant plotra_app to plotra;"
+docker compose exec -T postgres pg_restore -U plotra -d plotra --no-owner < plotra-2026-10-02.dump
+docker compose up -d
+```
+
+The dump carries the list of migrations it was taken at, so the `migrate` job that runs on the last line applies only the ones added since.
+
+When you restore an older database into an instance that has been running, remove the collab volume too (`docker volume rm plotra_collab-data`, with the stack down). Otherwise the collab server still holds the newer text of each note and writes it back over the restored one.
+
+<Callout type="warn" title="Rehearse it">
+  Do one restore into a scratch instance before you rely on your backups.
+</Callout>
+
+### Nightly dumps to a bucket
+
+The hosted version's backup script, `scripts/backup.ts`, works for any Postgres: it runs `pg_dump`, uploads the dump to an S3 bucket, and keeps the newest 14. To use it you need Bun and `pg_dump` 18 on the host, a bucket outside this stack, and the database reachable from the host. The bundled Postgres is not published, so add `ports: ["127.0.0.1:5432:5432"]` to the `postgres` service first. Then, from the repository root:
+
+```bash
+BACKUP_DATABASE_URL="postgres://plotra:<POSTGRES_PASSWORD>@127.0.0.1:5432/plotra" \
+S3_ENDPOINT=... S3_ACCESS_KEY_ID=... S3_SECRET_ACCESS_KEY=... BACKUP_BUCKET=... \
+bun scripts/backup.ts
+```
+
+Every option is described in [Backups and restore](/docs/deploying/backups#how-it-runs).
+
+## Upgrading
+
+Back up the database first. Then:
+
+```bash
+git pull
+docker compose pull   # or, if you build the images yourself: docker compose up -d --build
+docker compose up -d
+```
+
+That fetches (or rebuilds) the images, runs the `migrate` job, and only then starts the new app: the app waits for `migrate` to finish, and does not start if a migration fails. Migrations that were already applied are skipped. To see what it did:
+
+```bash
+docker compose logs migrate
+```
+
+With `PLOTRA_VERSION=latest`, `docker compose pull` takes the newest release; set a version such as `0.1.0` to stay on it. `git pull` takes the current `master`, which keeps `compose.yaml` and `.env.example` up to date. Read the release notes for anything that mentions self-hosting before you upgrade, and compare `docker/.env.example` with your `.env` for new settings.
+
+## Using Neon or another Postgres
+
+The bundled Postgres is optional. To run against [Neon](https://neon.tech) instead, create a project there, copy its connection string, and in `.env` set `DATABASE_URL` to it and remove `postgres` from `COMPOSE_PROFILES` (leaving `COMPOSE_PROFILES=minio,collab`). Then `docker compose up -d --build`: the `migrate` job creates the tables in Neon, and the app connects with Neon's serverless driver, which it picks by itself for a `neon.tech` host. The pooled and the direct connection string both work. Set `DATABASE_DRIVER=pg` if you would rather connect over plain TCP, as the migrations do.
+
+The same goes for any other Postgres: set `DATABASE_URL`, drop the `postgres` profile. Plotra is developed on Postgres 18. One requirement holds everywhere. The role in the connection string must own the database and be allowed to create roles, because a migration creates `plotra_app`, the role without privileges that every user request runs as so that Postgres row-level security applies to it. Neon's default role qualifies. On your own server, a superuser does, or a role with `CREATEROLE` that owns the database.
+
+## The self-hosted collab server and its limits
+
+On the hosted version the collab server is a Cloudflare Worker with one Durable Object per open note. The `collab` container runs that same worker, unchanged, under `workerd`, Cloudflare's open-source runtime, started through `wrangler dev`. Its storage is one SQLite file per note under `/data`, on the `plotra_collab-data` volume.
+
+That keeps one codebase for both, and it has limits you should know:
+
+- **It is Cloudflare's local development mode.** It is the same runtime, but Cloudflare does not offer it as a production server.
+- **One process, one machine.** It cannot be scaled out by running more copies: two copies would each hold their own version of a note.
+- **Every open note is held in memory** until everyone has left it.
+- **It builds the worker each time the container starts**, which takes a few seconds. The `collab` service waits for the app to be healthy first.
+- **It does no TLS.** Browsers on an HTTPS page can only connect to it through a proxy that does.
+- **Its files are in Miniflare's format**, which could change with a new major version of `wrangler`. The version is pinned by the repo's lockfile. Postgres has a copy of every note, so an emptied `/data` reloads from there.
+- **It contacts the internet on start** to look for a newer `wrangler` and to fetch request metadata from Cloudflare. Both fail quietly without a connection, and usage reporting is switched off.
+- **`wrangler dev` has a debugging interface** that can read the stored notes. The container switches it off (`X_LOCAL_EXPLORER=false` in `docker/collab-entrypoint.sh`). Keep that setting if you write your own entrypoint, and proxy only `/parties/` as shown above.
+
+If these limits matter to you, you can deploy `apps/collab` to your own Cloudflare account instead (the free plan covers it):
+
+1. In `apps/collab/wrangler.jsonc`, under `env.production`, set `APP_URL` to your `BETTER_AUTH_URL`, and change or remove the `routes` line, which names the hosted version's own domain.
+2. In `apps/collab`, run `bun run deploy`, then `bunx wrangler secret put COLLAB_SECRET --env production` with the value from your `.env`.
+3. In `.env`, set `NEXT_PUBLIC_COLLAB_URL` to the worker's address, add `COLLAB_INTERNAL_URL=` (empty), and remove `collab` from `COMPOSE_PROFILES`.
+4. Run `docker compose up -d --build`.
+
+Your app then has to be reachable from the internet, because the worker calls it.
+
+## Reports and takedowns
+
+Anyone with an account can publish a project as a public read-only link, so a public server can end up hosting things it shouldn't. Set `REPORT_EMAIL` so readers can tell you: every public page then has a **Report** link, which opens an email with the page's address.
+
+A public link looks like `https://plotra.example.com/p/<token>/…`. To take one down, mark it blocked in the database:
+
+```bash
+docker compose exec postgres psql -U plotra -d plotra \
+  -c "UPDATE share_link SET blocked_at = now() WHERE token = '<token>';"
+```
+
+The link stops working at once and reads as "not found", and so does every other public link of the same project: a project can have several, and taking one down takes down the content, not one address. Its managers see them switched off, and can't switch any back on, make a new one or give one a new token. To undo it, set `blocked_at` back to `NULL`. Nothing in the project itself is changed or removed.
+
+A listed link also leaves the [public gallery](/docs/collaboration/sharing#the-public-gallery) at `/worlds` while its project is taken down.
+
+### Plugins
+
+Anyone with an account can also publish a plugin to the [plugin store](/docs/developers/plugins#the-plugin-store) at `/plugins`. Each plugin's page has a **Report it** link to `REPORT_EMAIL`. A plugin's address looks like `https://plotra.example.com/plugins/<slug>`. To take one down:
+
+```bash
+docker compose exec postgres psql -U plotra -d plotra \
+  -c "UPDATE plugin_listing SET blocked_at = now() WHERE slug = '<slug>';"
+```
+
+It leaves the store and its page reads as "not found". Every copy people installed **stops running** the next time a project loads, which makes this the switch to reach for when a plugin turns out to be harmful. Its author sees it as taken down and can't publish a new version, change its page or lift the takedown. To undo it, set `blocked_at` back to `NULL`. Nothing is deleted: its releases stay in `plugin_release`, so you can read exactly what was published.

@@ -1,0 +1,302 @@
+---
+title: Import
+description: Bring a manuscript, a Scrivener or Plottr project, a World Anvil world or a whole Obsidian vault into Plotra, and what each format keeps.
+---
+
+**Import** turns a Scrivener or Plottr project, a World Anvil world, or Markdown, Word, rich-text and plain-text files, or a whole folder of them, into chapters, scenes and notes. This page covers the dialog, every format it reads, and what each one keeps.
+
+![The Import dialog: choose files or a folder, split at headings or one note per file, and a preview of what will be created](/shots/import-dialog.webp)
+
+## Opening the dialog
+
+| From | Where the new notes go |
+| --- | --- |
+| **New…** at the top of the binder, then **Import…** | The top of the binder |
+| Right-click a folder or a chapter, then **Import…** | Inside that folder or chapter |
+| **All commands**: "Import… (Scrivener, Plottr, World Anvil, Word, Markdown, Obsidian vault)" | Inside the folder or chapter you have selected or open; otherwise the top of the binder |
+
+The dialog's first line says where the notes will go: "into" the folder's name, or "at the top of the binder". If the folder is in the trash, or you may not edit it, the import goes to the top of the binder instead.
+
+New notes are added after what is already there. Nothing you already have is changed.
+
+## What you can import
+
+| Format | Extensions |
+| --- | --- |
+| Markdown | `.md`, `.markdown`, `.mdown` |
+| Word | `.docx` |
+| Rich text | `.rtf` |
+| Plain text | `.txt`, `.text` |
+| Scrivener project | its `.scriv` folder, or a `.zip` of it. See [Scrivener projects](#scrivener-projects). |
+| Plottr file | `.pltr`. See [Plottr files](#plottr-files). |
+| World Anvil world | the export's `.zip`, or its folder. See [World Anvil worlds](#world-anvil-worlds). |
+| Plotra project | `.plotra`, as a new project. See [Plotra project files](#plotra-project-files). |
+
+A `.doc` file from an old version of Word is refused: save it as `.docx` first. Fountain screenplays have their own command; see [Fountain](#fountain).
+
+There are three ways to hand files over:
+
+- **Choose files…** opens a file picker. You can pick several.
+- **Choose a folder…** takes a folder and everything under it. This is how you bring in an Obsidian vault.
+- Drop files or folders on the dashed box.
+
+Once something is chosen the buttons read **Add files…** and **Add a folder…**, so you can build one import from several places. Each file in the list has a **Remove** button, and **Clear** empties the list. The same file added twice is listed once.
+
+From a folder, Plotra leaves out:
+
+- anything in a folder or file whose name starts with a dot, such as `.obsidian`, `.trash` and `.git`;
+- every file that is not Markdown, Word, rich text or plain text. The dialog counts them: "3 other files in the folder (pictures, canvases, PDFs) are left out".
+
+## The options
+
+| Option | What it does | Starts as |
+| --- | --- | --- |
+| **Split at headings** | A top-level heading (`#`, or Heading 1 in Word) starts a chapter. A second-level heading (`##`, Heading 2) starts a scene. | On |
+| **One note per file** | Each file becomes a single note, headings and all. | On instead, when you choose a folder that has Markdown in it |
+| **Start a new scene at every scene break** | A line of `***` or a rule between passages starts a new scene. In Word and plain text, so does a line holding only `#`. | Off |
+| **Keep single line breaks** | A new line in a Markdown note stays a new line, as Obsidian shows it. Leave it off for text that was wrapped by hand, where the lines of a paragraph should run together. Shown only when the import has Markdown in it. | Off; on when you choose a folder that has Markdown in it |
+| **Keep "(folder name)" as a folder** | Shown when everything came from one folder. Off, the contents of that folder go straight into the binder. On, the folder itself is created too. | Off |
+| **Text without a heading of its own becomes** | **a scene** or **a note**. This is the type given to a whole file, and to text that sits before the first heading. | **a note** when every file is Markdown, otherwise **a scene** |
+
+## The preview
+
+Before anything is created, the box at the bottom shows what the import would make: "Creates 2 folders, 12 chapters, 48 scenes · 81,204 words", then the tree of notes with their icons (the first 200). Change an option and the preview is worked out again. **Import** stays greyed out until there is a preview.
+
+An import is all or nothing. If any file can't be read, the dialog names it and nothing is created.
+
+When the import finishes, the binder selects the first new note. A single new note also opens in a tab.
+
+## How files become notes
+
+**With One note per file**, each file is one note. Its title is the `title` in its front matter, or else the file's name without the extension.
+
+**With Split at headings**, a file is cut at its `#` and `##` headings:
+
+| In the file | In the binder |
+| --- | --- |
+| A `#` heading | A chapter with that title. Text under the heading, before the first `##`, is the chapter's own text. |
+| A `##` heading | A scene with that title, inside the chapter above it. |
+| A `###` heading or deeper | Stays a heading inside the note. |
+| Text before the first heading | A scene or a note (your choice) named after the file. |
+| No `#` or `##` at all | One scene or note for the whole file. |
+
+A file that is exactly one chapter, starting with its `#` heading, becomes that chapter. Any other file with headings gets a folder named after the file, and its chapters and scenes go inside.
+
+**With scene breaks on**, a piece of text that has breaks in it is cut again:
+
+- A whole file, or the text under a chapter heading, becomes a chapter holding "Scene 1", "Scene 2" and so on.
+- The text under a `##` heading becomes scenes side by side: "The Storm", "The Storm (2)".
+
+Empty paragraphs at the start and end of each piece are dropped. A file with no text in it is an error ("That file is empty.").
+
+## Folders
+
+A folder you import becomes a folder in the binder, with its own folders inside it, up to 12 levels deep. Within each folder, sub-folders come first in alphabetical order, then the notes. Notes are sorted by name the way a person would sort them ("Chapter 2" before "Chapter 10"), unless every file in the folder has an `order` in its front matter, as a Plotra export does. Then that order is used.
+
+## Front matter
+
+A Markdown file may start with a block between two `---` lines (Obsidian's properties). Plotra reads it and removes the block from the text:
+
+| Key | Becomes |
+| --- | --- |
+| `title` | The note's title, in place of the file name |
+| `tags`, `tag` or `keywords` | The note's tags. A list in brackets, a dashed list, or words separated by spaces or commas all work. A leading `#` is removed. Up to 50. |
+| `aliases` or `alias` | The note's aliases, which links can use. Up to 20. |
+| `order` | Where the note sits among its siblings |
+| Any other key | A [property](/docs/writing/properties-and-tags#properties) of the note. See below. |
+
+`cssclasses`, `publish`, `permalink`, `kind` and `author` are dropped, and so is a key whose value is a block of text (`|`, `>`) or a group of keys of its own. When a file is split into a folder of chapters, the tags go on the folder.
+
+### Properties
+
+Each other key becomes a property of the type of note the files come in as (notes or scenes), with the type its values have across every file of the import:
+
+| Every value is | The property is |
+| --- | --- |
+| A link, `"[[Verona]]"`, or a list of links | **Note**: it points at the note the link names, found as links are (below). With a list, it holds several. |
+| `true` or `false` (or `yes`, `no`) | **Checkbox** |
+| A number | **Number** |
+| A date, `1592-07-31` (with a time or without) | **Date**. The time is dropped. |
+| A web address | **URL** |
+| A list (in brackets or dashed), and there are 60 different items or fewer | **Multi-select**, its choices every item seen |
+| Anything else | **Text**. A list becomes one line, with commas. |
+
+The property is called by the key, with a capital: `first_seen` becomes **First seen**. If the project already has a property with that name for that type of note, it is used, with its own type: a value that doesn't fit it (a word where a number goes) is left out. One import makes up to 40 properties. The preview says how many fields it will keep.
+
+## Links
+
+`[[Wiki-links]]` become real links between notes.
+
+| You wrote | You get |
+| --- | --- |
+| `[[Verona]]` | A link to the note called Verona |
+| `[[Verona\|the city]]` | The same link, shown as "the city" |
+| `[[Verona#History]]` | A link to that heading |
+| `[[Verona#^a1b2]]` | A link to the note. Obsidian's block references point at the whole note. |
+| `[[Places/Verona]]` | A link to the Verona that sits in that folder, when two notes share a name |
+| `![[Verona]]` on a line of its own | An [embed](/docs/writing/links#embeds) of the note |
+| `[the city](Verona.md)` | A link to the note called Verona |
+
+A link is matched without regard to capitals, in this order: notes in the same import by title, then by file name, then by alias; then notes already in the project by title, then by alias. A link that matches nothing stays in the text exactly as you typed it, brackets included, so nothing is lost. It does not become a link later by itself: type it again in the editor to connect it.
+
+Web links (`http`, `https`, `mailto`) are kept. A link to anything else keeps its words and loses the link.
+
+## What Markdown keeps
+
+- Headings. Levels four to six become level three.
+- Bold, italic, strikethrough (`~~`), highlight (`==`), underline (`<u>`) and inline code.
+- Bulleted, numbered and task lists, with their nesting.
+- Quotes, and callouts (`> [!note]`). A callout's type is not kept, and its title becomes its first line.
+- Tables.
+- Rules (`---`, `***`), which become scene breaks.
+- A picture on a line of its own with a web address, `![alt](https://…)`, becomes an image block.
+- A picture stored in the vault, on a line of its own, comes too when you import the folder: `![[map.png]]`, `![[map.png|300]]` or `![The square](Attachments/square.jpg)`. See [Pictures from a vault](#pictures-from-a-vault).
+
+What changes or is left out:
+
+- A fenced code block becomes one paragraph in code type. The editor has no code blocks.
+- Obsidian comments (`%%like this%%`) are removed. So are block ids (`^a1b2`) at the end of a paragraph.
+- A picture the vault doesn't have stays in the text as typed. A picture in the middle of a sentence keeps only its description.
+- Other HTML tags stay in the text as typed. `<br>` becomes a line break.
+
+## Pictures from a vault
+
+When you choose or drop a whole folder, Plotra notes the pictures in it (PNG, JPEG, GIF, WebP and AVIF; not SVG) without sending them. A note that shows one finds it as Obsidian does: next to the note first, then from the top of the vault, then by its name anywhere in it, so `![[map.png]]` finds `Attachments/map.png`. The preview says how many pictures the notes show.
+
+After the notes are made, each of those pictures is uploaded as a file of the first note that shows it (the button says "Adding pictures: 3 of 12"), and every note that shows it gets it in place. Pictures no note shows are left out.
+
+- Each picture counts against the workspace's storage and the [size of one file](/docs/settings/limits) (10 MB on Free, 100 MB on Pro). One that is too large, or that fails to upload, is left out of its notes, and the dialog says how many were.
+- The pictures don't count towards the 10 MB of text one import can send: they go one at a time.
+
+## What Word keeps
+
+Headings, bold, italic, underline and strikethrough, lists, tables, web links, and paragraphs in the **Quote**, **Intense Quote** or **Block Text** styles (as quotes). Headings four to six become level three. A paragraph that holds only `***`, `#` or a similar row of marks becomes a scene break.
+
+Pictures are left out; a picture's alternative text, if it has one, stays in its place. Fonts, sizes, colours and page layout are not kept.
+
+## What rich text keeps
+
+Paragraphs, bold, italic, underline and strikethrough. A paragraph that holds only `***`, `#` or a similar row of marks becomes a scene break, and empty paragraphs are dropped: the editor spaces paragraphs itself. Each cell of a table becomes a paragraph of its own. Fonts, sizes, colours, spacing, pictures, headers, footers, footnotes and comments are left out.
+
+## Scrivener projects
+
+A Scrivener project comes in whole: its binder, the text of each document, and the synopses on its index cards. Scrivener 3 and Scrivener 2 projects both work. Close the project in Scrivener first, so everything is saved. Nothing in the `.scriv` is changed.
+
+To hand it over:
+
+- **Choose a folder…** and pick the project's `.scriv` folder (on Windows and Linux it is an ordinary folder).
+- On a Mac, Finder shows a `.scriv` as a single item: drop it on the dashed box, or right-click it, choose **Compress**, then **Choose files…** and pick the `.zip`.
+
+Only what Plotra reads is sent: the `.scrivx` binder and each document's `content.rtf` and `synopsis.txt`, compressed on the way. Research PDFs and pictures, snapshots, backups and settings stay behind, so a project full of research still fits in an import. A `.zip` is opened in your browser, and can be up to 500 MB; the text Plotra reads from a project can be up to 60 MB, many times a long novel.
+
+| In Scrivener | In Plotra |
+| --- | --- |
+| The Draft (Manuscript) folder | Not a folder of its own: what is in it goes at the top of the binder |
+| A folder in the Draft that holds folders | A folder, for a part |
+| Any other folder in the Draft | A chapter |
+| A document in the Draft | A scene |
+| A document with documents under it | A chapter, with the document's own text |
+| A top-level folder named Characters, Cast or People | A folder of characters |
+| A top-level folder named Places, Locations or Settings | A folder of places |
+| The Research folder, and any other folder | A folder of notes |
+| A synopsis (index card) | The note's synopsis |
+| Keywords | Tags |
+| PDFs, pictures, web pages and media | Left out; the preview counts them |
+| The Trash, Template Sheets | Left out |
+| Inline annotations and footnotes | Left out |
+| Styles (Scrivener 3) | The text comes in; the style's look doesn't |
+| Placeholders such as `<$N>` or `<$PROJECTTITLE>` | Kept as typed |
+| Document notes, labels, status, snapshots, compile settings | Left out |
+
+The settings for splitting files don't apply to a Scrivener project and are hidden: its binder already says what is a chapter and what is a scene. The text is read as rich text; see [What rich text keeps](#what-rich-text-keeps).
+
+## Plottr files
+
+Choose **Import…**, then **Choose files…**, and pick the `.pltr`. It is read whole: its timeline, cards, plotlines, characters, places, notes and tags. Files from Plottr 2020 and later, and older ones, both work. Pictures kept inside the file are dropped in your browser before it is sent, so a file full of them still fits.
+
+| In Plottr | In Plotra |
+| --- | --- |
+| A beat (an act or a chapter) | A chapter; a folder when it holds beats of its own. A beat Plottr numbers itself is named by its level, such as "Act 2" |
+| A book of a series | A folder |
+| A card | A scene in its beat's chapter, in Plottr's order |
+| A card's description | The scene's synopsis, so the scene's page is free for the draft. A description longer than a synopsis holds (2,000 characters) becomes the scene's text instead |
+| A plotline | A plot thread. Each card fills its scene's cell in its plotline's column, with the description |
+| A card's characters and places | Links at the foot of its scene, so each character's and place's page lists the scenes they are in |
+| Characters, places, notes | Pages in folders named Characters, Places and Notes. Custom attributes are lines at the top ("Role: Protagonist"), and the description is the synopsis |
+| Tags, character categories | Tags |
+| Pictures, templates, the series timeline | Left out |
+
+A plotline with the same name as a thread the project already has fills that thread instead of making another.
+
+## World Anvil worlds
+
+In World Anvil, export the world (**Settings**, then **Export World**). The zip it makes holds each article as JSON and as HTML; Plotra reads the JSON. World Anvil's help puts this export on its Guild plans. Choose **Import…**, then **Choose files…**, and pick the zip, or choose its folder once unzipped. Only the articles' JSON is sent, compressed.
+
+| In World Anvil | In Plotra |
+| --- | --- |
+| A category | A folder, nested as in World Anvil |
+| A Person | A character |
+| A Location, Settlement, Landmark, Building or other place | A place |
+| Any other article (an Organization, a Myth, a Species…) | A note, tagged with its type: `organization`, `myth`, `species` |
+| An article's text | Its text. Bold, italic, strikethrough, headings, quotes, lists, rules and web links are kept; `@[Name](type:id)` mentions become links |
+| The fields of its template (Job, Population, Height…) | Lines under the text: "Job: Ruler of Farofaen" |
+| Related articles (locations, organizations, species, a leader…) | Links at the end: "Locations: [[Thornfield]]". A related value that isn't an article, such as a settlement's type, is written out |
+| Tags, excerpt | Tags, synopsis |
+| Pictures, maps, timelines, statblocks, secrets, a category's own text | Left out |
+
+Two worlds in one export get a folder each.
+
+## Plotra project files
+
+A `.plotra` file is a whole project, made by **Plotra project (.plotra)** in the export dialog: every note with its text, links, story tools, timelines, version history, comments, pictures and files, the questions prepared for beta readers, the line statuses of recording sheets, the Strings table with its translations and term base, and its shared world when it has one. Choose it in the import dialog and it becomes a new project in the workspace (with its world as a second project beside it); nothing you already have is changed. Who it was shared with, its public link, required reviewers and their approvals, beta readers' answers, chat, your conversations with the AI and its run log, notifications, writing statistics, webhooks and the GitHub sync (with its token) are not in the file.
+
+A `.plotra` file is imported on its own: choosing one alongside other files takes just the project file, and the splitting options are hidden. Instead of a preview, the dialog says "Creates a new project in (workspace): (title)", and names the world when the file has one. When it is done you see "Imported (title) as a new project." and the new project opens. Every note, file and comment gets a new identity, so the same file can be imported more than once, and each import is a separate project. Only members of the workspace can import one; a guest is told "Only members of a workspace can add projects to it."
+
+On Plotra Cloud the file is sent straight to file storage first and read from there, so a project with pictures isn't held to the 4 MB a request to the app can carry. It is deleted from storage once the import is done, whether it worked or not.
+
+| Limit | Value |
+| --- | --- |
+| Size of a `.plotra` file | 66 MB on Free, 256 MB on Pro. Self-hosted: 1 GB, and no more than your proxy lets through when the file goes through the app |
+| Storage | Its pictures, files and version history count against the workspace's storage, as they would if you added them |
+| Projects | One, or two with its world, against the workspace's projects |
+| Project imports per person | 10 in ten minutes |
+
+The Free limit is the plan's 50 MB of storage with room for the text, which isn't counted: a larger file couldn't fit. Pro's is what one import can hold in memory at once.
+
+| Message | What it means |
+| --- | --- |
+| "(file) isn't a Plotra project file." | The file has a `.plotra` name but wasn't made by Plotra's export. |
+| "That project file was made by a newer Plotra. Update Plotra, then import it again." | The file comes from a newer version than this server runs. Update a self-hosted server first. |
+| "That project file is damaged (…)." | Part of the file is missing or can't be read. Export it again. |
+| "That project file is too large to import here." | It unpacks to more than this server takes (2 GB). |
+| "This project comes with its world, which makes two projects, and the workspace has room for 1." | The workspace's [project limit](/docs/settings/limits) has room for the project but not for its world too. |
+
+## What plain text keeps
+
+- A blank line ends a paragraph. A file with no blank lines at all gets a paragraph for each line.
+- Lines inside a paragraph are joined when they look like hand-wrapped prose (45 characters or more on average). Shorter lines, such as verse or an address, stay as separate lines.
+- A line that only separates scenes (`***`, `* * *`, `#`, `---`, `⁂`) becomes a scene break.
+- With **Split at headings** on, a short line such as "Chapter 1", "CHAPTER ONE: The Storm", "Part II", "Act 3", "Prologue" or "Epilogue" starts a chapter. The words recognised are Chapter, Part, Book and Act followed by a number, and Prologue, Epilogue, Interlude, Foreword, Preface, Afterword, Introduction and Acknowledgements.
+
+Files are read as UTF-8, or as UTF-16 when they start with a byte-order mark (how Notepad and Word save "Unicode" text).
+
+## Limits
+
+| Limit | Value |
+| --- | --- |
+| Size of one import, all files together | 10 MB; for a Scrivener project, 60 MB of text |
+| Files in one import | 3,200. The first 3,200 are kept; import the rest afterwards. A Scrivener project sends two files per document. |
+| Notes and folders one import may create | 1,500. Import in parts, or split less finely. |
+| Folder depth | 12 levels |
+| Title length | 200 characters |
+| Imports per person | 30 in ten minutes |
+
+A folder that turns out to hold more than 20,000 files is not read to the end.
+
+<Callout type="info" title="Imported text and the AI agent">
+Notes made by an import are marked as text from outside the project. The [AI agent](/docs/ai) reads them as material, not as instructions.
+</Callout>
+
+## Fountain
+
+A Fountain screenplay comes in through its own command, "Import Fountain…", which is in **All commands** when the **Script formats** module is on. It takes one `.fountain`, `.spmd` or `.txt` file of up to 900,000 characters and creates, at the top of the binder, a folder named after the script, a chapter for each section and a scene for each scene heading, all in screenplay format. The title page is kept with the folder. "Export as Fountain" writes out the note you have open, or else the note selected in the binder, or else the whole project. See [Script formats](/docs/modules/scripts).

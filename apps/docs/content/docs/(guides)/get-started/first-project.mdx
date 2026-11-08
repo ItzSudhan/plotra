@@ -1,0 +1,209 @@
+---
+title: Your first project
+description: "From signing up to your first scene: your account, workspaces and projects, the three ways to start, and the getting-started checklist."
+---
+
+Everything that happens when you start: signing up, your first workspace, the three ways to make a project, the questions that build one around your story, and the checklist that follows. In a hurry? The [Quickstart](/docs/get-started) covers the same ground in five steps.
+
+No account yet? It is free, with every feature and no card.
+
+<StartWriting>Create your free account</StartWriting>
+
+## Signing up and signing in
+
+To create an account, give three things:
+
+| Field | Rule |
+| --- | --- |
+| **Your name** | Up to 80 characters. It is your byline: co-writers see it on your cursor, your comments and your changes. |
+| **Email** | The address you sign in with, and where invitations and notifications go. |
+| **Password** | At least 8 characters. The eye button shows what you typed. |
+
+Then press **Start writing**.
+
+Where the server has Google sign-in set up, as the hosted version does, **Continue with Google** is above the form and does the same job without a password. A self-hosted Plotra without Google credentials shows only the email form.
+
+To come back, use **Sign in** with the same email and password, or the same Google account.
+
+### Forgotten your password
+
+1. On the sign-in page, choose **Forgot password?** under the password field.
+2. Enter your email and choose **Send me a link**. Plotra says the same whether or not there is an account for that address.
+3. Open the link in the email. It works for an hour, once. If it has expired or been used, choose **Send me a new link**.
+4. Type the new password (at least 8 characters) twice, under **New password** and **The same again**, and choose **Save new password**.
+
+You are then signed out everywhere else; sign in with the new password. On a self-hosted Plotra the email is only sent once the server has email set up. See [Configuration](/docs/self-hosting/configuration).
+
+Things to know:
+
+- If you opened a link to a project or an invitation before signing in, you are taken there once you have.
+- On the hosted version, sign-in is limited to 5 tries a minute and sign-up to 5 an hour, to slow down guessing.
+
+## Workspaces and projects
+
+- A **workspace** is you, or you and your team. Its members can open and edit every project in it.
+- A **project** is one story or one world: a novel, a series, a campaign.
+
+A new account has neither, so the first thing Plotra asks is "First, name your workspace." The field is already filled in with "*Your first name*'s workspace". Press Enter to accept it, or type your own (up to 80 characters). The workspace's web address is made from the name's letters and digits; if that address is taken, a few letters are added to it. A name written only in another script, such as 物語の部屋, keeps its name and gets an address like `workspace-x7k2`. You can rename it later, and change its web address, in the workspace's settings under **General**. See [Your account and workspaces](/docs/settings/account).
+
+To add another workspace later, use the workspace switcher at the top of the projects page. See [Your account and workspaces](/docs/settings/account).
+
+Every project has a **type** (novel, web serial, tabletop RPG, screenplay and so on). The type decides which tools are switched on to begin with and what a new scene looks like. You can change all of it later in the [project settings](/docs/settings/project). The eleven types are listed in [Project types](/docs/reference/project-types).
+
+## Four ways to start a project
+
+| Way | What you get | Where |
+| --- | --- | --- |
+| **Answer a few questions** | A project built around your story: a first page with your character and place already linked, and a checklist of first steps. | A new account lands here. Later: **Start your story** in an empty workspace, or "answer a few questions" in the New project dialog. |
+| **New project** | A blank project with one empty scene. | The **New project** button on the workspace's projects page. |
+| **A starter template** | An empty project with a structure already laid out for your kind of writing: acts and chapters, a pilot's acts, sessions, routes. See [Starter templates](#starter-templates). | In the New project dialog, and in the questions under **Browse templates and samples**. |
+| **A sample** | A small finished project to look around in, with one mistake to find. | In an empty workspace, in the New project dialog, and in the questions under **Browse templates and samples**. |
+
+![A workspace's projects page with two projects, Romeo and Juliet and Ashes at Carrow Ford, and the New project button](/shots/workspace-projects.webp)
+
+A workspace also offers its own **templates** in the questions, under **Browse templates and samples**, once someone has marked a project as one. See [Templates](/docs/settings/project#templates).
+
+On the hosted Free plan a workspace holds 10 projects, samples included. When it is full, Plotra says so and no project is made. See [Limits](/docs/settings/limits).
+
+## The cold open
+
+The cold open is the set of questions at `/start`. It asks one thing at a time, starting with what you are making, and each answer becomes a note. On a wide screen a small graph beside the questions shows the notes appearing and linking up.
+
+![The cold open asking "Who is this story about?", question 1 of 4, with Continue and Skip this](/shots/cold-open.webp)
+
+The first question, **What are you making?**, is answered by picking one. Every question after it has **Continue**, **Skip this** and **Back**. Enter answers the question. A skipped question is simply left out of the project. **Skip, just give me a blank page** at the bottom makes the project at once from nothing. **Cancel** at the top takes you back to the workspace, if you came from one.
+
+### The questions everyone gets
+
+| Question | What it becomes |
+| --- | --- |
+| **What are you making?** | The project's type. **A novel** and **A tabletop campaign** lead; **Something else** shows the other nine. "Plotra sets up the right tools for it. Everything can be changed later." **Browse templates and samples**, below, opens the workspace's templates, the starter templates and the samples instead. |
+| **Who is this story about?** | A character page. A name is enough (up to 80 characters). |
+| **Where is *name* when it starts?** | A location page (up to 80 characters). |
+| **What is *name* hiding, or what do they want?** | Choose **Hiding something** or **Wants something**, then write a line or two (up to 400 characters; Shift+Enter makes a new line). A secret becomes a note in a "Secrets" folder, with your character recorded as someone who knows it. A want becomes a plot thread on the first scene, and the character's **Arc**. |
+
+A non-fiction project skips the three story questions.
+
+### The questions for your kind of project
+
+After the story questions, Plotra asks one or two more in that medium's own words. The last one's button reads **Start writing**.
+
+| Type | Question | What it does |
+| --- | --- | --- |
+| Novel | **One book, or a series?** | A series gets a "Book 1" folder and a release called "Book 1" that you can mark reveals against. |
+| Novel | **Whose eyes do we see it through?** (only if you named a character) | Your character, or **Someone else**, who then gets a character page and becomes the first scene's point of view. |
+| Tabletop | **Who's at the table?** | The player characters, separated by commas. Up to eight, each with a page in a "Player characters" folder. |
+| Tabletop | **What happens in session one?** | A line or two that becomes the top of your prep, and its synopsis. |
+| Screenplay | **A film, a pilot or a series?** | Names the first folder "Act One", "Pilot" or "Episode 1". A series also gets a release called "Episode 1". |
+| Screenplay | **Where does the first scene open?** | **INT.** or **EXT.** It becomes the scene heading. |
+
+The other types have no extra questions.
+
+### What the project starts with
+
+| Type | First page | Around it |
+| --- | --- | --- |
+| Novel | "Chapter 1" with a scene called "Opening", which begins "*Mira* is in *the Salt Docks*." with both names as links. | "Characters" (your character as Protagonist), "Places", and "Secrets" if you gave one. |
+| Tabletop RPG | A "Session 1" folder with "Session 1 prep". It ends with a line marked for the game master only, which players are never shown. | "Player characters", "NPCs", "Places", and a release called "Session 1". Chapters are called "Session" in this project. |
+| Screenplay | "Opening scene", in screenplay format: the scene heading, an action line that brings your character on, their cue, and the cursor in their first line. | "Characters", "Places". Chapters are called "Sequence" in this project. |
+| Any other type | One scene, in the type's own format. | "Characters", "Places", "Secrets". |
+
+Also:
+
+- The project is titled "Untitled: *who* in *where*", or just "Untitled". Rename it in the project settings.
+- The scene's **POV** and **Location** properties already point at the notes made from your answers.
+- If your answers made a release, a secret that someone knows or a game-master-only line, the **Releases & reveals** module is switched on, because that is where those live.
+- The project opens on its first page with the cursor after the text that is already there.
+- With every question skipped, you get the first page for that type, empty. If you skipped the type too, it is a novel.
+
+## The new project dialog
+
+**New project** on the projects page opens a short form. It makes a blank project: one scene called "Untitled scene", in the type's format, open with the cursor in it.
+
+![The New project dialog with a title, a type, the Create project button and the two samples below](/shots/new-project.webp)
+
+| Field | What it is |
+| --- | --- |
+| **Title** | Required, up to 120 characters. The project's web address is made from it. |
+| **Type** | Novel / series and Tabletop RPG come first, then "Other kinds". The line under the field says which tools the type starts with and what format its scenes are written in. |
+| **Create project** | Makes the project and opens it. |
+| **Or start from a starter or a sample** | Opens the [starter templates](#starter-templates), with the ones for the type you picked shown first, and the two samples. Choosing one makes it at once. A starter takes the title you typed above, if any; a sample keeps its own. |
+
+A project made this way starts with the standard ribbon (Graph, Codex, Outline, Draft, Read) whatever its type, keeps the app's own words for chapters, and has no checklist. Those three come from the cold open.
+
+## Starter templates
+
+A starter template is a project with a structure and no writing. Its scenes are empty, each with a synopsis saying what it is for, so the corkboard and the outline read as a plan from the start. Its planning notes are headings with a question under each. Everything is a draft; rename, move or delete any of it.
+
+Templates are grouped by who they are for. Pick a group in the row above the cards.
+
+| Group | Templates |
+| --- | --- |
+| Novelists | **Three-act novel**: eleven chapters across three acts, from the ordinary world to the resolution, plus a premise page.<br />**Fifteen-beat outline**: the beat sheet screenwriters use, one chapter per beat: catalyst, midpoint, dark night and the rest.<br />**Mystery**: the crime as it happened, a cast of suspects, clues to plant and pay off, and the reveal.<br />**Romance**: two leads and the beats of their relationship, from the meeting to the grand gesture.<br />**Book series**: a series bible, Book 1 outlined, Book 2 waiting, and each book set up as a release for spoilers.<br />**Short story**: five scenes from the hook to the last line, and a page for the story in one sentence.<br />**Web serial**: arc one in six chapters, each a release, with a posting schedule and a page of hooks. |
+| Screen & stage | **Feature film**: three acts in eight sequences, written as screenplay pages, with a treatment to start from.<br />**TV pilot**: teaser, four acts and a tag, plus a series bible for the season and the episodes after it.<br />**Two-act play**: two acts of scenes in stage-play format, with a page for the cast, the set and the running time. |
+| Game writers | **Branching narrative**: a prologue, a hub, two branches and three endings, with a narrative design doc and a branch map.<br />**Quest-driven RPG**: a main quest in stages, side quests to fill in, factions, and a codex of lore entries.<br />**Visual novel**: a common route that splits into character routes, each with its own endings, and a page of flags. |
+| Game masters | **Campaign**: a pitch, session zero, three sessions of prep, and factions, with each session as a release.<br />**One-shot adventure**: a five-room adventure for a single evening, with pre-made characters for the table. |
+| Comics | **Comic issue**: a 22-page issue in five sections, written as comic script, with a series pitch. |
+| Audio | **Audio drama season**: a season of four episodes in audio script, each a release, with a season bible.<br />**Interview podcast**: a show format page and a first episode: cold open, intro, the interview segments and the outro. |
+| Non-fiction | **Non-fiction book**: a book proposal, an introduction, three parts of chapters and a conclusion, with sources kept apart.<br />**Memoir**: chapters by period of your life, a page for what the book is really about, and the people in it. |
+| Worldbuilders | **Story bible**: a world overview, canon rules, a timeline, factions, people and places, and a folder for each story set in it. |
+
+Templates that ship in parts (a series' books, a campaign's sessions, a serial's chapters, a season's episodes) set each part up as a [release](/docs/canon/releases-and-reveals), and switch on Releases & reveals for it. A project made from a starter template gets what the cold open gives its type: the same ribbon, the same words for chapters, and the **Getting started** checklist.
+
+## Write your first scene
+
+A new project opens on its first scene, so you can start typing straight away. For the next one:
+
+1. In the binder, choose **New** at the top and pick **Scene**, or press `⌘⌥N`. Or right-click a folder or a chapter and choose **New inside**.
+2. Click the scene. It opens in the editor.
+3. Type. There is no save button: changes are saved as you write, and the status bar says **Saved**.
+4. Type `/` at the start of a line or after a space for the block menu (headings, lists, tables, callouts, images). Select text for the formatting toolbar. Type `[[` to link to another note.
+
+An empty note shows a suggestion in grey before you type, such as "Open on a line of dialogue." It is a way in, not text: it disappears with the first letter. To switch the suggestions off, open **Customize…** and clear "Suggest a way in when a note is empty".
+
+If you go offline, the status bar says **Offline — changes kept on this device**. They are saved when you are back.
+
+## The getting-started checklist
+
+A project started from the cold open shows a small card in the bottom right corner: **Getting started**, with five steps and a count such as "2 of 5". Nothing is locked, and you can ignore it.
+
+- A step is ticked when you do the thing, not when you press a button. Click a step to read how; the control it is about is ringed for a moment.
+- Ticks are saved with your account. A step you did in one project is already ticked in the next, on any device.
+- Finishing a step that is about a view pins that view to your ribbon.
+- Click the title to fold the card away. The cross closes it for good; **Getting started** in your account menu brings it back, and so does **Customize…**.
+- It is shown only to people who can edit the project, and not in focus mode.
+
+The steps depend on what you are making:
+
+| Novel, and every other type | Tabletop RPG | Screenplay |
+| --- | --- | --- |
+| Write your first 50 words | Write your first 50 words | Write your first 50 words |
+| Link two notes | Link two notes | Link two notes |
+| See your story as a graph | Write a line only you can see | Lay your scenes out as cards |
+| Record a secret and who knows it | See what your players know | Start from a beat sheet |
+| Set what readers know as of a book | Export a wiki for your players | Export to Fountain |
+
+Some steps need a module. If it is off and you manage the project, the step shows a **Turn on …** button. If you can't switch modules on, the step is left out of your list.
+
+## When Plotra offers a module
+
+A new project starts with few modules, so the screen is not twenty views wide on the first day. The others are offered where they become useful:
+
+- a checklist step that needs one;
+- **More → More tools** in the ribbon;
+- the **Note types** tab of the project settings, which offers the World bible.
+
+Each of these opens the same prompt: "Turn on *module*?", with what the tool is, the views it adds (they appear under **More**), and two buttons, **Not now** and **Turn on**. A module is switched on for everyone in the project, and nothing you have written changes. You can turn it off again in the project settings.
+
+Only people who manage the project, the workspace's owner and admins, are offered modules. See [Modules](/docs/modules).
+
+## Next
+
+<Cards>
+  <Card title="A tour of the screen" href="/docs/get-started/the-screen" description="The ribbon, the binder, the panes, the inspector and the status bar, and the keys that find anything." />
+  <Card title="Sample projects" href="/docs/get-started/sample-projects" description="Two small finished projects to look around in, each with one mistake to find." />
+  <Card title="Who it is for" href="/docs/for" description="A route through Plotra for your kind of writing, with a setup and a workflow." />
+  <Card title="The vault and the binder" href="/docs/writing/binder" description="Notes, note types, properties, tags, tabs and panes." />
+  <Card title="The editor" href="/docs/writing/editor" description="Blocks, formatting, focus mode, word counts and working offline." />
+  <Card title="Links" href="/docs/writing/links" description="Wiki-links, embeds, what mentions a note, and names that aren't linked yet." />
+</Cards>

@@ -1,0 +1,109 @@
+---
+title: The desktop app
+description: "Plotra as an app on your computer: a window on Plotra Cloud, or a library in a folder you choose, with no account and no internet."
+---
+
+The desktop app runs Plotra in a window of its own on macOS, Windows and Linux. The first time it opens, it asks "Where should your work live?":
+
+| Choice | What it is |
+| --- | --- |
+| **Plotra Cloud** | A window on the hosted version. You sign in to your Plotra account, and everything works as on the website: writing with others, sharing, sync between devices, backups and hosted AI. |
+| **On this computer** | A **library**: a folder you choose, with every project in it. No account and no internet needed. Only you can open it, and you back it up yourself. |
+
+The choice is remembered. You can change it later from the **File** menu, and use both: a cloud workspace for a book you write with others, and a library for a private journal. Projects in the cloud and in a library are kept separately.
+
+When Plotra Cloud can't be reached, the window says "Can't reach Plotra Cloud" and offers **Try again**.
+
+The download is on [plotra.ink/download](https://www.plotra.ink/download). The app updates itself: a new version is downloaded in the background and installed when you quit. To check by hand, choose **Help → Check for Updates…**: it says "Plotra is up to date" and your version, that a new version is downloading, or that it is ready, with the choice to restart now.
+
+Every release is also on the [GitHub releases page](https://github.com/ItzSudhan/plotra/releases).
+
+<Callout type="warn" title="The desktop app is new">
+  Until its first release is published, the download links lead nowhere. Early builds may not be signed, so macOS and Windows ask before opening them the first time.
+</Callout>
+
+## A library on this computer
+
+Choose **On this computer**, then **New library…** or **Open library…**. A recent library is listed under **Recent libraries**.
+
+A library opens with an "Opening your library…" window while it starts.
+
+For a new library, pick an empty folder, or a folder to put a "Plotra Library" folder in. The app never mixes a library with your other files: a folder that already holds something gets a "Plotra Library" folder inside it.
+
+A library holds:
+
+| In the folder | What it is |
+| --- | --- |
+| `plotra-library.json` | What makes the folder a library: its format and its own secrets. Your sign-in and your saved AI keys are made from them, so a library copied to another computer opens there as it was. |
+| `Database/` | Your projects. Don't change these files by hand. |
+| `Markdown/` | A readable copy of every project, as Markdown files, kept up to date while the library is open. |
+| `Snapshots/` | Dated copies of the database, for backups. |
+| `.plotra-lock` | Which copy of Plotra has the library open. |
+
+The first workspace in a library is called "My library". There is no account to make: you are signed in as soon as the library opens, and no other browser on the computer can open it.
+
+### The Markdown copy
+
+While a library is open, the app keeps a copy of every project in `Markdown/`, one folder per workspace and project, laid out like the binder: the same files as the export **Markdown, a file per note**. It checks every 30 seconds and writes only what changed. A renamed project's folder moves; a deleted project's folder goes.
+
+So your writing can be read without Plotra, and a sync service or a backup tool can copy it safely.
+
+### Snapshots
+
+A snapshot is a copy of the whole library's database. The app takes one a day while the library is open, and whenever you choose **File → Back Up Now**. The newest 14 are kept.
+
+**File → Restore a Snapshot…** asks for a snapshot file and puts the library back as it was then. The database as it is now is not deleted: it is kept in the library folder as "Database before restore" and the date, in case you want it back.
+
+### One app at a time
+
+Only one copy of Plotra may have a library open. Opening it twice shows "This library is already open in Plotra." A library open on another computer, through a synced folder, shows "This library is open in Plotra on another computer (*name*). Close it there first."
+
+<Callout type="warn" title="Synced folders">
+  Two apps writing to one library can damage it. If the library is in Dropbox, iCloud or a similar folder, close it on one computer before you open it on the other. To keep a copy elsewhere, sync the `Markdown/` and `Snapshots/` folders, or copy the library while Plotra is closed.
+</Callout>
+
+A lock left by an app that didn't close properly is taken over after two minutes.
+
+### What a library doesn't have
+
+Nobody else can reach a folder on your disk, so everything that needs other people, or a server between them, is left out:
+
+- Writing with others, inviting people, sharing a project, guests, read-only links and the public gallery. **Share project…**, **Members & invites**, **Shared with you** and the **Beta readers** tab of the Reviews view are not shown, and an action that needs them says it "needs Plotra Cloud: nobody else can reach a library on this computer."
+- Sync between your devices.
+- Email notifications and the daily digest. **Email notifications** is not in **Your settings**.
+- **Sign out**, and **Keep this project on this device**: every project already is.
+- Plans, limits and hosted AI. A library has no plan: projects and storage are as big as your disk, and one uploaded file can be 100 MB.
+- Backups by anyone but you. Nobody else sees the library, so nobody else can recover it.
+
+Everything else is the same: every view and module, the editor, the world bible, continuity checks, timelines, import and export, version history, [webhooks](/docs/developers/webhooks) and [plugins](/docs/developers/plugins).
+
+AI works with your own key, or with a model on your computer, such as Ollama: the app may call addresses on this computer and your network. See [A local model](/docs/ai/models-and-privacy#a-local-model). Webhooks may post to addresses on your network too, and over plain `http://`.
+
+### Moving a project between a library and the cloud
+
+Export it as a [Plotra project file](/docs/import-export/import#plotra-project-files) (**Plotra project (.plotra)** in the export dialog) on one side, and import it on the other. It arrives as a new project, with its notes, world, timelines, versions, comments and pictures.
+
+## The File menu
+
+| Item | What it does |
+| --- | --- |
+| **New Window** (`⌘⇧N`) | Another window on the same library, or on Plotra Cloud. |
+| **New Library…** | Makes a library in a folder you pick, and opens it. |
+| **Open Library…** (`⌘⇧O`) | Opens a library. A folder without `plotra-library.json` is "Not a Plotra library". |
+| **Open Recent** | The libraries you opened before. |
+| **Show Library in Folder** | Opens the library's folder in Finder or Explorer. |
+| **Back Up Now** | Saves a snapshot ("Backup saved"), and offers to show it in Finder, Explorer or Files. |
+| **Restore a Snapshot…** | Puts the library back as it was in a snapshot. |
+| **Switch to Plotra Cloud** | Leaves the library for the hosted version, after asking ("Close ‘My Library’ and switch to Plotra Cloud?"). Your work is saved before it closes. Opening another library asks the same way. In Plotra Cloud this item is **Use a Library on This Computer…**, which brings back the first choice. |
+
+On Windows and Linux the keys are `Ctrl+Shift+N` and `Ctrl+Shift+O`. Opening the app a second time brings the open window to the front.
+
+The **Help** menu has **Plotra Docs**, **plotra.ink** and **Check for Updates…**.
+
+A library made by a newer Plotra won't open in an older one: "This library was made by a newer Plotra. Update Plotra to open it." When an updated app first opens a library, it brings the library's database up to date by itself.
+
+When something goes wrong, such as a folder Plotra isn't allowed to use or a full disk, the message says what didn't happen and what to do next. **Show details** shows the technical text and, where there is one, the log file; **Show log** shows that file in its folder.
+
+## Building it yourself
+
+The app is in `apps/desktop` in the repository. Its README says how to run it against the app in development and how to package it.

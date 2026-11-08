@@ -1,0 +1,196 @@
+---
+title: Inviting and sharing
+description: "Let people in: invite them to the workspace, share a single project by email with a viewer, a commenter or an editor, or switch on a read-only link."
+---
+
+There are two ways to let someone in. Invite them to the **workspace** and they can open and edit every project in it. Share one **project** and they see that project and nothing else. What each role can do is on [Working together](/docs/collaboration#who-can-do-what).
+
+## Inviting people to the workspace
+
+Invite someone to the workspace when they should work on everything in it. To let someone into one project only, or only to read or comment, [share the project](#sharing-a-project) instead.
+
+![The workspace settings: an email field and a role to invite someone, and the list of members with their roles](/shots/workspace-settings.webp)
+
+Only owners and admins can invite.
+
+1. On the workspace's home page, click **Settings**. The **Members & invites** tab is open.
+2. Under **Invite people**, enter an email address and pick **Member** or **Admin**.
+3. Click **Send invite**.
+
+They get an email, "*Your name* invited you to *Workspace* on Plotra", with a link to accept.
+
+### Accepting an invitation
+
+The link opens a page titled **Join *Workspace***, which says who invited you and whether as a member or an admin.
+
+- If you aren't signed in, you are sent to sign in first and brought back afterwards. If you have no account yet, choose **Create an account** on the sign-in page; you come back to the invitation the same way.
+- **Accept and join** makes you a member and opens the workspace. The person who invited you gets a [notification](/docs/collaboration/notifications).
+- **Decline** turns the invitation down.
+
+You must be signed in with the address the invitation was sent to. Otherwise the page says **Invitation not available**: "It may have expired, been cancelled or already been used, or it was sent to a different address". Ask for a new invitation to the address you use, or sign in with the other one.
+
+### Open invitations
+
+Invitations that haven't been answered are listed under the invite form, each with its role, who sent it and the day it expires.
+
+| What | How it works |
+| --- | --- |
+| Expiry | An invitation is good for 48 hours. After that it leaves the list and its link stops working. |
+| Sending again | Invite the same address again. The same invitation is emailed again and is good for another 48 hours. It keeps the role it was first sent with; to change the role, cancel it and invite again. |
+| Cancelling | Click **Cancel** beside it. The link stops working at once. |
+| Seats | Open invitations count as members against the plan's limit, so the last seat can't be offered to several people. Inviting an address that already has an open invitation doesn't use another seat. |
+
+When the workspace is full, the form says how many members it can have. You can send up to 40 invitations an hour.
+
+Changing someone's role and removing a member are on [Your account and workspaces](/docs/settings/account#members).
+
+## Sharing a project
+
+Share a project to let someone into it and nothing else. Only the workspace's owners and admins can share; the button isn't shown to anyone else.
+
+1. In the project, click **Share project…** at the top of the binder.
+2. Enter an email address and pick a role: **Viewer**, **Commenter** or **Editor**. The dialog starts on Commenter, and a line under the form says what the chosen role can do.
+3. Click **Share**.
+
+What happens next depends on the address:
+
+- If it belongs to a Plotra account with a verified address, they have access at once, and the dialog says "Shared with *address*". They also get a notification under their bell.
+- Otherwise the dialog says "Invitation sent to *address*", and the access goes to whoever opens the emailed link signed in with that address.
+
+Either way they get an email, "*Your name* shared “*Project*” with you on Plotra", with a link to open it. Plotra sends no address-verification emails of its own, so an account counts as verified when it signs in with Google; everyone else gets in through the emailed link.
+
+### The Share dialog
+
+| Part | What it shows |
+| --- | --- |
+| **Shared with** | Everyone the project is shared with, with their role. Someone who hasn't opened the link yet is marked "Invited: hasn't opened the link yet". Someone who is also in the workspace is marked "also a workspace member". |
+| *Workspace* · *n* members | The workspace's members and their workspace roles. They are listed for information: "Workspace members can open and edit every project. Owners and admins also manage sharing and settings." |
+| **Anyone with the link** | The [read-only link](#read-only-links). |
+
+![The Share dialog: an email field with a role, two people invited as commenters, the workspace members, and the switch for a read-only link](/shots/collab-share.webp)
+
+To change a role, pick another one beside the person's name; Plotra says what changed, such as "Ben can now edit." Sharing again with the same address also changes their role, and sends the email again. To take access away, click the cross beside them. **Undo** in the message that appears shares the project with them again, in the same role, and sends them the email again.
+
+Removing access takes effect on their next request. If they have a note open, live updates stop for them within ten minutes.
+
+### Opening a shared project
+
+The link in the email opens the project. If you aren't signed in, you sign in or create an account first and are brought back.
+
+| What you see | Why |
+| --- | --- |
+| The project | You are signed in with the address it was shared with. From now on the access belongs to your account. |
+| **This was shared with a different address** | The invitation went to another address than the one you are signed in with. The page shows part of that address so you can recognise it. Sign in with it, or ask for the project to be shared with the address you use. |
+| **This link no longer works** | The project may have been deleted, or your access removed. Ask whoever shared it to send it again. |
+
+### Shared with you
+
+Projects from workspaces you don't belong to are on your **Shared with you** page. Each card shows the project, the workspace it lives in, your role and when it last changed.
+
+- If you have no workspace of your own, this page is where Plotra opens, with a **Start your own project** button.
+- If you do, a **Shared with you** link appears on your workspace's home page once something is shared with you.
+
+Inside a shared project, the way back is the "Back to shared projects" command.
+
+### Limits
+
+- A project can be shared with 5 people on the Free plan and 200 on Pro. Everyone in the **Shared with** list counts, whether or not they have opened the link. Changing a role adds nobody.
+- You can share up to 60 times an hour.
+- You can't share a project with yourself.
+- A shared guest can't remove themselves from a project; ask an owner or admin to do it.
+
+### Read-only links
+
+The Share dialog can also make links for the project that open without an account, for reading only. Anyone who has one can read what it shows, so treat it like a public page.
+
+Under **Anyone with the link**, choose **Make a link**. A project can have five, each for an audience of its own: one that shows everything, for a co-author; one for players, showing the campaign as of the last session; one for patrons, a session ahead. **Add another link** makes the next one; name each in its box ("Name it: Players, Patrons") to tell them apart. A name can be up to 60 characters.
+
+| Control | What it does |
+| --- | --- |
+| The switch | Turns the link on and off. Switched off, the link stops working at once. Switched back on, the same link works again. |
+| **Copy** | Copies the address. |
+| **What it shows, and more** | Opens the link's settings, below. |
+| **How far readers can see** | **Everything, spoilers included**, or one of the project's [releases](/docs/canon/releases-and-reveals): then the link shows only what is revealed by that release, as an export at that [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) does. Needs releases in the project. |
+| **Only what's canon** | Only notes and passages you marked as canon. Drafts and alternative versions stay hidden. |
+| **List it in the public gallery** | Puts the link in the [public gallery](#the-public-gallery), for anyone on the internet to find, after asking. Off to begin with. |
+| **Let readers copy it** | Off at first. Switched on, readers get a **Copy this project** button. See [Letting readers copy it](#letting-readers-copy-it). Only on a link that shows everything. |
+| **Make a new link (old one stops working)** | Makes a new address, after asking. The old one stops working at once, for everyone who has it, so send the new one to the people you want to keep reading. |
+| **Remove link** | Deletes the link and its settings, after asking. Its address stops working for good. |
+
+#### A link as of a release
+
+A link that shows the project as of a release is the player-safe or reader-safe version of it, kept up to date as you write:
+
+- Notes revealed after that release, or never revealed, are left out, and so are links to them, which read as plain text. A folder that holds something revealed is listed, with only its title and what it holds.
+- Passages tagged for a later release, and [passages marked Never](/docs/canon/releases-and-reveals#passages-marked-never), are left out of the notes that are shown.
+- The page header says "As of *release*, read-only".
+- When the next session or book is out, choose the next release, and the same link shows that much more.
+
+#### What a visitor sees
+
+A visitor gets a plain reading page: the project's title, a note saying "Read-only. Made with Plotra" (or "As of *release*, read-only"), and **Sign up to write your own** (or **Copy this project**, when you let readers copy it). On a server that has said where reports go, there is also a **Report** link; see [Reports and takedowns](#reports-and-takedowns). A sun or moon button at the end of the header switches the page between **Light**, **Dark** and **System** (the device's own setting, which it follows at first); the choice is kept on that device. The front page shows the project's title and description, a **Start reading** link to the first note that isn't a folder or a board, and the top level of the binder. The binder is on the left (behind the menu button on a phone), and the selected note is on the right.
+
+| In the project | In the read-only link |
+| --- | --- |
+| Notes | Every note outside the trash, with its type, title, synopsis, tags and filled-in properties |
+| Text | Shown with its formatting. Scripts keep their layout. |
+| Links between notes | Work, and stay inside the link. A link to a note in the trash or in another project becomes plain text. |
+| Embedded notes | Shown as "Embedded:" and a link to the note |
+| Citations | Written out in the project's citation style |
+| Images uploaded into a note | Shown (PNG, JPEG, GIF, WebP and AVIF) |
+| Other files (PDFs, clipped pages, anything else attached) | Not served |
+| Canvases, timelines and dialogues | Listed, but each shows "This is a … board. Open the project in Plotra to see it." |
+| Comments, version history, activity, who is online | Not shown |
+| Pending [suggestions](/docs/collaboration/comments-and-suggestions#suggestions) | The marks are not shown, so the text appears as it stands: suggested additions and text suggested for deletion both read as ordinary text |
+| Views (outline, corkboard, graph and the rest), search | Not available |
+
+At the bottom of each note are **Previous** and **Next** links, in binder order, to the notes before and after it (folders and boards are skipped). The last note ends with a short note that the project was written in Plotra, and a link to start your own.
+
+A visitor can't edit, comment, export or see who else is reading.
+
+<Callout type="warn" title="A link for everything shows everything">
+A link set to **Everything, spoilers included** ignores the [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) and every reveal setting. Notes that are not yet revealed, passages tagged for a later release, and [passages marked "Never"](/docs/canon/releases-and-reveals#passages-marked-never) are all shown. Canon and reveal tags themselves are not displayed, so nothing tells the reader that a passage was meant to be hidden. For a version without spoilers, set the link to show the project [as of a release](#a-link-as-of-a-release).
+</Callout>
+
+Other things to know:
+
+- The pages ask search engines not to index them, and the address is long and random. It is still a secret only as long as nobody passes it on.
+- A link that is switched off and a link that never existed look the same to a visitor: a "not found" page.
+- An address that asks for more than 300 pages and images in a minute is shown "That's a lot in a short time" and has to wait a minute.
+- You can make, change, reset or remove links up to 60 times an hour.
+
+#### Reports and takedowns
+
+When the people who run the server have set an address for reports, every page of a read-only link has a **Report** link. It opens an email to them with the page's address filled in, so a reader can say what is wrong with it. On the hosted version that is the Plotra team; on a server you host yourself it is you, see [Reports and takedowns](/docs/self-hosting/running#reports-and-takedowns).
+
+If they take a link down, every read-only link of that project stops working, and it leaves the [public gallery](#the-public-gallery). In the Share dialog the links show as switched off. Switching one on, making a new one or resetting one is refused with "This project's public link was taken down after a report. Write to the people who run this server about it." A link that was taken down can't be removed.
+
+#### The public gallery
+
+**List it in the public gallery** puts the link on Plotra's gallery of worlds and stories, at `/worlds`, where anyone can browse what writers and game masters chose to share: the project's title, description and kind, the link's name and release, and when it was last changed. A link as of a release shows only that much there too. Switch it off and the link leaves the gallery at once; the link itself keeps working for people who have it.
+
+#### Letting readers copy it
+
+Switch on **Let readers copy it** and the reading page shows **Copy this project**. It's offered only on a link that shows everything: a copy holds the whole project, so a link as of a release, or for canon only, can't have it. It opens a page headed "Copy *project*", with the number of notes and the project's description, that says what a copy holds. Then:
+
+| The reader | Sees |
+| --- | --- |
+| Isn't signed in | **Sign up free to copy it** and **I have an account**. Either brings them back to this page. |
+| Has one workspace | **Copy into *workspace*** |
+| Has several | **Copy it into**, a list of their workspaces, and **Make my copy** |
+| Has no workspace yet | **Your first workspace, to keep it in**, a name for it, and **Make my copy** |
+
+**Back to reading** returns to the link. When the copy is made, it opens. If you switch **Let readers copy it** off while someone is on that page, they are told "Whoever shared this project hasn't let readers copy it. You can still read it."
+
+| In the project | In a reader's copy |
+| --- | --- |
+| Notes outside the trash, with their text, folders, properties and tags | Copied |
+| Pictures and files attached to those notes | Copied |
+| Story tools: kinds and their templates, world-bible types, calendars, releases, the plot grid, relationships, timelines, who knows what, setups and payoffs | Copied |
+| Translations, recording sheets and the term base | Copied |
+| Comments, version history, beta readers' questions, the trash | Not copied |
+| The shared world, if the project uses one | Not copied. Links into it stop working in the copy. |
+| Who the project is shared with, its read-only link, chat, activity | Not copied |
+| Marked as a template | Not copied: a copy is a project |
+
+The copy is the reader's own project. Nothing ties it to yours afterwards: what they change stays in their copy, and what you change doesn't reach it. Like every new project it counts against their workspace's limits. A person can make 10 copies an hour.

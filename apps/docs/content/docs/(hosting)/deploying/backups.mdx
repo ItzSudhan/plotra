@@ -1,0 +1,163 @@
+---
+title: Backups and restore
+description: What the nightly backup holds, how to rehearse a restore, and what to do when the database is lost.
+---
+
+Neon's free tier keeps about six hours of history. That covers "I ran the wrong query ten minutes ago", and nothing older. So the hosted version keeps its own backups: every night a GitHub Actions workflow dumps the whole database and stores it in an R2 bucket.
+
+## What is in a backup
+
+| | In the nightly dump | Where it lives otherwise |
+| --- | --- | --- |
+| Accounts, workspaces, projects, the binder | yes | |
+| The current text of every note | yes | also in the collab worker's storage, for notes that have been opened |
+| Comments, properties, links, canon, settings | yes | |
+| The list of versions and attachments | yes | |
+| The bytes of version snapshots and attachments | **no** | the app's R2 bucket (`versions/`, `attachments/`) |
+
+R2 stores objects redundantly, but nothing here keeps a second copy of that bucket. If it were emptied, the text of every note would survive and older versions and attached files would not.
+
+A dump holds everything in the database, including email addresses, password hashes and every manuscript. Keep the bucket private, and delete any copy you download once you are done with it.
+
+## How it runs
+
+- `.github/workflows/backup.yml` runs at 02:23 UTC every night, and whenever you start it by hand (`gh workflow run backup.yml`). It does nothing until the repository variable `BACKUP_BUCKET` exists. Two runs never overlap, and a run is stopped after 30 minutes.
+- It installs `pg_dump` at the version in `PG_MAJOR` (default 18) from PostgreSQL's own package repository, because the runner's own is usually older than the database.
+- It runs `scripts/backup.ts`, which calls `pg_dump` (custom format, compressed, without ownership), uploads the file as `backups/plotra-<date>T<time>Z.dump`, checks the upload's size, and only then deletes old dumps so that the newest 14 remain (`BACKUP_KEEP`).
+- If the dump fails or comes out smaller than 1 KB, nothing is uploaded and nothing is deleted, and the run fails. The same goes for an upload whose size in the bucket differs from the file's. A failed scheduled run emails whoever last edited the workflow.
+- Pruning only ever deletes objects under the prefix whose names match the pattern above. Anything else in the bucket is left alone.
+- The secrets and variables it needs are listed in [the deploy checklist](/docs/deploying#7-repository-secrets-and-variables).
+
+The script has three forms:
+
+| Command | What it does |
+| --- | --- |
+| `bun scripts/backup.ts` | Dump, upload, then delete old backups |
+| `bun scripts/backup.ts --list` | The backups in the bucket, newest first, with their sizes |
+| `bun scripts/backup.ts --download [key] [file]` | Fetch a backup for a restore: the newest by default, into the current directory under its own name |
+
+It reads these from the environment:
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `BACKUP_DATABASE_URL` | `DATABASE_URL` | The database to dump. Use the direct connection string, not the pooled one: `pg_dump` needs a session |
+| `S3_ENDPOINT` | none, required | The store's URL |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | none, required | Credentials for the bucket. The workflow fills them from the `BACKUP_S3_…` secrets |
+| `S3_REGION` | `us-east-1` | The region requests are signed for. R2 accepts the default |
+| `BACKUP_BUCKET` | `S3_BUCKET` | The bucket |
+| `BACKUP_KEEP` | `14` | How many dumps to keep. A whole number of at least 1 |
+| `BACKUP_PREFIX` | `backups/` | The key prefix. The workflow does not set it |
+| `PG_DUMP` | `pg_dump` | The `pg_dump` binary. Its major version must be the server's or newer. The workflow does not set it |
+
+Two ways it can stop without anyone touching it: GitHub switches scheduled workflows off after 60 days without a commit to a public repository, and `pg_dump` refuses to dump a database newer than itself, which happens when Neon moves to a new Postgres major version and `PG_MAJOR` hasn't followed. Look at the Actions tab now and then.
+
+## Rehearse a restore
+
+Do this once before anyone's work depends on the hosted version, and again after a Postgres major upgrade. It restores the latest backup into a scratch database next to the real one. It changes nothing in production.
+
+You need the Postgres client tools at the database's major version or newer (`pg_restore --version`), and Bun.
+
+**1. Make a fresh backup and download it.** Use the backup bucket's credentials:
+
+```bash
+gh workflow run backup.yml && gh run watch
+
+export S3_ENDPOINT=...             # https://<account ID>.r2.cloudflarestorage.com
+export S3_ACCESS_KEY_ID=...        # the backup token
+export S3_SECRET_ACCESS_KEY=...
+export BACKUP_BUCKET=plotra-backups
+
+bun scripts/backup.ts --list
+bun scripts/backup.ts --download   # the newest, into the current directory
+```
+
+**2. Check the file is a readable dump.**
+
+```bash
+pg_restore --list plotra-*.dump | head -40
+```
+
+It prints a table of contents: tables, indexes, policies. If it prints an error instead, the backup is bad. Stop here and find out why before anything else.
+
+**3. Create an empty database beside the real one.** In the Neon console: **Databases → New database**, named `restore_test`, in the same project and branch. A database in the same project already has the `plotra_app` role the dump refers to. Copy its **direct** connection string.
+
+```bash
+export RESTORE_URL="<direct connection string of restore_test>"
+```
+
+**4. Restore.**
+
+```bash
+pg_restore --no-owner --dbname="$RESTORE_URL" plotra-*.dump
+```
+
+It should finish without printing anything. If it ends with "errors ignored on restore", read each error above that line: an error about a role or a permission means the restored database would not work with the app.
+
+**5. Compare with production.** Run this against both databases (`psql "$RESTORE_URL"` and `psql "<production direct string>"`). The restored numbers should equal production's as of the backup:
+
+```sql
+select
+  (select count(*) from "user") as users,
+  (select count(*) from project) as projects,
+  (select count(*) from node) as notes,
+  (select coalesce(sum(word_count), 0) from node) as words,
+  (select count(*) from pg_policies) as policies,
+  has_table_privilege('plotra_app', 'node', 'select') as app_role_can_read;
+```
+
+`policies` must be more than zero and `app_role_can_read` must be `t`. Those two are the row-level security the app runs under; a restore that loses them produces an app where nobody can see their own work.
+
+**6. Open it in the app.** Numbers can match while the app still can't read the data. Run the app locally against the restored database:
+
+```bash
+cd apps/app
+DATABASE_URL="$RESTORE_URL" bun run dev
+```
+
+Start it from `apps/app` as shown, not with `bun dev:app` from the root: Turborepo doesn't pass `DATABASE_URL` through, and the app would quietly open your development database instead. To open a note in the editor, run the collab worker too (`bun run dev` in `apps/collab`, in a second terminal).
+
+Sign in with your production email and password and open a project you know. You should see the production projects, not your development ones, and your notes with their text. (An account that only ever signed in with Google has no password; use one that has. Version history and attachments open only if your local `.env.local` points at the production bucket, which this test doesn't need.)
+
+**7. Clean up.** Delete the `restore_test` database in the Neon console, delete the downloaded dump, and unset the variables.
+
+## When the database is lost or damaged
+
+First decide which restore you need.
+
+- **Something went wrong in the last few hours** (a bad migration, a wrong `delete`): use Neon's own point-in-time restore from its console. It is faster and loses less than a nightly dump.
+- **The damage is older than Neon's history, or the Neon project is gone:** restore the nightly dump, as follows.
+
+Anything written after the dump was taken is not in it. The collab worker narrows that gap for text, as step 5 explains.
+
+**1. Download the dump you want.** `bun scripts/backup.ts --list`, then `bun scripts/backup.ts --download <key>`, with the variables from the rehearsal. Pick the newest dump from before the damage.
+
+**2. Create the database to restore into.** Never restore over the damaged one: you may still need it.
+
+- A new database in the same Neon project already has the role the dump needs.
+- In a **new** Neon project, create that role first, as the project's owner:
+
+  ```sql
+  CREATE ROLE plotra_app NOLOGIN NOBYPASSRLS;
+  GRANT plotra_app TO CURRENT_USER;
+  ```
+
+**3. Restore, then bring the schema up to date.**
+
+```bash
+pg_restore --no-owner --dbname="$RESTORE_URL" plotra-<date>.dump
+DATABASE_URL="$RESTORE_URL" bun run db:migrate
+```
+
+The dump carries the list of migrations it was taken at, so `db:migrate` applies only the ones added since. Run the comparison query from the rehearsal and check `policies` and `app_role_can_read`.
+
+**4. Point the app at it.** Keep the same `BETTER_AUTH_SECRET` and `AI_KEY_SECRET`: sessions and saved AI keys in the restored database only work with the secrets they were made with. In the Vercel project for `apps/app`, set `DATABASE_URL` to the new database's **pooled** connection string and redeploy. Set the `BACKUP_DATABASE_URL` repository secret to its **direct** string, or tonight's backup dumps the old database.
+
+**5. Know what the collab worker does next.** The worker keeps its own copy of every document that has been opened, and that copy is as new as the last keystroke. When someone opens a note after the restore, the worker's copy is what they see, and it is written back to the database. So for notes that exist in the restored database, text typed after the backup comes back by itself.
+
+What does not come back: notes created after the backup (the restored database has no row for them, so the worker has nowhere to write), and everything that isn't document text, such as the binder's structure, comments, properties and sharing.
+
+The same behaviour means a restore can't be used to roll a document's text back: the worker's newer copy wins. For one document, use its version history instead.
+
+**6. Expect two loose ends.** People are signed out if their session was created after the backup. And a version or attachment that was deleted after the backup is listed again but its file is gone from R2; opening it says the snapshot is missing.
+
+**7. Tell people.** Say what was lost and from when.

@@ -1,0 +1,29 @@
+---
+title: Troubleshooting
+description: What the common errors of a self-hosted Plotra mean, and what to change.
+---
+
+Find what you see in the left column. Settings are described on [Configuration](/docs/self-hosting/configuration).
+
+| What you see | Likely cause |
+| --- | --- |
+| `required variable BETTER_AUTH_SECRET is missing a value` | No `docker/.env`, or the secrets were not generated |
+| `migrate` exits with an error about permissions or roles | The database role may not create roles. See [Using Neon or another Postgres](/docs/self-hosting/running#using-neon-or-another-postgres) |
+| The app exits with `DATABASE_DRIVER must be "neon" or "pg"` | `DATABASE_DRIVER` has another value. Empty it |
+| The editor stays on "Connecting…" | The browser cannot reach `NEXT_PUBLIC_COLLAB_URL`, or it changed and the app image was not rebuilt, or `BETTER_AUTH_URL` is not the address in the browser |
+| `collab` logs `Couldn't seed … 401` | `COLLAB_SECRET` differs between the app and the collab server. Both read it from `.env`: run `docker compose up -d` |
+| Signing in fails, or doesn't stick | `BETTER_AUTH_URL` is not the address in the browser: `https` against `http`, another host, or another port |
+| Creating a note does nothing | Plain HTTP on an address other than `localhost`. See the note under [Quick start](/docs/self-hosting#quick-start) |
+| `minio` keeps restarting | `S3_SECRET_ACCESS_KEY` is empty or shorter than 8 characters |
+| Settings → AI says the server isn't set up for personal AI keys | `AI_KEY_SECRET` is empty or shorter than 16 characters |
+| The agent says "The live document server couldn't be reached, so nothing was changed" | The app can't reach the collab server at `COLLAB_INTERNAL_URL`. With a collab server outside the stack, set it to empty |
+| Email fails with `Set EMAIL_FROM: the SMTP login isn't an email address` | Set `EMAIL_FROM` |
+| `/api/cron/digest` answers 404 | The app has no `CRON_SECRET`. See [The daily digest](/docs/self-hosting/configuration#the-daily-digest) |
+| An upload is refused with a 413 from the proxy | The proxy's request body limit is smaller than the file |
+| Uploads stop at 4 MB, or go through the app instead of straight to the store | The store's CORS rules don't allow the app's origin to `PUT`, or browsers can't reach the store's address. Files then go through the app. See [Files](/docs/self-hosting/configuration#files) |
+| "A project file can be up to … MB here." | The `.plotra` file is larger than the server takes: 1 GB, or what the proxy lets through |
+| Projects that kept a copy in GitHub stop syncing after a new `BETTER_AUTH_SECRET` | The GitHub tokens were sealed with the old secret. Enter each project's token again under **Project settings → GitHub** |
+
+To start over and delete all data: `docker compose down -v`.
+
+If your instance is stuck on something this page doesn't cover, ask on [the Plotra Discord](https://discord.gg/PxXr7Y4QrU). To report a bug or send a fix, see [CONTRIBUTING.md](https://github.com/ItzSudhan/plotra/blob/master/CONTRIBUTING.md).

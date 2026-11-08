@@ -1,0 +1,354 @@
+---
+title: Script formats
+description: "Write screenplays, stage plays, comic scripts and audio scripts: every element, what Tab and Enter do, character names, page layout, and Fountain in and out."
+---
+
+The **Script formats** module lets a note be written as a script instead of as prose. A script is made of elements: a scene heading, a line of action, a character's name, what they say. Each element is laid out where the format puts it, and `Enter` and `Tab` move between elements so your hands stay on the keys. The module also reads and writes Fountain, the plain-text screenplay format other screenwriting apps open.
+
+## Switching it on
+
+Script formats starts on in four [project types](/docs/reference/project-types): Screenplay / TV, Stage play, Comic / manga and Podcast / audio drama. In any other project, switch it on in [Project settings](/docs/settings/project#tools), under **Tools**. That takes the right to manage the project. See [Modules](/docs/modules#switching-a-module-on).
+
+The module adds no view. It adds:
+
+- the **format switcher** on every note you can edit;
+- two commands in **All commands**, "Import Fountain…" and "Export as Fountain".
+
+A note that is already written in a script format keeps its layout, its keys and its format switcher when the module is switched off.
+
+## The five formats
+
+| Format | What a page is made of |
+| --- | --- |
+| **Prose** | Paragraphs, headings and lists. The ordinary [editor](/docs/writing/editor). |
+| **Screenplay** | Scene headings, action, character, dialogue, transitions. |
+| **Stage play** | Acts and scenes, stage directions, character and dialogue. |
+| **Comic script** | Pages and panels with captions, dialogue and SFX. |
+| **Audio script** | Character lines with delivery notes, sound and music cues. |
+
+A format belongs to a note, not to the project. One project can hold screenplay scenes, a prose treatment and an audio script side by side.
+
+### The project's default format
+
+Each project has a format that new scenes start in. It follows the project type: Screenplay / TV projects use Screenplay, Stage play projects use Stage play, Comic / manga projects use Comic script, Podcast / audio drama projects use Audio script, and every other type uses Prose. Change it under **New scenes are written as** in [Project settings](/docs/settings/project#the-format-of-new-scenes).
+
+- Only new **scenes** take the default. A new chapter, note, character or any other type of note starts in Prose.
+- Changing the default does not change notes that already exist.
+- The default applies whether or not the module is on.
+
+A new scene in a script format opens on its first element, already in place: an empty scene heading, or in a comic script an empty page and its first panel.
+
+### The format switcher
+
+In the trail above a note's title there is a small button showing the note's format, for example **Screenplay**. Its tooltip reads "The format this note is written in". Click it and choose another format from the list.
+
+- It is shown when the module is on, and on any note already in a script format.
+- It is shown only when you can edit the note. Changing a note's format takes edit access to that note, and a note locked by a review stage can't be changed.
+- The change is saved with the note, so everyone sees the note in the new format.
+
+### What switching does to the text
+
+Nothing is rewritten. Switching changes the page layout and what `Enter` and `Tab` do, and leaves every line as the element it already was.
+
+- **Prose to a script format:** paragraphs are treated as action, and an empty paragraph becomes an action element as soon as you type in it. Headings, lists, tables and other blocks stay as they are. Use `Tab` on each line to say what it is.
+- **A script format to Prose:** the elements stay elements and keep a screenplay's indents, in your own typeface. `Enter` and `Tab` go back to their ordinary jobs, capitals are no longer typed for you, and the format's elements leave the `/` menu.
+- **One script format to another:** elements both formats share (character, dialogue, action) take the new layout and name. An element the new format does not have, such as a transition in a stage play, stays as it is; pressing `Tab` on it turns it into the first element of the new format.
+
+## Writing in a script
+
+![A screenplay scene in the editor: the scene heading, action, a character cue with a parenthetical and dialogue, set in Courier, with Screenplay in the format switcher](/shots/mod-scripts.webp)
+
+### The keys
+
+| Key | What it does |
+| --- | --- |
+| `Enter` at the end of an element | Starts the element that usually comes next. The tables below say which. |
+| `Enter` in the middle of an element | Splits it into two elements of the same kind. |
+| `Enter` in an empty element | Turns it into action. In a comic script an empty character turns into a panel, and an empty panel into a page. In empty action it starts a new line. |
+| `Tab` at the end of a character, a parenthetical or a line of dialogue you have written | Starts the next part of the speech on a new line: a parenthetical under a name or a line, a line of dialogue under a parenthetical. |
+| `Tab` anywhere else | Turns the line into another element, keeping its text. The tables below say which. |
+| `Shift+Tab` | Turns the line into another element, going the other way. |
+
+What `Tab` does follows Final Draft. On an empty line in a screenplay it goes action, character, transition, scene heading and back to action, and swaps dialogue and parenthetical. So pressing `Enter` after a line of dialogue gives an action line, and `Tab` there turns it into the next speaker's name.
+
+`Tab` and `Enter` behave this way on a line of script. Inside a list, a table or a callout they keep their ordinary jobs. With several elements selected, `Tab` does nothing.
+
+Three more things happen as you type:
+
+- **Capitals.** Scene headings, character names, transitions, shots, act headings, sound cues and music cues are typed in capitals whatever the state of your Caps Lock.
+- **Scene headings.** In a line of action, type `INT.`, `EXT.`, `EST.`, `INT./EXT.` or `I/E.` and a space, and the line becomes a scene heading. This works in screenplays, stage plays and audio scripts.
+- **Transitions.** In a screenplay, a line of action in capitals that ends in `TO:`, such as `CUT TO:`, becomes a transition.
+
+Tabbing to a parenthetical writes the brackets and puts the cursor between them. Tabbing away from an empty one takes them out again.
+
+Markdown shortcuts at the start of a line (`- `, `> `, `# ` and the rest) are switched off in a script, so a line of dialogue can open with a dash. To add a list, a heading, a table or an image to a script, use the `/` menu.
+
+### Other ways to set an element
+
+- **The `/` menu** lists the format's elements first, under **Script**, ahead of the ordinary blocks. Each can be found by other names: "slugline" finds Scene heading, "balloon" finds a comic's Dialogue.
+- **The toolbar** that appears when you select text has the block's type at its left. Its list starts with the format's elements.
+
+An empty element shows what it is in grey ("INT. LOCATION - DAY", "CHARACTER", "(parenthetical)"), so the shape of the page is visible before it is written.
+
+### Screenplay
+
+| Element | What it is | Layout | `Enter` starts | `Tab` turns it into | `Shift+Tab` |
+| --- | --- | --- | --- | --- | --- |
+| **Scene heading** | Where and when: `INT. KITCHEN - NIGHT`. | Capitals, bold, at the left margin. | Action | Action | Transition |
+| **Action** | What is seen and done. | Full width. | Action | Character | Shot |
+| **Character** | Who speaks. | Capitals, indented 2.2 inches. | Dialogue | Transition | Action |
+| **Parenthetical** | How the line is said. | In brackets, indented 1.6 inches, under the name. | Dialogue | Dialogue | Dialogue |
+| **Dialogue** | What is said. | A 3.5-inch column, indented 1 inch. | Action | Parenthetical | Character |
+| **Transition** | `CUT TO:` | Capitals, at the right margin. | Scene heading | Scene heading | Character |
+| **Shot** | `CLOSE ON` | Capitals, at the left margin. | Action | Action | Scene heading |
+
+### Stage play
+
+| Element | What it is | Layout | `Enter` starts | `Tab` turns it into | `Shift+Tab` |
+| --- | --- | --- | --- | --- | --- |
+| **Act heading** | `ACT ONE` | Capitals, centred, underlined. | Scene heading | Scene heading | Character |
+| **Scene heading** | `SCENE 1` | Capitals, centred, underlined. | Stage direction | Stage direction | Act heading |
+| **Stage direction** | What happens on stage. | Italic, set in from the left by 2.5 inches. | Stage direction | Character | Scene heading |
+| **Character** | Who speaks. | Capitals, centred. | Dialogue | Scene heading | Stage direction |
+| **Parenthetical** | How the line is said. | Italic, in brackets, indented 1 inch. | Dialogue | Dialogue | Dialogue |
+| **Dialogue** | What is said. | Full width. | Character | Parenthetical | Character |
+
+A play is mostly speech, so `Enter` after a line of dialogue starts the next speaker. A play has no transitions, so `Tab` on an empty character starts the next scene.
+
+### Comic script
+
+| Element | What it is | Layout | `Enter` starts | `Tab` turns it into | `Shift+Tab` |
+| --- | --- | --- | --- | --- | --- |
+| **Page** | A page of the finished comic. Its text is optional. | "PAGE 3" is written for you, bold and underlined. | Panel | Panel | Panel |
+| **Panel** | What the artist draws. | "PANEL 2." is written for you. | Character | Page | Page |
+| **Description** | More description for the artist. | Full width. | Character | Character | Sound effect |
+| **Caption** | A narration box. | Labelled "CAPTION:", indented. | Character | Sound effect | Character |
+| **Character** | Whose balloon it is. | Capitals, bold, indented. | Dialogue | Caption | Description |
+| **Dialogue** | The balloon's text. | Indented under the name. | Character | Character | Character |
+| **Sound effect** | A lettered sound. | Labelled "SFX:", capitals, bold, indented. | Character | Description | Caption |
+
+A comic has no parentheticals, so `Tab` at the end of a written name turns the line into a caption, like anywhere else.
+
+Pages and panels number themselves by position. Panels start again from one on each page. Move a page or delete a panel and the numbers after it change.
+
+`Enter` in an empty character line starts the next panel, and `Enter` in an empty panel starts the next page. So finishing a balloon and pressing `Enter` twice opens a new panel.
+
+### Audio script
+
+| Element | What it is | Layout | `Enter` starts | `Tab` turns it into | `Shift+Tab` |
+| --- | --- | --- | --- | --- | --- |
+| **Scene heading** | `SCENE 1. LOCATION` | Capitals, bold, underlined. | Direction | Direction | Music cue |
+| **Direction** | Narration or a note for the studio. | Full width. | Character | Character | Scene heading |
+| **Character** | Who speaks. | Capitals, bold, at the left margin. | Dialogue | Sound cue | Direction |
+| **Delivery note** | How the line is said. | Italic, in brackets, indented. | Dialogue | Dialogue | Dialogue |
+| **Dialogue** | What is said. | Indented 1.5 inches. Double-spaced on printed pages. | Character | Delivery note | Character |
+| **Sound cue** | A sound effect. | Labelled "SFX:", capitals, bold, underlined. | Character | Music cue | Character |
+| **Music cue** | Music in or out. | Labelled "MUSIC:", capitals, bold, underlined. | Character | Scene heading | Sound cue |
+
+As in a screenplay, `Tab` at the end of a written name or line starts a delivery note under it, and at the end of a written delivery note starts the line.
+
+The labels "PAGE", "PANEL", "CAPTION:", "SFX:" and "MUSIC:" are added by the layout. Do not type them.
+
+### Character names
+
+When the cursor is at the end of a character line, a small list of names opens under it. It holds up to eight names, in this order:
+
+1. Characters who have already spoken above this line. The first is whoever spoke before the last speaker, since in an exchange between two people that is usually who speaks next.
+2. Characters who speak further down the note.
+3. The project's character notes, by title and by alias, in alphabetical order.
+
+Typing narrows the list to names that start with what you typed, or that have a word starting with it.
+
+| Key | What it does |
+| --- | --- |
+| `↓` `↑` | Move through the list. |
+| `Enter` | Writes the highlighted name and starts the dialogue. |
+| `Tab` | Writes the highlighted name and stays on the line, so you can add `(V.O.)` or `(O.S.)`. |
+| `Esc` | Closes the list. |
+| A click | Writes that name and stays on the line. |
+
+A name is highlighted, and taken by `Enter` or `Tab`, once you have typed the start of it or moved to it with the arrows. A name you have typed out in full is left as written: with BOB and BOBBY both in the list, typing `BOB` and pressing `Enter` gives you BOB.
+
+Anything in brackets after a name, such as `(V.O.)`, `(O.S.)` or `(CONT'D)`, is not part of the name. `JANE (V.O.)` and `JANE` are the same character in the list, in the [breakdown](/docs/modules/production#script-breakdown) and on [recording sheets](/docs/modules/production#recording-sheets).
+
+### Dual dialogue
+
+Two characters speaking at once are set side by side: the first speech in the left column, the second in the right, each with its name, parentheticals and lines. Final Draft and Fountain call this dual dialogue.
+
+To set a speech beside the one before it, mark its character as dual:
+
+- **The `/` menu.** With the cursor anywhere in the second speech, choose **Dual dialogue** under **Script**. Choose it again to unmark the speech. On an empty line outside a speech it starts a new character name, already marked.
+- **`^`.** Type `^` at the end of a character name you have written, as in Fountain. The `^` is not added to the name; typing it again unmarks the speech.
+
+A name marked as dual shows a grey `^` after it while you write. The `^` is not part of the name and is never printed.
+
+A marked speech pairs with the speech straight above it. The two must follow each other with nothing in between, and each speech can be in one pair only: mark three speeches in a row and the third is laid out as usual. A marked speech with no speech above it is also laid out as usual. Turning a character line into another element takes its mark away.
+
+The pair stays two ordinary speeches in the note. Moving, deleting or retyping a line works as anywhere else, and the [breakdown](/docs/modules/production#script-breakdown) and [recording sheets](/docs/modules/production#recording-sheets) list both speeches.
+
+### The page
+
+A script is set in 12-point Courier on a text block six inches wide. In a narrow pane the indents shrink in proportion. The typeface, size, width and spacing you chose under [Customize](/docs/writing/editor#how-the-page-looks) do not apply to a script: it keeps its format's layout.
+
+### The outline and links
+
+Act headings, scene headings, comic pages and comic panels are the headings of a script. They build the note's outline in the inspector, and you can link to one: `[[Note#Heading]]`. A comic page is listed as "Page 3", or "Page 3: " and its text when it has some. A panel is listed as "Panel 2".
+
+Everything else in the editor works in a script as it does in prose: links, comments, suggestions, block tags, version history and word counts. See [The editor](/docs/writing/editor).
+
+### Writer's notes
+
+A Fountain note, written `[[like this]]` in the file, comes in as a writer's note: grey italic text between double square brackets. A writer's note shows while you write and is left out of the Read view's pages, of every export and of published files. "Export as Fountain" writes it back as a note.
+
+Writer's notes only arrive through a Fountain import. Typing `[[` in the editor starts a [link to a note](/docs/writing/links), not a writer's note.
+
+## Fountain
+
+[Fountain](https://fountain.io) is a plain-text format for screenplays. Final Draft, Highland, Fade In, Scrivener and others open it. Fountain is not in the import and export dialogs. It has two commands of its own in **All commands**, in the **Script** group, shown while the module is on. Neither has a shortcut to begin with; you can [give them one](/docs/reference/keyboard-shortcuts#changing-a-shortcut).
+
+### Import Fountain…
+
+1. Open **All commands** (`⌘P`) and run "Import Fountain…".
+2. Choose one file: `.fountain`, `.spmd` or `.txt`.
+
+Plotra creates, at the top level of the binder after everything already there:
+
+- **a folder** named after the script. The name is the title page's Title, or the file's name when there is none.
+- **a chapter** for each section (`#`), nested for `##` and `###`.
+- **a scene** for each scene heading, titled with the heading in capitals, in Screenplay format whatever the project's default is.
+
+The folder is selected in the binder, and a message says how many scenes came in: "Imported “The Long Night”: 42 scenes." The scenes can be read and searched at once.
+
+Importing takes edit access to the project.
+
+**What is read**
+
+| In the file | Becomes |
+| --- | --- |
+| Title page (`Title:`, `Credit:`, `Author:` or `Authors:`, `Source:`, `Notes:`, `Draft date:`, `Date:`, `Contact:` or `Contact info:`, `Copyright:`, `Revision:`, `Format:`) | Kept with the folder. See [The title page](#the-title-page). |
+| A scene heading (`INT.`, `EXT.`, `EST.`, `INT./EXT.`, `I/E`, or forced with a leading `.`) | A new scene, opening with that scene heading. |
+| A scene number, `#12#` | Kept with the heading and written back by "Export as Fountain". It is not shown on the page. |
+| Action, including action forced with `!` | Action. |
+| A name in capitals with speech under it, or forced with `@` | Character. |
+| `(in brackets)` inside a speech | Parenthetical. |
+| Speech | Dialogue. |
+| Capitals ending in `TO:`, or a line forced with `>` | Transition. |
+| `> centred text <` | Centred action. |
+| `===` | A divider, which is a page break in the Read view. |
+| `= synopsis` | The synopsis of the scene or section it follows. |
+| `*italic*`, `**bold**`, `***both***`, `_underline_` | Italic, bold, both, underline. |
+| `[[a note]]` | A [writer's note](#writers-notes). |
+| `~lyrics` | Lyrics, in italics: dialogue inside a speech, action outside one. |
+| A cue marked `^` (dual dialogue) | Character, marked as [dual dialogue](#dual-dialogue): its speech is set beside the one before. |
+
+Text before the first scene heading, such as `FADE IN:`, opens the first scene. A file with no scene headings at all becomes one scene named after the script.
+
+**What is lost or changed**
+
+- **The boneyard.** Text between `/*` and `*/` is left out.
+- **Deep sections.** `####` and deeper are treated as `###`.
+- **Other title page keys.** A key that is not in the list above is not read as a field of its own. Its line is added to the field above it.
+- A scene heading, a character name or a transition typed in lower case is stored in capitals.
+
+**Limits**
+
+| Limit | Value |
+| --- | --- |
+| Size of the file | 900,000 characters |
+| Notes created (folder, chapters and scenes together) | 1,500 |
+| A title | 200 characters; the rest is cut |
+| A synopsis | 2,000 characters; the rest is cut |
+
+A file over a limit is refused whole, with "That file is too large to import." or "That script has too many scenes to import in one go." Nothing is created. An empty file is refused with "That file is empty."
+
+### Export as Fountain
+
+Run "Export as Fountain" from **All commands**. A `.fountain` file named after the script is saved to your computer.
+
+**What is exported** depends on where you are:
+
+- with a note open, that note and everything inside it;
+- with no note open, the note selected in the binder and everything inside it;
+- with nothing open or selected, the whole project.
+
+So to export one act, select its folder and close or leave the notes you have open; to export the whole script, open or select the folder that holds it.
+
+From that part of the binder, the file takes every scene, every other note written in a script format, and the folders and chapters that hold them. Prose notes that are not scenes (characters, research, plain notes) are left out, and so is a folder with no script inside it. If nothing in the selection has any text, the message "There's nothing written here to export yet." appears and no file is saved.
+
+Anyone who can read the project can export. The file holds only the notes you can read.
+
+**How it is written**
+
+| In Plotra | In the file |
+| --- | --- |
+| The exported folder itself | Named on the title page. |
+| Folders and chapters inside it | Sections: `#`, `##` and deeper by depth, down to six levels. |
+| A synopsis | `= synopsis` under the section or the scene's heading. |
+| A scene with no scene heading of its own | Headed by its title in capitals. |
+| Scene heading, character, parenthetical, dialogue, transition | The same Fountain element, forced with `.`, `@` or `>` where Fountain would not recognise it. |
+| Action, and any prose paragraph, list item or table cell | Action, forced with `!` where Fountain would read it as something else. |
+| Shot | Action in capitals. |
+| Act heading, and Heading 1 | A `#` section. Heading 2 and Heading 3 are `##` and `###`. |
+| Comic page | A section: `# PAGE 3`, with its text after a colon. |
+| Comic panel | A section, `## PANEL 2`, with its description as action under it. |
+| Caption, sound effect, music cue | Action labelled `CAPTION:`, `SFX:` or `MUSIC:`. |
+| Divider | `===` |
+| Centred action | `> text <` |
+| Bold, italic, underline | `**bold**`, `*italic*`, `_underline_` |
+| A link to a note | The link's text. |
+| A writer's note | `[[a note]]` |
+| Lyrics | Each line starting with `~` |
+| A character marked as dual dialogue | The cue followed by `^` |
+
+**What is lost**
+
+- Fountain is a screenplay format. A stage play, a comic script or an audio script is written as the nearest screenplay elements, and importing the file again gives screenplay scenes, not the format you started with.
+- Dialogue or a parenthetical with no character above it is written as action.
+- Strikethrough, highlight, code, comments, block tags and breakdown tags are not written. Images are left out.
+- Scenes become one file. Importing it again creates new notes; it does not update the ones you exported.
+
+**Things to know**
+
+- The text is as last saved, not as it is on a screen where someone is typing this second.
+- At most 400 notes are read, in binder order.
+- The [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) is ignored: the file holds the whole script, including passages tagged for a later release or tagged "Never".
+
+### The title page
+
+A Fountain file's title page is stored on the folder the import creates, when it is no longer than about 4,000 characters. It is used in two places:
+
+- **"Export as Fountain"** writes it back as it was when you export that folder or anything inside it. If you have renamed the folder since, the Title is the new name.
+- **The Read view** prints Credit, Author, Source, Contact and Draft date on the title page of a script. See [The title page](/docs/views/planning#the-title-page).
+
+There is no form for editing these fields in Plotra. A script that was not imported is exported with two fields: Title, which is the name of what you exported, and Author, which is your name.
+
+## Printing and exporting a script
+
+- **Pages and PDF.** The [Read view](/docs/views/planning#read) lays a folder out as pages in the script's own layout, on US Letter or, if you chose it under **Paper** in [Customize](/docs/settings/customize#what-you-can-change) (**Opening and printing**), A4, with a title page, page numbers and page breaks, and prints or saves it as a PDF. It opens in a script format when more than half of the folder is written in one. A scene heading or a character name is never left alone at the foot of a page. In a screenplay, a speech that doesn't fit at the foot of a page is split between two sentences: the first part ends with "(MORE)" and the next page repeats the character's name with "(CONT'D)". This happens only when the name and at least two lines of the speech fit at the foot; otherwise the whole speech moves to the next page. A speech that is one long sentence is split between two words instead, and a speech longer than a page is split again at the foot of each page. [Dual dialogue](#dual-dialogue) is printed in two columns, as tall as the longer speech. A pair that doesn't fit at the foot of a page moves to the next page whole, unless it's longer than a whole page: then both columns are split at once, each between two sentences (or two words) with "(MORE)" under its first part, and carry on side by side on the next page under the character's name with "(CONT'D)". A column that has already ended leaves its side empty, and a pair longer than two pages is split again at the foot of each page. In a screenplay, a pair is also split this way when the names and at least two lines of each speech fit at the foot of the page. With the **Publishing** module on, the [Publish view](/docs/modules/publishing#manuscript-or-script-pdf) has a card that leads to the same pages.
+- **Final Draft.** The [Export](/docs/import-export/export#final-draft-fdx) dialog offers **Final Draft (.fdx)** when something in the project is written in a script format, whether or not the module is on. Each element becomes the matching Final Draft element, and dual dialogue stays dual dialogue. The file opens in Final Draft, Fade In, Highland, WriterDuet and Arc Studio. There is no Final Draft import: to bring an `.fdx` script in, save it as Fountain in the other app and use [Import Fountain…](#import-fountain).
+- **Word, rich text and plain text.** [Export](/docs/import-export/export#how-the-text-is-written) keeps script elements in a screenplay's columns, and sets the whole Word file in Courier when more than half of it is script. [Rich text (.rtf)](/docs/import-export/export#rich-text-rtf) keeps the same columns. In Word, dual dialogue is a two-column table with no borders that is kept on one page. Rich text, plain text and Markdown write the two speeches of a pair one after the other. Markdown writes each element as a plain paragraph, with capitals and labels written out.
+- **EPUB.** Script elements keep their layout in an [EPUB](/docs/modules/publishing#how-the-book-is-laid-out), dual dialogue in two columns.
+- **Read-only links and version history.** A note opened from a [read-only link](/docs/collaboration/sharing#read-only-links) and a [version](/docs/collaboration/version-history)'s preview show dual dialogue in two columns.
+
+The Read view's toolbar shows the number of pages and the word count. Plotra does not estimate a running time.
+
+## Who can do what
+
+| To | You need |
+| --- | --- |
+| Read a script | Read access to the note |
+| Write in a script, change a note's format | Edit access to the note |
+| Set the project's default format, switch the module on or off | The right to manage the project |
+| Import Fountain | Edit access to the project |
+| Export as Fountain, or as Final Draft | Read access |
+
+See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+## Related
+
+<Cards>
+  <Card title="Production" href="/docs/modules/production" description="Break a script down by scene, track which lines are recorded, and read shot lists off storyboards." />
+  <Card title="Planning views" href="/docs/views/planning#read" description="The Read view: script pages, title page and printing." />
+  <Card title="Import and export" href="/docs/import-export" description="Word, Markdown, plain text and PDF." />
+  <Card title="Publishing" href="/docs/modules/publishing" description="EPUB, script PDFs, a series bible and a public wiki." />
+</Cards>

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/ItzSudhan/plotra/security/advisories/new
+    about: Please report security problems privately, not in a public issue. See SECURITY.md.
+  - name: Chat on Discord
+    url: https://discord.gg/PxXr7Y4QrU
+    about: Ask a question or talk an idea through with other people using Plotra.
+  - name: Question, or an idea you want to talk through first
+    url: https://github.com/ItzSudhan/plotra/discussions
+    about: Ask in Discussions. Issues are for bugs and for feature requests that are ready to be decided.

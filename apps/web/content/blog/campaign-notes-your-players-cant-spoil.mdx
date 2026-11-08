@@ -1,0 +1,164 @@
+import gm from "./shots/campaign-gm-note.webp";
+import reeve from "./shots/campaign-reeve-gm.webp";
+import asof from "./shots/campaign-as-of-session-1.webp";
+import publish from "./shots/campaign-publish.webp";
+
+export const meta = {
+  title: "How to organize campaign notes your players can't spoil",
+  description: "How to organize campaign notes by session, mark what only the game master reads, and give your players a recap and a wiki that spoil no later twist.",
+  date: "2026-10-05",
+  updated: "2026-10-06",
+  tag: "Game masters",
+  art: "map",
+  faq: [
+    {
+      q: "What should campaign notes include?",
+      a: "A prep note for each session, and one page each for the player characters, the NPCs, the places, the factions, the secrets and the clues. Add a short log after every session of what the table learned and what it still wrongly believes.",
+    },
+    {
+      q: "Should I organize campaign notes by session or by topic?",
+      a: "Both. Keep prep and the record of play in one folder per session, and keep people, places and factions on their own pages outside those folders. The session folders tell you when something came out. The world pages tell you what is true.",
+    },
+    {
+      q: "How do I share campaign notes with players without spoilers?",
+      a: "Do not share your working notes. Mark each hidden paragraph when you write it, either as held until a later session or as never shown, then give the players a copy built from the unmarked parts only: a recap and a small wiki of the people and places they have met.",
+    },
+    {
+      q: "Can players see game master notes in a shared Plotra project?",
+      a: "Yes. Anyone a project is shared with can read every note, and the read-only link shows everything too, passages tagged Never included. Give players the wiki from the Publish view or an export made at a spoiler horizon.",
+    },
+  ],
+};
+
+Every game master keeps two versions of one world. The first is everything you know: who lit the fire, what is under the chapel, which friendly innkeeper is on the payroll. The second is what the table has learned so far. Most advice on how to organize campaign notes covers the first version only. The trouble starts where the two meet: a recap that names someone a session early.
+
+This post gives you a way to keep both versions in one set of notes, then shows how Plotra does it. The examples use a small invented campaign, "The Drowned Bell". Three ships have wrecked on the rocks off the harbor town of Harrowmere in one month. The truth: the harbormaster, Odile Vance, pays the lighthouse keeper, Tam Corrin, to douse the lamp when a rich cargo is due, and the Salvagers' Guild sells what washes up. The player characters are Brannoc, Isme and Pell.
+
+## Two versions of one world
+
+Every line in your notes has two properties: whether it is true, and whether the table knows it. That gives you three kinds of line.
+
+- **Known.** Odile Vance is the harbormaster, and she hired the party.
+- **True, but not known yet.** The lamp was dark on the night of each wreck. You plan for this to come out in session 3.
+- **For you only.** When cornered, Vance blames Corrin first. The players will never read this line. They will watch it happen.
+
+The third kind is easy to forget. It is not a secret waiting for its reveal. It is a running instruction, and it should never reach a handout.
+
+The common fix is two documents, a game master copy and a player copy. They drift apart, because every change has to be made twice. Keep one set of notes and mark each line instead.
+
+## Organize prep by session
+
+Give every session its own folder or section. The session is the unit of player knowledge: "what do they know" always means "as of which session".
+
+A prep note needs four parts. Here is session 2 of the example.
+
+- **Where we left off.** The party agreed to watch the lighthouse overnight.
+- **Likely scenes.** The lamp room. The Guild's auction on the quay. Corrin's cottage.
+- **What can come out.** The lamp log has a torn page. The Guild sold cargo from all three wrecks.
+- **For you only.** Corrin will lie about the log once, badly. If Pell presses him, he breaks.
+
+Keep the world itself outside the session folders. Vance is one page, wherever she appears, and each prep note links to her. After you play, put what happened in the same folder as the prep.
+
+## The pages a campaign needs
+
+One page per thing, linked to each other. Six kinds cover most campaigns.
+
+| Page | What goes on it | Example |
+| --- | --- | --- |
+| Player characters | Backstory hooks, what they want, what they owe | Isme owes the Salvagers' Guild forty crowns |
+| NPCs | What they want, how they talk, what they hide | Odile Vance, harbormaster |
+| Places | What is there, who is found there, what is hidden there | The lighthouse on the Teeth |
+| Factions | Goal, leader, where they are based | The Salvagers' Guild |
+| Secrets | The truth, in one sentence, and who knows it | Who douses the lamp |
+| Clues | What you planted, where, and where it pays off | A torn page in the lamp log |
+
+Give each secret a page of its own, so it can carry a list of who knows it and when they found out. It is a [story bible](/blog/how-to-write-a-story-bible) with one more column: the table.
+
+## Mark what is for your eyes only
+
+Mark paragraphs, not pages. An NPC's page is mostly public, with one or two lines that are not. Here is Vance's page.
+
+| Paragraph | Mark |
+| --- | --- |
+| Harbormaster of Harrowmere for eleven years. She hired the party to find out why ships are wrecking. | Known from session 1 |
+| She pays Tam Corrin to douse the lamp on nights a rich cargo is due. | Held until session 3 |
+| When cornered she blames Corrin first. If that fails, she bargains. | Never |
+
+In a plain document, a prefix does the job: `GM:` for never, `S3:` for held until session 3. Decide when you write the line, not when you are assembling a recap.
+
+Watch what sits outside the paragraphs. A page titled "Vance the wrecker" gives the game away in any index. Keep titles and one-line summaries safe to read aloud, and put the secret in a marked paragraph.
+
+## Record what each session revealed
+
+After each session, write a reveal log. It is the second version of the world, written down.
+
+| Session | The table learned | The table still believes |
+| --- | --- | --- |
+| 1 | Three wrecks in a month. Vance hired them. Corrin keeps the light. | The wrecks are bad weather and bad luck |
+| 2 | The lamp log has a torn page. The Guild sold cargo from all three wrecks. | Corrin is careless, not paid |
+| 3 (planned) | Vance pays Corrin to douse the lamp. | |
+
+Three rules keep the log useful.
+
+1. **Write the recap from the log, not from memory.** A recap of session 2 uses rows 1 and 2 and nothing else.
+2. **Record false beliefs.** If the table thinks Corrin is only careless, your recap must not correct them by accident.
+3. **Record who learned it.** If only Pell saw the torn page, that is Pell's knowledge until Pell's player shares it.
+
+Keep a clue list beside the log: what was planted, in which session, and where it pays off. Tracking who knows what is also how you [avoid plot holes](/blog/how-to-avoid-plot-holes), the kind where an NPC acts on something nobody told them.
+
+## How Plotra keeps both versions in one project
+
+In Plotra, a tabletop project starts close to this shape. Choose **A tabletop campaign** when you create it and it opens on "Session 1 prep", inside a "Session 1" folder, with folders for "Player characters", "NPCs" and "Places" and a release called "Session 1". The [game masters guide](/docs/for/game-masters) covers the setup.
+
+- **Sessions are releases.** After you play, open the Release roadmap, press **Release** and set **Ships** to that session's folder. Everything inside the folder is then revealed by that session, with no further tagging. Reveal an NPC's page in the session where the players first met them, from the **Story** tab of the inspector.
+- **Paragraphs carry the marks.** Put the cursor in a paragraph, press `⌘⌥T` and set **Revealed** to "Never (the audience isn't told)", or to a later session to hold it until then. See [block tags](/docs/canon/releases-and-reveals#block-tags).
+- **"World as of" is the reveal log.** Choose the last session under **World as of** in the roadmap toolbar. Notes the players haven't reached dim in the binder, game master lines blur in the text, and the Codex, graph and timeline leave out what is unknown. This is [the spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon). It is a way of looking, not a lock: a dimmed note still opens, and search still finds every note.
+- **Secrets & setups holds who knows what.** Track a secret, which characters know it, the scene where they learn it, and whether they hold the truth or a false version. The **Setups and payoffs** tab has a "Clue" kind, with where it was planted and where it pays off. See [who knows what](/docs/canon/secrets-and-continuity#who-knows-what).
+
+<Screenshot
+  src={gm}
+  alt="The scene Arrival at Carrow Ford. One paragraph beginning GM: has a bar down its side and the tag Never revealed."
+  caption="Session prep from the sample campaign. The paragraph that starts GM: is tagged Never revealed."
+/>
+
+The sample campaign, "Ashes at Carrow Ford", has three sessions as releases. The reeve's page is revealed in Session 1, the paragraph about his second ledger is tagged for Session 3, and the notes on how he behaves when cornered are tagged **Never**.
+
+<Screenshot
+  src={reeve}
+  alt="Reeve Aldous Thorne's page with the Story tab open. One passage is tagged Session 3: The Reeve's Dinner and one Never revealed, and both are listed under Tagged passages."
+  caption="The reeve's page as the game master sees it, with two tagged passages."
+/>
+
+<Screenshot
+  src={asof}
+  alt="The same page with World as of Session 1: Arrival switched on. Both tagged passages are blurred, and later sessions and the secrets folder are dimmed in the binder."
+  caption="The same page with World as of set to Session 1. The tagged passages blur and the notes the players haven't reached dim in the binder."
+/>
+
+<StartWriting />
+
+## What to hand the players between sessions
+
+Players need two things between sessions: a recap of last time, and a small wiki of the people and places they have met. Neither should be your working notes.
+
+In Plotra, the wiki comes from the **Publish** view, which needs the **Publishing** module switched on. Choose the last session under **As of** and press **Download .zip** on the wiki card. You get a folder of plain web pages: one for every revealed character, place and world entry, linked to each other, without the passages tagged for later or **Never**. For a recap or a handout, an export made at a spoiler horizon holds only the text revealed by that session.
+
+<Screenshot
+  src={publish}
+  alt="The Publish view with As of set to Session 2: Fire. Four cards: EPUB, Manuscript or script PDF, Series bible, and Public wiki with a Download .zip button."
+  caption="The Publish view with As of set to Session 2. The wiki card says how many pages would be published."
+/>
+
+Know the limits before you send anything.
+
+- **Sharing the project shows a player everything.** A viewer reads every note, and the spoiler horizon is their own setting, not yours.
+- **The read-only link ignores every reveal.** It shows unrevealed notes and passages tagged **Never**, with nothing to say they were meant to be hidden. See [a read-only link](/docs/collaboration/sharing#read-only-links).
+- **Plotra does not host the wiki.** It is a zip of static files, a copy from the moment you downloaded it. Upload it to any host that serves plain files, or send the folder as it is. After the next session, download it again and replace the files. See [putting it online](/docs/modules/publishing#putting-it-online).
+- **Titles, aliases, synopses and properties are published whole.** Reveal tags hide notes and passages, not fields.
+- **The wiki is empty until pages are Canon.** "Only canon pages and passages" starts ticked and every new note is Draft. Mark the pages as Canon in the **Story** tab, or untick the box. The full rules are under [which pages are published](/docs/modules/publishing#which-pages-are-published).
+
+The Free plan has every feature described here. See [pricing](/pricing).
+
+## Before your next session
+
+Start with the campaign you are running now, not a new one. Open your notes on the NPC the players trust most and mark every paragraph: known, held until a session, or never. Then write the reveal log for the sessions you have already played, one row each. Your next recap can then be written from the log, without checking each line for a twist.

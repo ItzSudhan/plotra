@@ -1,0 +1,226 @@
+---
+title: Roles and permissions
+description: "The full matrix: what a viewer, commenter, editor, workspace member, admin and owner can each do, and what a visitor with the read-only link sees."
+---
+
+Access in Plotra is set in two places and nowhere else: the workspace, and the project. This page lists what each role can do, checked against what the server allows. How to invite, share and change roles is on [Working together](/docs/collaboration) and [Your account and workspaces](/docs/settings/account).
+
+## The roles
+
+**Workspace roles** apply to every project in the workspace. They are given in the workspace's settings.
+
+| Role | Who it is for |
+| --- | --- |
+| **Owner** | Whoever created the workspace, and anyone an owner promotes. Runs everything, including the plan. |
+| **Admin** | Runs the workspace's people, projects and settings, but not its plan, and can't delete it. |
+| **Member** | Writes in every project. |
+
+**Project roles** apply to one project. They are given in that project's Share dialog, to any email address, in or outside the workspace.
+
+| Role | Who it is for |
+| --- | --- |
+| **Editor** | A co-writer or editor who should work in this project and see no other. |
+| **Commenter** | A beta reader. |
+| **Viewer** | Someone who only reads. |
+
+Someone who has a project role and isn't a member of the workspace is a **guest** there.
+
+There are no roles or permissions on single notes or folders. Everything in a project follows the project.
+
+## The five actions
+
+Every check the server makes comes down to one of five actions on a project.
+
+| Action | Means |
+| --- | --- |
+| **Read** | Open the project and everything in it |
+| **Comment** | Write comments, reply, resolve, react, answer questionnaires |
+| **Edit** | Change the text and the structure of the project |
+| **Delete** | Trash notes, restore them and delete them for good |
+| **Manage** | Change the project's settings and who can open it |
+
+Each role is a fixed set of them.
+
+| | Read | Comment | Edit | Delete | Manage |
+| --- | --- | --- | --- | --- | --- |
+| Viewer | Yes | | | | |
+| Commenter | Yes | Yes | | | |
+| Editor | Yes | Yes | Yes | Yes | |
+| Member | Yes | Yes | Yes | Yes | |
+| Admin | Yes | Yes | Yes | Yes | Yes |
+| Owner | Yes | Yes | Yes | Yes | Yes |
+
+So inside a project an editor and a workspace member can do the same things, and so can an admin and an owner. The differences between them are at the level of the workspace: see [The workspace](#the-workspace) below.
+
+### Someone with two roles
+
+A person can be a workspace member and also have a project role, for example a member the project was also shared with as a viewer. They get the actions of both, so whichever role lets them do more wins. A project role never takes anything away from a workspace member: sharing a project with a member as a viewer does not make it read-only for them.
+
+A workspace role can't be narrowed for one project. To keep someone out of a project, they must not be a member of its workspace; share the projects they should see with them one by one.
+
+## In a project
+
+In the tables below, **Viewer**, **Commenter** and **Editor** are project roles, and **Member**, **Admin** and **Owner** are workspace roles.
+
+### Reading
+
+| | Viewer | Commenter | Editor | Member | Admin | Owner |
+| --- | --- | --- | --- | --- | --- | --- |
+| Open the project and every note in it, unrevealed ones included | Yes | Yes | Yes | Yes | Yes | Yes |
+| Use every view, search, links, **Mentioned in** and hover previews | Yes | Yes | Yes | Yes | Yes | Yes |
+| See live changes, cursors and who is in the project | Yes | Yes | Yes | Yes | Yes | Yes |
+| See the trash | Yes | Yes | Yes | Yes | Yes | Yes |
+| Read comments and suggestions | Yes | Yes | Yes | Yes | Yes | Yes |
+| Read the project's chat and each note's chat | Yes | Yes | Yes | Yes | Yes | Yes |
+| Open and compare versions | Yes | Yes | Yes | Yes | Yes | Yes |
+| See the activity feed and the writing stats | Yes | Yes | Yes | Yes | Yes | Yes |
+| Open and download attached files | Yes | Yes | Yes | Yes | Yes | Yes |
+| Export and publish (files, e-book, wiki, PDF through the Read view) | Yes | Yes | Yes | Yes | Yes | Yes |
+| Set a spoiler horizon for their own view | Yes | Yes | Yes | Yes | Yes | Yes |
+| Save and switch their own layouts, arrange their own ribbon and inspector | Yes | Yes | Yes | Yes | Yes | Yes |
+
+A viewer reads everything and can take it away as an export. Share a project as viewer only with people you would hand the file to.
+
+### Commenting
+
+| | Viewer | Commenter | Editor | Member | Admin | Owner |
+| --- | --- | --- | --- | --- | --- | --- |
+| Start a comment thread, reply | | Yes | Yes | Yes | Yes | Yes |
+| Resolve and reopen any thread | | Yes | Yes | Yes | Yes | Yes |
+| Edit their own comment | | Yes | Yes | Yes | Yes | Yes |
+| Delete their own comment | | Yes | Yes | Yes | Yes | Yes |
+| Delete someone else's comment | | | | | Yes | Yes |
+| Write in the chat, and delete their own messages | | Yes | Yes | Yes | Yes | Yes |
+| Delete someone else's chat message | | | | | Yes | Yes |
+| Leave a one-click reaction (Review & editorial) | | Yes | Yes | Yes | Yes | Yes |
+| Answer a beta-reader questionnaire (Review & editorial) | | Yes | Yes | Yes | Yes | Yes |
+| Set the status and note of a line on a recording sheet (Production) | | Yes | Yes | Yes | Yes | Yes |
+| Be mentioned with `@` in a comment | Yes | Yes | Yes | Yes | Yes | Yes |
+| Be named a required reviewer, and approve or ask for changes (Review & editorial) | | | | Yes | Yes | Yes |
+
+Anyone the project is shared with who has accepted can be mentioned, guests included; the list marks them **Guest**. Required reviewers go by the workspace's member list, so a guest can't be named a reviewer, whatever their project role.
+
+### Writing
+
+| | Viewer | Commenter | Editor | Member | Admin | Owner |
+| --- | --- | --- | --- | --- | --- | --- |
+| Write and change text, titles, synopses | | | Yes | Yes | Yes | Yes |
+| Create, rename, move and duplicate notes; change a note's type, status, label, tags and properties | | | Yes | Yes | Yes | Yes |
+| Move a note to the trash, restore it, delete it for good, empty the trash | | | Yes | Yes | Yes | Yes |
+| Import files, upload attachments, clip web pages | | | Yes | Yes | Yes | Yes |
+| Delete an attached file | | | Yes | Yes | Yes | Yes |
+| Use suggesting mode | | | Yes | Yes | Yes | Yes |
+| Accept and reject suggestions | | | Yes | Yes | Yes | Yes |
+| Save, name and restore versions | | | Yes | Yes | Yes | Yes |
+| Delete a version they saved | | | Yes | Yes | Yes | Yes |
+| Delete someone else's version, named or automatic | | | | | Yes | Yes |
+| Edit canvases, timelines and dialogues | | | Yes | Yes | Yes | Yes |
+| Plot threads, plot grid cells, relationships, calendars, beat sheets | | | Yes | Yes | Yes | Yes |
+| World bible types, canon status, releases, reveals, block tags, who knows what, setups and payoffs | | | Yes | Yes | Yes | Yes |
+| Define the properties of a type of note, and the project's own note types | | | Yes | Yes | Yes | Yes |
+| Translations, glossary terms and strings (Localization, Interactive narrative) | | | Yes | Yes | Yes | Yes |
+| Create, open, close and delete questionnaires, and read their results | | | Yes | Yes | Yes | Yes |
+| Send a note for review, or withdraw the request | | | Yes | Yes | Yes | Yes |
+| Use the AI agent, where AI is switched on | | | Yes | Yes | Yes | Yes |
+
+Two exceptions:
+
+- **A locked note.** A note in a locked stage can only be changed by its approvers and by admins and owners. For every other editor it becomes read-only, though they can still comment. See [Review and editorial](/docs/modules/editorial).
+- **Menus that look available.** A few items aren't greyed out for people who can't use them, such as **Duplicate** in the binder for a viewer. The server refuses the action and nothing changes.
+
+### Project settings
+
+| | Viewer | Commenter | Editor | Member | Admin | Owner |
+| --- | --- | --- | --- | --- | --- | --- |
+| Word target for the project | | | Yes | Yes | Yes | Yes |
+| Reveal channels, languages, citation style | | | Yes | Yes | Yes | Yes |
+| Title, logline, project type | | | | | Yes | Yes |
+| Tools on and off, including the project's AI switch | | | | | Yes | Yes |
+| Workflow stages, statuses and labels | | | | | Yes | Yes |
+| Script format, the project's own names for things (**Rename things**) | | | | | Yes | Yes |
+| Mark the project as a template | | | | | Yes | Yes |
+| Link the project to a shared world | | | | | Yes | Yes |
+| Review rules and required reviewers (Review & editorial) | | | | | Yes | Yes |
+| Approve a note in place of its reviewers (Review & editorial) | | | | | Yes | Yes |
+| Cut a release (Review & editorial) | | | | | Yes | Yes |
+| Webhooks, and a copy kept in GitHub | | | | | Yes | Yes |
+| Delete the project | | | | | Yes | Yes |
+
+What each setting does is on [Project settings](/docs/settings/project).
+
+### Sharing
+
+| | Viewer | Commenter | Editor | Member | Admin | Owner |
+| --- | --- | --- | --- | --- | --- | --- |
+| Open the Share dialog and see who has access | | | | | Yes | Yes |
+| Share the project by email, change a role, remove someone | | | | | Yes | Yes |
+| Switch the read-only link on or off, copy it, reset it | | | | | Yes | Yes |
+
+A project editor can't share the project, and neither can an ordinary member of the workspace.
+
+## The workspace
+
+A guest has no workspace role, so nothing in this table applies to them: they can't open the workspace's home page at all.
+
+| | Guest | Member | Admin | Owner |
+| --- | --- | --- | --- | --- |
+| See the workspace's home page and open every project in it | | Yes | Yes | Yes |
+| Create a project, from scratch, from a template or from a sample | | Yes | Yes | Yes |
+| Open the workspace's settings, and see its General tab and member list | | Yes | Yes | Yes |
+| Rename the workspace or change its web address | | | Yes | Yes |
+| Leave the workspace | | Yes | Yes | Yes |
+| See open invitations | | | Yes | Yes |
+| Invite people as member or admin, cancel an invitation | | | Yes | Yes |
+| Change a role between member and admin | | | Yes | Yes |
+| Remove a member or an admin | | | Yes | Yes |
+| Make someone an owner; change or remove an owner | | | | Yes |
+| Switch AI on or off for the workspace | | | | Yes |
+| See the plan and what the workspace uses | | | Yes | Yes |
+| Upgrade, cancel, open **Manage billing** | | | | Yes |
+| Delete the workspace | | | | Yes |
+
+Things that apply to everyone with a role in the workspace:
+
+- Nobody can change their own role or remove themselves. To go, [leave the workspace](/docs/settings/account#general); the only owner can't leave.
+- Removing someone from the workspace also removes every project in it that was shared with them directly.
+- Deleting a project is for admins and owners, under **Project settings → General**.
+
+Anyone with an account can create a workspace of their own and is its owner, whatever roles they hold elsewhere.
+
+## A visitor with the read-only link
+
+A project's [read-only link](/docs/collaboration/sharing#read-only-links) needs no account, so a visitor has no role. Whoever holds the link, signed in or not, gets the same page.
+
+| | Visitor with the link |
+| --- | --- |
+| Read every note outside the trash, with its title, synopsis, tags and properties | Yes |
+| Read notes that are not yet revealed, and passages tagged for a later release or "Never" | Yes. The link ignores the spoiler horizon. |
+| Follow links between notes | Yes |
+| See attached images that were inserted into notes | Yes |
+| Open other attached files (PDFs, clipped pages) | No |
+| See canvases, timelines and dialogues | No. They are listed, with a note to open the project in Plotra. |
+| See the trash | No |
+| See comments, suggestion marks, versions, activity, or who is online | No |
+| Use views, search, or the spoiler horizon | No |
+| Comment, edit or export | No |
+| Use the link after it is switched off or reset | No |
+
+Only admins and owners can create the link, and it is off until one of them switches it on.
+
+## When access changes
+
+| Change | When it takes effect |
+| --- | --- |
+| A project role is changed or removed | On the person's next request. A note they have open stops receiving and sending live changes within ten minutes. |
+| A member is removed from the workspace | The same. |
+| The read-only link is switched off or reset | At once. Nothing is cached. |
+| Someone is promoted | When they next load the project. |
+
+## Limits on how many people
+
+| | Free | Pro | Self-hosted |
+| --- | --- | --- | --- |
+| Workspace members, counting the owner and open invitations | 3 | 25 | No limit |
+| People one project can be shared with | 5 | 200 | 200 |
+
+See [Plans and billing](/docs/settings/plans) and [Limits](/docs/settings/limits).

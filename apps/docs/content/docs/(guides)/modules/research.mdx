@@ -1,0 +1,395 @@
+---
+title: Research and sources
+description: "Keep your sources beside the text: research notes with bibliography details, citations in three styles, clipped web pages, attached files, and a fact-check status for each claim."
+---
+
+If your writing rests on facts, you need to know where each one came from. The **Research & sources** module turns research notes into sources you can cite: each one holds the details of a work, the editor cites it in APA, MLA or Chicago, exports add the reference list, and any passage can be marked as a claim to check against a source.
+
+## What the module adds
+
+| Where | What |
+| --- | --- |
+| The ribbon, under **More** | The **Sources** view. **All commands** has "Open sources". |
+| The editor | **Citation** in the block menu (`/`). |
+| The "Tag block" dialog (`⌘⌥T`) | A **Fact-check** status and a **Source** for the block. |
+| The inspector | The **Story** tab, with the note's **Tagged passages**. |
+
+Someone who manages the project switches it on in **Project settings → Tools**. A non-fiction project starts with it on. See [Modules](/docs/modules#switching-a-module-on).
+
+Research notes themselves need no module: **Research** is one of the types of note in the binder's **New** menu in every project, and a section of the [Codex](/docs/views). The module is what reads them as sources.
+
+Typing `[@` in the editor also needs no module: it opens the source picker in every project. The module adds the **Citation** entry in the block menu, the Sources view and the fact-check tags.
+
+### When the module is off
+
+Switching the module off hides the Sources view, the **Citation** entry in the block menu and the **Fact-check** part of "Tag block". Nothing is deleted:
+
+- citations already in your notes stay, and are still shown in the project's style;
+- typing `[@` still cites a source;
+- research notes keep their details and files;
+- claims keep their status and source, ready for when the module is back on.
+
+See [Switching a module off](/docs/modules#switching-a-module-off).
+
+## Who may do what
+
+| Action | Who |
+| --- | --- |
+| Open the Sources view, read references, open and download files, export the bibliography | Everyone in the project |
+| Add a source, fill in its details, clip a web page | Anyone who can edit the project |
+| Cite a source, set the page of a citation | Anyone who can edit the note being written |
+| Attach or remove a file | Anyone who can edit the source |
+| Mark a claim, change its status or its source | Anyone who can edit the note the claim is in |
+| Change the citation style | Anyone who can edit the project |
+
+## Research notes are sources
+
+A source is a research note. Its **title is the title of the work**, its properties hold the rest of the reference, and its page is yours for a summary and notes. A new research note starts with two headings, "Summary" and "Notes".
+
+Every research note that is not in the trash is a source. There is no separate list to keep in step.
+
+Because a source is a note, everything a note can do applies: link to it with `[[`, tag it, comment on it, give it a status, find it in search. See [The binder](/docs/writing/binder).
+
+## The Sources view
+
+Open **Sources** from **More** in the ribbon, or run "Open sources". The view has two tabs, **Sources** and **Claims**, each with its count.
+
+![The Sources view: three sources listed as APA references, sorted by author, each marked Not cited](/shots/mod-sources.webp)
+
+### The toolbar
+
+| Control | What it does |
+| --- | --- |
+| **Search author, title, year** | Narrows the list (on the **Sources** tab only, like **Sort**). Every word you type must match the title, an author, the year, **Published in** or the publisher. |
+| **Sort** | **Author** (the order of a bibliography), **Year** (newest first) or **Title** (ignoring a leading "The", "A" or "An"). |
+| **Style** | **APA**, **MLA** or **Chicago**. This is the project's citation style: changing it changes every citation and reference for everyone. Greyed out if you can't edit the project. See [Citation styles](#citation-styles). |
+| **New source** | Adds a research note called "Untitled source" and opens its details. Only shown if you can edit the project. |
+| **Clip a web page** | See [Clipping a web page](#clipping-a-web-page). Only shown if you can edit the project. |
+| **Bibliography** | Downloads the list. See [The bibliography](#the-bibliography). |
+
+### The list
+
+Each source is shown as its full reference in the project's style. Under it:
+
+| Shown | Meaning |
+| --- | --- |
+| The type | Book, Article, Chapter, Website, Report, Interview or Film; "Source" for Other. |
+| "Cited 3× in 2 notes" or "Not cited" | How often notes link to this source. A citation is a link, and a `[[` link to the source counts as well. |
+| A paperclip and a number | How many files are attached. |
+| **Fact-checked** | The source's **Fact-checked** box is ticked. |
+| "Missing authors, year" | Details a complete reference of this type needs and the note doesn't have yet. |
+
+The foot of the list gives the total and how many sources are not cited. While you search it reads "3 of 12 sources".
+
+With no research notes the view says "No sources yet" and offers **New source**.
+
+### One source
+
+Click a source to open its details beside the list; click it again, or **Close**, to shut them. If a research note is the note you have open when you open the Sources view, it is selected for you.
+
+![A source open beside the list: its formatted reference, Copy reference and Copy BibTeX, and its details from type and authors to DOI](/shots/mod-sources-detail.webp)
+
+| Part | What it holds |
+| --- | --- |
+| The title | Click to rename. This is the title of the work. |
+| **Open the note** | Opens the research note in a tab (`⌘`-click for a pane to the right). |
+| The reference | As it will appear in a bibliography. Web addresses in it are links. |
+| **Copy reference**, **Copy BibTeX** | Puts the reference as text, or its BibTeX entry, on the clipboard. |
+| **Details** | The bibliography fields. See [Adding a source](#adding-a-source). |
+| **Cited in** | Each note that cites or links to the source, with the sentence around it. Click one to open it (`⌘`-click for a pane to the right). With none: "Not cited yet. Type [@ in a note to cite it." |
+| **Files** | See [Attachments and files](#attachments-and-files). |
+| **Claims resting on it** | The claims that name this source, each with its status buttons. With none: "No claim names this source yet." |
+
+## Adding a source
+
+There are four ways:
+
+- **New source** in the Sources view.
+- **New… → Research** in the binder, or the command "New research" in **All commands**.
+- Typing a title that doesn't exist yet in the citation picker and choosing **New source "title"**. See [Citing a source](#citing-a-source).
+- [Clipping a web page](#clipping-a-web-page), which fills the details in for you.
+
+A source made with **New source** or by clipping goes into a folder called "Research", "Sources", "References" or "Bibliography" (any capitals) if the project has one you can edit. Otherwise a clipped source goes at the top level of the binder, and a new one goes where any new note goes (into the folder selected in the binder, or beside the note you have open). A source made from the citation picker always goes where any new note goes.
+
+### The fields
+
+Fill them in under **Details** in the Sources view, or in the **Properties** of the research note in the inspector. They are the same properties.
+
+| Field | What to enter | Notes |
+| --- | --- | --- |
+| The note's title | The title of the work. | |
+| **Type** | Book, Article, Chapter, Website, Report, Interview, Film or Other. | The type decides the shape of the reference: what is italic, what is in quotation marks, which fields are printed. |
+| **Authors** | "Last, First; Last, First". | See below. For a film, the director. |
+| **Published in** | The journal, the book a chapter is in, or the website's name. | |
+| **Publisher** | The publisher; for a report, the institution. | |
+| **Year** | A year, or a fuller date. | "2019", "2019-03", "2019-03-04", "March 4, 2019" and "4 March 2019" are read as dates. Anything else is printed as you wrote it: "forthcoming", "c. 1850". Empty prints "n.d." |
+| **Volume (issue)** | "12(3)". | "12, no. 3", "12:3" and plain "12" also work. |
+| **Pages** | "44-46". | A hyphen between page numbers is printed as an en dash. |
+| **URL** | The web address. | Used only if it starts with `http://` or `https://`. |
+| **Accessed** | The date you read the page. | Printed for websites in MLA, and in Chicago when the page's own date has no month. |
+| **DOI / ISBN** | Either one. | A DOI is printed as a `https://doi.org/…` link in place of the URL. An ISBN is kept for BibTeX. |
+| **Fact-checked** | A tick. | Your own mark that you have checked this source. It shows as **Fact-checked** in the list and changes nothing else. |
+
+**Authors.** Separate people with a semicolon and write each as "Last, First": `Okafor, Ngozi A.; Lee, Min`. Plotra also understands "First Last", and names joined by "and" or "&". For an organisation, put the name in braces so it is printed as written and not split into first and last: `{World Health Organization}`. A single word, a name of five or more words, and names containing words such as "University", "Institute" or "Press" are treated as organisations without the braces.
+
+**Missing details.** Every type asks for authors (a film: a director) and a year. Beyond that:
+
+| Type | Also needs |
+| --- | --- |
+| Book, Report | Publisher |
+| Article | Published in (shown as "journal") |
+| Chapter | Published in (shown as "book title") and Publisher |
+| Website | URL |
+
+A source with details missing still cites and still exports. The warning is there so you can fix it before the bibliography goes out.
+
+### If the fields aren't there
+
+- A project that had research notes before the module was switched on gets the fields the first time someone who can edit opens the Sources view.
+- The fields are ordinary properties of the Research note type. If someone removes them, **Details** shows what is left, or "Research notes have no properties in this project."
+- A research note with no **Type** and only a URL is read as a website.
+
+## Citations in the editor
+
+### Citing a source
+
+1. In any note, type `[@`. Or type `/` and choose **Citation**.
+2. Type a few letters of an author's name, the title, the year or the journal. The list shows up to 12 matching sources, each with how it will be cited.
+3. Press `↵` on the one you want.
+4. A small card opens under the new citation with the box **Page or section** ready. Type "p. 44" or "chap. 3" and press `↵`, or press `Esc` to leave it empty.
+
+![Typing the citation shortcut and Lev in a scene opens Cite a source, offering Shakespeare's Italy by Levith, 1989, or a new source called Lev](/shots/mod-research-cite.webp)
+
+To set the page while you pick, type it after a `|`: `[@okafor|p. 44`.
+
+If no source matches, the list says "No matching source" (or, in a project with no sources, "No sources yet: type a title to add one"), and the last item is **New source "what you typed"**. It creates a research note with that title and cites it; fill in its details later. The item is not offered when a source has exactly that title.
+
+The citation appears in the project's style, for example "(Okafor, 2019, p. 44)". It stores the source, not the text, so it follows the source: correct the year on the source and every citation of it changes.
+
+### Working with a citation
+
+| Do this | And |
+| --- | --- |
+| Hover over it | A card shows the full reference, any missing details, the **Page or section** box (if you can edit the note) and **Open source**. |
+| Click it | The source opens in the current tab. `⌘`-click opens a new tab, `⌘⌥`-click a pane to the right. |
+| Change **Page or section** | Up to 80 characters. `↵` saves, `Esc` cancels; clicking away saves too. Empty it to remove the page. |
+| Delete it | Like any character: put the cursor after it and press `⌫`. |
+
+A page given as a number or a range ("44", "44-46", "p. 44") is printed as a page in the style's way. Anything else ("chap. 3", "table 2") is printed as written.
+
+If the source is in the trash the citation reads "(source unavailable)", struck through, until the source is restored. It reads the same, without the line, when the source has been deleted for good.
+
+### Citation styles
+
+A project has one citation style. Everyone sees citations and references in it.
+
+| Style | Edition | In the text | The list is headed |
+| --- | --- | --- | --- |
+| **APA** | 7th | (Okafor, 2019, p. 44) | References |
+| **MLA** | 9th | (Okafor 44) | Works Cited |
+| **Chicago** | 17th, author-date | (Okafor 2019, 44) | Reference List |
+
+APA is the default. Change the style with **Style** in the Sources view, or in **Project settings → Reveals and languages → Citation style**. See [Project settings](/docs/settings/project#reveals-and-languages). Nothing is rewritten in your notes: citations are formatted when they are shown, so switching style and switching back loses nothing.
+
+How names are shortened in the text:
+
+| Authors | APA | MLA | Chicago |
+| --- | --- | --- | --- |
+| One | Okafor | Okafor | Okafor |
+| Two | Okafor & Lee | Okafor and Lee | Okafor and Lee |
+| Three | Okafor et al. | Okafor et al. | Okafor, Lee, and Diaz |
+| Four or more | Okafor et al. | Okafor et al. | Okafor et al. |
+| None | The first four words of the title | The same | The same |
+
+When two sources have the same authors and the same year, APA and Chicago tell them apart with a letter, in order of title: 2019a, 2019b. The letters appear in the editor, the Sources view and the reference lists.
+
+### The bibliography
+
+The Sources view is the bibliography: every source as a reference, in the project's style, sorted by author.
+
+**Bibliography** in the toolbar downloads it:
+
+| Choice | You get |
+| --- | --- |
+| **Markdown (.md)** | A heading in the style's wording, then one reference per paragraph, with titles in italics. |
+| **Plain text (.txt)** | The same without formatting. |
+| **BibTeX (.bib)** | One entry per source, for LaTeX and reference managers. Keys look like `okafor2019rivers`: first author, year, first telling word of the title. |
+| **Only cited sources** | Tick it to leave out sources no note links to. |
+
+The file is named after the project: `my-project-bibliography.md`. With nothing to put in it, Plotra says "There are no sources to export.", or "No source is cited yet." when **Only cited sources** is ticked. The order is by first author, then year, then title; a source with no author files under its title.
+
+There is no bibliography block to place inside a note. A reference list is added for you when you export; see below.
+
+## Clipping a web page
+
+Clipping saves a page's text as a research note, with the details the page gives about itself already filled in.
+
+1. In the Sources view, press **Clip a web page**.
+2. Paste the address. An address without `https://` gets it added.
+3. Press **Clip**.
+
+The new source is selected in the list, and Plotra says "Clipped *title*."
+
+### What a clip holds
+
+| In the note | From the page |
+| --- | --- |
+| Title | The page's title, without the site name tacked on the end ("Headline \| Site"), up to 200 characters. A page with no title is named after its site, or "Clipped page". |
+| Synopsis | The page's description. |
+| **Type** | Article if the page names a journal, otherwise Website. |
+| **Authors**, **Published in**, **Publisher**, **Year**, **Volume (issue)**, **Pages**, **DOI / ISBN** | Whatever the page declares. Scholarly pages usually declare all of them; a blog may give only an author and a date. |
+| **URL** | The page's own preferred address, when it gives one on the same site. |
+| **Accessed** | Today. |
+| The text | A first line, "Clipped from *site* on *date*.", then the page's headings, paragraphs, lists, quotations and pictures. |
+
+The text is the readable part of the page: menus, headers, footers, sidebars and forms are dropped, and where the page marks its article, only the article is kept. It comes in as plain text. Pictures stay where they were in the text, up to 40 of them, and are shown from the page's own site: Plotra doesn't keep a copy, so a picture the site removes later disappears from the clip too. Links inside the text, tables and bold or italic are not kept.
+
+Check the details after clipping. They are only as good as what the page says about itself.
+
+### Limits
+
+- Only pages on the public web, over `http` or `https`, on the standard ports. Addresses with a username or password, addresses on a private network and names such as `localhost` are refused: "That address isn't on the public web, so it can't be clipped."
+- The page must be a web page or a plain-text file. For a PDF or an image: "That link isn't a web page. Download the file and attach it to a source instead."
+- A page behind a sign-in can't be clipped. Plotra fetches the page itself, without your browser's sign-in.
+- Plotra reads the page as the site sends it and does not run its scripts. A page that builds its text in the browser may come out empty or nearly so.
+- The page has 10 seconds to answer, and may redirect three times.
+- The first 2 MB of the page are read, and a clip holds up to 600 blocks or about 120,000 characters. A longer page ends with "The page was longer than a clip can hold; the rest is at the source."
+- You can clip 60 pages an hour.
+
+When a clip fails, Plotra says why:
+
+| Message | Why |
+| --- | --- |
+| "That doesn't look like a web address." | The address can't be read, or is longer than 2,000 characters. |
+| "Only http and https pages can be clipped." | Another kind of address, such as `ftp:` or `file:`. |
+| "Addresses with a username or password can't be clipped." | The address has `name:password@` in it. |
+| "Only pages on the standard web ports can be clipped." | The address names a port, such as `:8080`. |
+| "That address isn't on the public web, so it can't be clipped." | A private network, or a name such as `localhost`. |
+| "That site couldn't be found." | The name doesn't exist. |
+| "That page needs a sign-in, so it can't be clipped." | The site answered 401 or 403. |
+| "That page couldn't be loaded (the site answered 404)." | Any other error from the site, with its number. |
+| "That link redirects too many times." | More than three redirects. |
+| "That page took too long to answer." | No answer within 10 seconds. |
+| "That link isn't a web page. Download the file and attach it to a source instead." | A PDF, an image or another file. |
+| "That folder is in the trash." | The Research folder the clip would go into was trashed meanwhile. |
+
+There is no browser extension. Clipping is done from this dialog.
+
+<Callout type="info" title="Research notes and the AI agent">
+Because a research note may hold text from someone else's website, the [AI agent](/docs/ai) treats the text of every research note as outside material: it reads it as information and does not follow instructions written in it.
+</Callout>
+
+## Attachments and files
+
+A source can carry files: the PDF of a paper, a scan, photographs. Any type of file can be attached to a research note. Elsewhere, a map takes its picture and a text note takes pictures only (see [Images](/docs/writing/editor#images)); "Only pictures (PNG, JPEG, GIF, WebP or AVIF) can go in this note. Attach other files to a research note."
+
+### Adding a file
+
+Open the source in the Sources view and go to **Files**. Drop files onto the section, or press **Attach a file** and choose one or several. They upload one at a time; the button shows "Uploading 2 files…".
+
+Each file is listed with its name and size, and a thumbnail if it is an image, newest first. With none the section says "No files yet. Drop a PDF or an image here." If a file fails, Plotra names it: "*name*: couldn't be uploaded.", or the reason.
+
+| Control | What it does |
+| --- | --- |
+| The name or thumbnail | Opens the file in a new browser tab. |
+| **Insert into note** (images only) | Opens the research note in a tab and adds the image at the end of it: "Added to the note." If the note can't be edited, "The note can't be edited right now." |
+| **Download** | Saves the file. |
+| **Delete** (the bin) | Deletes the file for good, after asking. Images from it that were put in notes stop showing. This can't be undone. |
+
+### Types and sizes
+
+Any type of file can be attached.
+
+| What | Limit |
+| --- | --- |
+| Opens in the browser | PNG, JPEG, GIF, WebP and AVIF images, and PDFs. Everything else downloads. An SVG or HTML file is never shown in place. |
+| One file, hosted version | 10 MB on Free, 100 MB on Pro. |
+| One file, self-hosted | 100 MB with a file store set up; 10 MB without one. |
+| Files on one source | 100. Then: "This source has as many files as it can hold." |
+| All files in one project | 2 GB with a file store, 100 MB without one. A Pro workspace has no limit for one project, only the workspace's storage. |
+| Uploads | 200 files an hour for each person. |
+| Names | Up to 200 characters. An empty file is refused. |
+
+On the hosted version, files count towards the workspace's storage, together with version snapshots: 50 MB on Free and 50 GB on Pro. When it is full an upload is refused with "This workspace's 50 MB of storage is full. Remove some files or old versions first." Nothing already stored is touched. See [Limits on the hosted version](/docs/settings/limits).
+
+### Where files are stored, and who can open them
+
+Files are kept in Plotra's file store: an S3-compatible bucket where one is set up, and otherwise in the database beside your notes. See [Self-hosting](/docs/self-hosting).
+
+A file has no public address. Every request for it is checked: you must be signed in and able to read the source it is attached to. That means:
+
+- everyone in the project, viewers and beta readers included, can open and download a source's files;
+- a link to a file, sent to someone outside the project, does not work for them;
+- an image put into a note from a file is packed into an [EPUB, the public wiki and the series bible](/docs/modules/publishing), and travels in a Plotra project file. Word, rich text, Markdown, plain text and AO3 [exports](/docs/import-export) leave it out. Through a [read-only link](/docs/collaboration/sharing#read-only-links) images are shown and other files are not.
+
+Files stay with their source. Moving the source to the trash keeps them; deleting it for good deletes them.
+
+## Fact-check status per claim
+
+A claim is a passage you have marked as something to check. Each claim has a status and, when you have one, the source it rests on.
+
+| Status | Use it for |
+| --- | --- |
+| **Unverified** | A claim nobody has checked yet. |
+| **Verified** | Checked against a source. |
+| **Disputed** | Sources disagree, or the check failed. |
+
+### Marking a claim
+
+1. Put the cursor in the paragraph, or select several.
+2. Press `⌘⌥T`, or run "Tag block (canon, reveal, fact-check)…".
+3. Under **Fact-check**, choose Unverified, Verified or Disputed.
+4. Under **Source**, choose the research note the claim rests on, or leave "None yet".
+5. Press **Apply**.
+
+The block gets a coloured line and a label with its status. To stop treating it as a claim, set **Fact-check** back to "Not a claim". The same dialog holds the block's canon and reveal tags when those modules are on; see [Block tags](/docs/canon/releases-and-reveals#block-tags).
+
+A claim is a whole block (a paragraph, a list item, a heading), not a few words inside one.
+
+### The Claims tab
+
+The **Claims** tab of the Sources view lists every claim in the project, grouped by what needs work first: **Unverified**, then **Disputed**, then **Verified**.
+
+Each claim shows the start of its text, the note it is in (click to open), the source it rests on and three status buttons.
+
+- Press a status to change it.
+- Choose a source from the list, or "No source yet" to clear it.
+
+Both change the note the claim is in. If that note is not open, Plotra opens it in a tab behind the Sources view to make the change. You need to be able to edit the note; otherwise the controls are greyed out. A change shows at once here and reaches other people a few seconds later, when the note syncs.
+
+With no claims the tab says "No claims to check".
+
+Claims also show in two other places: under **Claims resting on it** in a source's details, and under **Tagged passages** in the inspector's **Story** tab for the note you have open.
+
+Things to know:
+
+- The claim's status and the source's **Fact-checked** box are separate. Ticking one does not change the other.
+- A claim's source is not a citation. It does not print in the text and does not count under **Cited in**.
+- Fact-check tags stay inside Plotra. Exports and the read-only link print the text and leave the tags out.
+
+## How citations export
+
+| Where | In the text | Reference list |
+| --- | --- | --- |
+| Word, plain text, Markdown as one file | The citation as text, in the project's style: "(Okafor 2019, 44)" | Added at the end, under the style's heading |
+| Markdown as a zip of one file per note | The same | None |
+| EPUB | The same | Added as a last chapter |
+| Series bible | The same | Added as a last section |
+| Public wiki | The same | None |
+| The Read view, and PDF printed from it | The same | None |
+| A read-only link | The same | None |
+
+Things to know:
+
+- A reference list holds only the sources cited in what was exported, not every source in the project. For the whole list, use **Bibliography** in the Sources view.
+- A citation whose source is in the trash is left out of an export.
+- In an export, two works by the same author in the same year carry their letter (2019a, 2019b) in the reference list but not in the citation in the text. Check these by hand.
+- A citation is exported as text. If you import the file again it comes back as plain text, not as a citation.
+- The details are in [Import and export](/docs/import-export/export#how-the-text-is-written) and [Publishing](/docs/modules/publishing).
+
+<Cards>
+  <Card title="The editor" href="/docs/writing/editor" description="The block menu, block tags and everything else the page can do." />
+  <Card title="Import and export" href="/docs/import-export" description="What each export format keeps." />
+  <Card title="Limits on the hosted version" href="/docs/settings/limits" description="Storage and file sizes on each plan." />
+  <Card title="Canon" href="/docs/canon/releases-and-reveals#block-tags" description="The other tags a block can carry." />
+</Cards>

@@ -1,0 +1,86 @@
+name: CI
+
+# Lint, test, build and typecheck every workspace (plan.md Phase 8). Nothing here
+# deploys: Vercel builds the three sites from its own Git integration, and the
+# collab worker is deployed by hand (docs: Deploying).
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint, build, typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      TURBO_TELEMETRY_DISABLED: "1"
+      # The build loads the auth module, which refuses to start in production
+      # without a secret. This one signs nothing: no database or service is
+      # reachable from here, and none is needed to build.
+      BETTER_AUTH_SECRET: ci-placeholder-not-a-secret-0123456789abcdef
+      BETTER_AUTH_URL: http://localhost:3000
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          # The version pinned in package.json ("packageManager").
+          bun-version-file: package.json
+
+      # Next's build tooling runs on Node.
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Turborepo's local cache (turbo.json: .turbo/cache), so an unchanged
+      # workspace's lint, build and typecheck are replayed instead of rerun.
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      # Every /docs link and #heading in the docs and on the website reaches
+      # a page and a heading that exist. Quick, and needs nothing built.
+      - name: Check docs links
+        working-directory: apps/docs
+        run: bun run check-links
+
+      - name: Lint
+        run: bun run lint
+
+      # The unit tests (apps/app/tests, packages/db/tests). They need no
+      # database, service or key: apps/app's preload only sets a placeholder
+      # DATABASE_URL, and nothing connects.
+      - name: Test
+        run: bun run test
+
+      # Loose mode lets the placeholder variables above reach `next build`;
+      # Turborepo's default would filter out anything turbo.json doesn't name.
+      - name: Build
+        run: bun run build --env-mode=loose
+
+      # After the build on purpose: `next build` writes next-env.d.ts and the
+      # route types under .next/types, which aren't committed and which the
+      # apps' `tsc --noEmit` needs.
+      - name: Typecheck
+        run: bun run typecheck

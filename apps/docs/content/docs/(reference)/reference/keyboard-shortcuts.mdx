@@ -1,0 +1,341 @@
+---
+title: Keyboard shortcuts
+description: "Every command and every key in a project, grouped as the app groups them, and how to change the ones you can."
+---
+
+Almost everything in a project can be done without the mouse. This page lists every command, the keys it starts with, and the keys the editor has built in.
+
+The same list is in the app: press `⌘/`, or choose **Keyboard shortcuts** from **More** in the ribbon or from the user menu. The list in the app shows the keys as you have set them and only the commands this project has.
+
+This page writes keys the way a Mac shows them. On Windows and Linux, use `Ctrl` for `⌘` and `Alt` for `⌥`; the app shows them as `Ctrl+Shift+P`.
+
+## How shortcuts work
+
+- A command's shortcut works anywhere in the project, including while you are typing in the editor.
+- A shortcut that has neither `⌘` nor `⌥` in it, apart from the function keys, is ignored while you are typing in a text box, so a key you bind on its own doesn't get in the way of writing.
+- Every command is also in **All commands** (`⌘P`), with its current keys beside it. A command without keys can still be run from there.
+- Some shortcuts are also used by the browser. `⌘P` is the browser's Print and `⌘O` its Open; inside a project, Plotra takes them.
+- Others the browser keeps for itself, such as `⌘T`, `⌘W`, `⌘⇧R` (reload) and `⌘⇧C` (the element picker). A page never hears them, so no command starts with one, and you can't give one to a command.
+
+## Changing a shortcut
+
+1. Press `⌘/` to open **Keyboard shortcuts**.
+2. Find the command, or the formatting key under **Formatting**. The search box matches the name, the group, or the keys, typed as shown (`⌘P`) or spelled out (`mod+p`).
+3. Click the keys at the right of its row (or **None**, if it has no shortcut). The row shows "Press keys…".
+4. Press the new combination.
+
+![The Keyboard shortcuts dialog searched for "format": the Formatting group, from Bold to New paragraph below the block, each with its keys](/shots/keyboard-shortcuts.webp)
+
+| While it says "Press keys…" | What happens |
+| --- | --- |
+| Any combination | Becomes the command's shortcut. If another command has it, Plotra asks first ("‘⌘G’ is already used"); **Use it here** moves it, and the other command is left with none. |
+| A combination the browser keeps | Refused, with "Your browser keeps … for itself, so it won't reach Plotra. Try another." |
+| `⌫` or `Delete` | Removes the shortcut. The command shows **None**. |
+| `Esc` | Cancels. |
+
+A row you have changed shows a reset button ("Put … back to its default shortcut"), which gives it back the keys it started with.
+
+The rows under **Editor (fixed)** can't be changed. The formatting keys (bold, italic, headings, quote, new paragraph above or below) can: they are under **Formatting**.
+
+The **Like Scrivener** and **Like Obsidian** presets in **Customize** change a few shortcuts for you. See [Work like another app](/docs/settings/customize#work-like-another-app).
+
+### Where changed shortcuts are stored
+
+Changed shortcuts are stored with your account, so they follow you to every project, browser and computer. Shortcuts changed before they were kept in the account are moved there the first time you open a project in that browser. **Customize** → **Keyboard shortcuts** resets them all at once.
+
+## Navigate
+
+| Command | Keys |
+| --- | --- |
+| All commands | `⌘P` |
+| Find a note | `⌘O` |
+| Search the whole project | `⌘⇧O` |
+
+In **Find a note**, `↵` opens the note, `⌘↵` opens it in a new tab and `⌘⌥↵` opens it to the right. See [Finding things](/docs/get-started/the-screen#find-anything).
+
+## Binder
+
+| Command | Keys |
+| --- | --- |
+| New *main type* (a scene in a novel or script, a session in a campaign, a chapter in non-fiction) | `⌘⌥N` |
+| New folder | `⌘⌥⇧N` |
+| New chapter, New scene (whichever `⌘⌥N` doesn't make) | |
+| New plain note | |
+| New character | |
+| New location | |
+| New research | |
+| New canvas | |
+| New timeline | |
+| New map | |
+| New dialogue (with **Interactive narrative**) | |
+| Rename this note | `F2` |
+| Show this note in the binder | |
+| Duplicate this note | |
+| Move this note to Trash | |
+| Start from a beat sheet… (Save the Cat, Hero's Journey…) | |
+
+`⌘⌥N` makes the project's main type of note: the first one in the binder's **New** menu. If the project has its own names for the note types, the commands use them: "New session" in place of "New chapter". "This note" is the note in the active tab, or the one selected in the binder if no note is open, and **All commands** names it by its type: "Rename this chapter".
+
+With the binder itself focused, these keys work as well. They are fixed.
+
+| Keys | What it does |
+| --- | --- |
+| `↑` `↓` | Move the selection |
+| `Home`, `End` | Go to the first or the last note |
+| `→` | Open a folder, then go to its first note |
+| `←` | Close a folder, then go to its parent |
+| `↵` or `Space` | Open the note, or open and close a folder |
+| `⌘↵` | Open the note in a new tab |
+| `⌘⌥↵` | Open the note to the right |
+| `F2` | Rename the note |
+| `⌥↑` `⌥↓` | Move the note up or down among its neighbours |
+| `⌥→` | Move the note into the one above it |
+| `⌥←` | Move the note out of its folder |
+| `⇧F10` or the menu key | Open the note's menu, as right-click does |
+| `Delete`, or `⌘⌫` | Move the note to the trash, with **Undo** |
+| A letter or a digit | Jump to the next note whose name starts with it |
+| `Esc` | Clear the binder's **Filter…** box |
+
+`⌫` on its own no longer trashes a note: it is too easy to press by accident.
+
+With the mouse: click opens a note in the current tab, `⌘`-click or middle-click in a new tab, and `⌘⌥`-click to the right. The same goes for a link in the text. See [Working in the binder](/docs/writing/binder#working-in-the-binder).
+
+## Panes
+
+| Command | Keys |
+| --- | --- |
+| Close tab | `⌥W` |
+| Split right | `⌘⌥\` |
+| Split down | |
+| Next tab | `⌘⌥→` |
+| Previous tab | `⌘⌥←` |
+| Pin or unpin tab | |
+| Maximize or restore pane | `⌘⇧M` |
+| Saved layouts… | `⌘⇧L` |
+
+See [Tabs and panes](/docs/get-started/the-screen#tabs-and-panes).
+
+## View
+
+| Command | Keys |
+| --- | --- |
+| Show or hide the binder | `⌘\` |
+| Show or hide the inspector | `⌘⇧\` |
+| Switch between light and dark | |
+| Close all tabs | |
+| Show comments | |
+| Show version history | |
+| Show tags | |
+| Show what mentions this note | `⌘⌥⇧B` |
+| Show canon and reveals | |
+
+The "Show" commands open the matching panel of the inspector, or the tags pane on the left.
+
+## Views
+
+Each view has a command that opens it. Three have keys to begin with.
+
+| Command | Keys | Needs |
+| --- | --- | --- |
+| Open graph view | `⌘G` | |
+| Open codex | `⌘⌥⇧C` | |
+| Open relationship map | `⌘⌥⇧R` | |
+| Open outline | | |
+| Open plot grid | | |
+| Open corkboard of current folder | | |
+| Read the whole draft (manuscript of current folder) | | |
+| Read and print preview of current folder | | |
+| Open activity feed | | |
+| Open writing stats and goals | | |
+| Open the graph around this note | | |
+| New timeline | | |
+| Open release roadmap | | **Releases & reveals** |
+| Open secrets & setups | | **Releases & reveals** |
+| Open continuity | | **World bible** |
+| Open sources | | **Research & sources** |
+| Open reviews | | **Review & editorial** |
+| Open production | | **Production** |
+| Open quest designer | | **Interactive narrative** |
+| Open strings (short game text) | | **Interactive narrative** |
+| Open translate | | **Localization** |
+| Open publish | | **Publishing** |
+| Open AI chat | | AI switched on |
+
+`⌘⇧C` and `⌘⇧R` belong to the browser, so the codex and the relationship map have `⌥` too. If the project has renamed a view, its command uses the new name: "Open Wiki". The commands "of current folder" open on the folder or chapter that is selected, or on the one the open note is in. See [Views](/docs/views).
+
+## Writing
+
+| Command | Keys |
+| --- | --- |
+| Turn focus mode on or off | `⌘⇧F` |
+| Turn typewriter scrolling on or off | `⌘⌥⇧T` |
+| Turn suggesting (track changes) on or off | `⌘⇧E` |
+| Comment on selection | `⌘⌥M` |
+| Tag block (canon, reveal, fact-check)… | `⌘⌥T` |
+
+`Esc` leaves focus mode. See [Focus mode](/docs/writing/editor#focus-mode), [Suggestions](/docs/collaboration/comments-and-suggestions#suggestions) and [Block tags](/docs/writing/editor#block-tags).
+
+## File
+
+| Command | Keys | Needs |
+| --- | --- | --- |
+| Import… (Scrivener, Plottr, World Anvil, Word, Markdown, Obsidian vault) | | Edit access |
+| Export… (Word, RTF, Markdown, plain text, Final Draft, PDF) | | |
+| Import dialogue (Ink, Yarn Spinner, Twine)… | | **Interactive narrative**, and edit access |
+| Keep this project on this device, for offline (or "Remove this project from this device") | | Not in a [desktop library](/docs/desktop) |
+
+See [Import and export](/docs/import-export), [Importing a dialogue](/docs/modules/interactive/files#importing-a-dialogue) and [Keeping a whole project on this device](/docs/writing/editor#keeping-a-whole-project-on-this-device).
+
+## Script
+
+Only with the **Script formats** module on.
+
+| Command | Keys |
+| --- | --- |
+| Import Fountain… | |
+| Export as Fountain | |
+
+See [Scripts](/docs/modules/scripts).
+
+## AI
+
+Only where AI is on for the workspace and the project, and for people who can edit.
+
+| Command | Keys |
+| --- | --- |
+| Ask AI… | |
+| AI: Draft this scene or chapter | |
+| AI: Check this chapter | |
+| AI: Carry a change through the project… | |
+| AI: Build the project from a premise… | |
+
+In the editor, `⌘J` opens the AI menu on the selection. That key belongs to the editor and can't be changed. See [AI](/docs/ai).
+
+## App
+
+| Command | Keys |
+| --- | --- |
+| Project settings (type, tools, workflow)… | |
+| Customize: presets, ribbon, shortcuts, toolbar and the look of the page | |
+| Keyboard shortcuts | `⌘/` |
+| Back to the workspace (or "Back to shared projects", for a guest) | |
+
+## Plugins
+
+What your [plugins](/docs/developers/plugins) add is listed here, by name, and can be given keys like any command.
+
+| Command | Keys |
+| --- | --- |
+| A plugin's command | |
+| Open *panel name* (a plugin's panel) | |
+| Export as *format* (a plugin's export) | |
+| Reload plugins (when you have plugins switched on) | |
+| Manage plugins | |
+
+**Manage plugins** opens **Your settings** at **Plugins**.
+
+## Formatting
+
+These work while the cursor is in the text. They can be changed like any command.
+
+| Command | Keys |
+| --- | --- |
+| Bold | `⌘B` |
+| Italic | `⌘I` |
+| Underline | `⌘U` |
+| Strikethrough | `⌘⇧X` |
+| Inline code | `⌘E` |
+| Highlight | `⌘⇧H` |
+| Heading 1, 2 and 3 | `⌘⌥1`, `⌘⌥2`, `⌘⌥3` |
+| Quote | `⌘⇧.` |
+| New paragraph below the block | `⌘↵` |
+| New paragraph above the block | `⌘⇧↵` |
+
+## Editor (fixed)
+
+These belong to the editor. They work while the cursor is in the text and can't be changed.
+
+| Keys | What it does |
+| --- | --- |
+| `⌘K` | Link to a web address, or edit the one the cursor is in |
+| `⌘J` | Ask AI about the selection, when AI is on |
+| `Tab`, `⇧Tab` | Indent or outdent the paragraph, heading, quote or list item |
+| `⌘`-click a link | Open it in a new tab |
+| `⌘⌥`-click a link | Open it to the right |
+
+### Moving and undoing
+
+| Keys | What it does |
+| --- | --- |
+| `⌘Z` | Undo |
+| `⌘⇧Z` | Redo |
+| `↵` or `↓` at the end of the title | Move from the title into the text |
+| `Esc` in the title | Put the old title back |
+
+### Selected blocks
+
+Click a block's handle in the margin to select the whole block. Then:
+
+| Keys | What it does |
+| --- | --- |
+| `↑` `↓` | Select the block above or below instead |
+| `⇧↑` `⇧↓` | Add the block above or below to the selection |
+| `⌘A` | Select every block in the note |
+| `⌘D` | Duplicate the selected blocks |
+| `⌘C`, `⌘X` | Copy or cut them |
+| `⌫` or `Delete` | Delete them |
+| `⌘⌥T` | Tag them all |
+| `↵` | Put the cursor back in the text, at the end of the block |
+| `Esc` | Clear the selection |
+
+See [Moving blocks](/docs/writing/editor#moving-blocks).
+
+### Typed in the text
+
+| Type | What it does |
+| --- | --- |
+| `/` | Opens the block menu |
+| `[[` | Links to a note (unless **A list of notes on [[** is off in Customize) |
+| `[[Note#` | Links to a heading in a note |
+| `[[Note\|words` | Links to a note, showing other words |
+| `![[` | Embeds a note |
+| `#name` | Tags the note |
+| `#`, `##`, `###` and a space | Heading 1, 2, 3 |
+| `-` or `*` and a space | Bulleted list |
+| `1.` or `1)` and a space | Numbered list |
+| `[ ]` or `[x]` and a space | To-do, open or ticked |
+| `>` and a space | Quote |
+| `---` or `___` | Divider |
+| `**text**` | Bold |
+| `*text*` or `_text_` | Italic |
+| `***text***` | Bold and italic |
+| `~~text~~` | Strikethrough |
+| `==text==` | Highlight |
+| `` `text` `` | Inline code |
+| `[text](address)` | Link to a web address |
+| `--` | Em dash |
+| `...` | Ellipsis |
+| `->` | Arrow |
+| `(c)` | Copyright sign |
+
+Straight quotes become curly ones as you type. With the **Research & sources** module on, `[@` starts a [citation](/docs/modules/research#citations-in-the-editor). **Markdown as you type**, **Smart quotes and dashes** and the list on `[[` can each be switched off in **Customize → Typing**.
+
+### In a script
+
+In a note written in a script format, `Tab` and `Shift+Tab` change the element the line is: scene heading, action, character, dialogue. `^` at the end of a character name marks its speech as [dual dialogue](/docs/modules/scripts#dual-dialogue), set beside the one before. See [Scripts](/docs/modules/scripts).
+
+The editor's blocks, toolbar and menus are described on [The editor](/docs/writing/editor).
+
+## Elsewhere
+
+| Where | Keys | What it does |
+| --- | --- | --- |
+| All commands, Find a note, saved layouts | `↑` `↓`, `↵`, `Esc` | Move, choose, close |
+| A drawer or a dialog | `Esc` | Close it |
+| The edge of the binder or the inspector, when focused | `←` `→` | Make the sidebar narrower or wider |
+| A tag, alias or multi-select field | `↵` or `,` | Add what you typed |
+| The same field, when empty | `⌫` | Remove the last one |
+| A property field | `↵`, `Esc` | Keep the value, or put the old one back |
+| A tab | Middle-click | Close it |
+
+The views have keys of their own, for example `⌘` and scroll to zoom the timeline. See [Views](/docs/views) and the pages for each view.

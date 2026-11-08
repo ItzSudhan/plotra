@@ -1,0 +1,91 @@
+---
+title: Conditions and variables
+description: "The small expression language a dialogue's conditions and assignments are written in: values, operators, conditions, assignments and the mistakes it reports."
+---
+
+Cards in a [dialogue](/docs/modules/interactive/dialogue) can show a line only when a condition holds, and change a variable when they are passed. Both are written in one small language, described here.
+
+Conditions and Set cards are written in a small language of their own. It is read by Plotra, never run as code, so a dialogue someone shares with you can't do anything but arithmetic.
+
+## Values
+
+| Value | Written as |
+| --- | --- |
+| A number | `5`, `2.5`, `.5` |
+| Text | In double or single quotes: `"Anna"`, `'Anna'`. Put a backslash before a quote mark that is part of the text: `"say \"hi\""`. |
+| Yes or no | `true`, `false` |
+| A variable | Its name: `gold`. `$gold` means the same, for writers used to Yarn or Twine. |
+
+## Operators
+
+From the ones that bind loosest to the ones that bind tightest. Operators on the same row are worked out left to right. Brackets `( )` group.
+
+| Operators | Meaning | Works on |
+| --- | --- | --- |
+| `\|\|` or `or` | Either is true | Anything |
+| `&&` or `and` | Both are true | Anything |
+| `==` `!=` | Equal, not equal | Anything. A number never equals a text: `5 == "5"` is false. |
+| `<` `<=` `>` `>=` | Less, greater | Two numbers, or two texts (compared in alphabetical order) |
+| `+` `-` | Add, subtract | `+` adds two numbers; if either side is text, it joins them. `-` needs two numbers. |
+| `*` `/` | Multiply, divide | Two numbers |
+| `!` or `not`, and a leading `-` | Not; negative | `-` needs a number |
+
+When a value is used as true or false, empty text, `0` and `false` count as false. Everything else counts as true. With `&&` and `||` the right side is skipped when the left side has already decided the answer.
+
+## Conditions
+
+A Condition card holds one expression. Line breaks inside it are ignored.
+
+```
+gold >= 5
+met_anna && !angry
+gold >= 5 && !met_anna || name == "Anna"
+(gold + silver / 10) * 2 > price
+not met_anna and gold > 0
+```
+
+## Assignments
+
+A Set card holds one or more assignments, separated by a new line or a semicolon.
+
+| Form | What it does |
+| --- | --- |
+| `name = value` | Sets the variable. If no variable of that name exists, the play-through makes one. |
+| `name += value` | Adds to a number, or joins onto a text. The variable must already exist. |
+| `name -= value` | Takes away from a number. The variable must already exist. |
+
+```
+gold += 5
+met_anna = true
+greeting = "Hello, " + name
+gold -= price * 2; angry = false
+```
+
+## Mistakes
+
+A card whose expression can't be read gets a red border and a sentence that says what is wrong. The same sentence shows in the card panel.
+
+| What you wrote | What it says |
+| --- | --- |
+| `gold = 5` in a Condition | Use == to compare; = sets a variable. |
+| `gold >=` | The expression stops short. |
+| `(gold > 5` | A bracket is never closed. |
+| `name == "Anna` | A text value is missing its closing quote. |
+| `gold > 5 6` | There's something left over after the condition. |
+| `gold 5` in a Set card | After “gold” comes =, += or -=. |
+| `gold += 5 silver = 1` | Put a semicolon or a new line between assignments. |
+| `5 += gold` or `true = 1` in a Set card | An assignment starts with a variable name, like gold += 5. |
+| `gold > and 5` | “and” needs a value before it. |
+| `gold > )` | “)” is out of place. |
+
+An empty card gets no red border, but the [Check menu](/docs/modules/interactive/dialogue#checking-a-dialogue) lists it as an error: "Write a condition, like gold >= 5." or "Write an assignment, like gold += 5."
+
+Some mistakes can only be found while playing, because they depend on the values at that moment. The card shows no warning; the [play-through](/docs/modules/interactive/dialogue#playing-a-dialogue) reports them when it gets there:
+
+- a variable that was never declared ("There's no variable called “gold”.");
+- arithmetic or a comparison on the wrong kind of value ("> needs two numbers, not text and a number.");
+- dividing by zero ("That divides by zero.");
+- `+=` or `-=` on a variable that doesn't exist ("There's no variable called “gold” to change.");
+- a leading `-` on something that isn't a number ("Only a number can be negated, not text.").
+
+A variable that is used but never declared, and never set with `=`, is also listed by the Check menu before you play.

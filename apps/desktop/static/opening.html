@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'" />
+    <title>Opening your library</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f7f6f3;
+        --fg: #161412;
+        --muted: #5f5a53;
+        --line: #e2ded6;
+        --accent: #e2602a;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #141311;
+          --fg: #ece9e3;
+          --muted: #a8a299;
+          --line: #2e2b27;
+        }
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 24px 32px;
+        box-sizing: border-box;
+        text-align: center;
+        font: 14px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        border: 1px solid var(--line);
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-app-region: drag;
+        cursor: default;
+      }
+      h1 {
+        margin: 0;
+        font: 400 28px/1.15 "Instrument Serif", "Iowan Old Style", Charter, Georgia, serif;
+      }
+      #name {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #status {
+        margin: 0;
+        color: var(--muted);
+      }
+      .bar {
+        margin-top: 12px;
+        width: 160px;
+        height: 3px;
+        border-radius: 3px;
+        background: var(--line);
+        overflow: hidden;
+      }
+      .bar span {
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: 3px;
+        background: var(--accent);
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .bar span {
+          animation: slide 1.4s ease-in-out infinite;
+        }
+      }
+      @keyframes slide {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(250%);
+        }
+      }
+    </style>
+  </head>
+  <body role="status" aria-live="polite">
+    <h1>Opening your library…</h1>
+    <p id="name"></p>
+    <p id="status" hidden></p>
+    <div class="bar" aria-hidden="true"><span></span></div>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const name = params.get("name");
+      const status = params.get("status");
+      if (name) {
+        document.getElementById("name").textContent = name;
+        document.title = `Opening ${name}`;
+      }
+      if (status) {
+        const line = document.getElementById("status");
+        line.textContent = status;
+        line.hidden = false;
+      }
+    </script>
+  </body>
+</html>

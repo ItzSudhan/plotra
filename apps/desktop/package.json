@@ -1,0 +1,27 @@
+{
+  "name": "@plotra/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plotra on your own computer: Plotra Cloud in a window, or a library in a folder of yours.",
+  "author": "Plotra",
+  "license": "AGPL-3.0-or-later",
+  "main": "dist/main.js",
+  "scripts": {
+    "setup": "node node_modules/electron/install.js",
+    "compile": "tsc -p tsconfig.build.json",
+    "dev": "bun run compile && electron .",
+    "bundle-server": "bun scripts/bundle-server.ts",
+    "dist": "bun run compile && bun run bundle-server && electron-builder --config electron-builder.yml",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test tests"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "electron": "^44.9.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  }
+}

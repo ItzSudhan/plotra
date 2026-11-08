@@ -1,0 +1,659 @@
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, session, shell, type MenuItemConstructorOptions } from "electron";
+import { existsSync, readdirSync, renameSync } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { showProblem } from "./dialogs";
+import { createLibrary, databaseDir, isLibrary, lockLibrary, openLibrary, snapshotsDir, type Library } from "./library";
+import { backupSaved, describeError, fileManager, folderName, libraryLabels, NOT_A_LIBRARY, quoted, switchQuestion } from "./messages";
+import { staysInWindow } from "./navigation";
+import { freePort, startLocalServer, type LocalServer } from "./server";
+import { loadSettings, rememberLibrary, saveSettings, type Settings } from "./settings";
+import { afterSignIn, exchangeUrl, signInPage, startSignIn, type SignInFlow } from "./sign-in";
+import { checkForUpdates } from "./updates";
+
+// Plotra's desktop app (local-mode-plan.md, phase 4). It works one of two ways,
+// chosen on first run and changed from the File menu:
+//   Plotra Cloud      a window on app.plotra.ink, as in a browser
+//   On this computer  a library folder of the person's own, served by the same
+//                     app running on this computer (./server.ts)
+
+const CLOUD_URL = process.env.PLOTRA_CLOUD_URL || "https://app.plotra.ink";
+/** Points the app at a `next dev` already running in local mode, instead of the bundled server. */
+const DEV_URL = process.env.PLOTRA_DESKTOP_DEV_URL;
+
+type Current =
+  | { mode: "cloud"; url: string }
+  | { mode: "local"; url: string; library: Library; server: LocalServer | null; unlock: () => void };
+
+let settings: Settings;
+let current: Current | null = null;
+let chooser: BrowserWindow | null = null;
+/** The small "Opening your library…" window shown while a library starts. */
+let splash: BrowserWindow | null = null;
+let quitting = false;
+/** Set while one library or mode is closing and the next opening: no windows then is expected. */
+let switching = false;
+
+const settingsDir = () => app.getPath("userData");
+const save = () => saveSettings(settingsDir(), settings);
+
+/** Where the bundled server and migrations are: in the app's resources, or in the repo while developing. */
+function serverPaths() {
+  const root = app.isPackaged ? process.resourcesPath : path.join(__dirname, "..", "build");
+  return {
+    serverDir: path.join(root, "server"),
+    migrationsDir: path.join(root, "migrations"),
+    logsDir: app.getPath("logs"),
+  };
+}
+
+const staticFile = (name: string) => path.join(__dirname, "..", "static", name);
+const OFFLINE_PAGE = staticFile("offline.html");
+const SIGN_IN_PAGE = staticFile("sign-in.html");
+
+/** Paper or ink behind every window, so none flashes white in dark mode. */
+const windowBackground = () => (nativeTheme.shouldUseDarkColors ? "#141311" : "#f7f6f3");
+
+/** The app's own windows: not the chooser or the opening window. */
+const appWindows = () => BrowserWindow.getAllWindows().filter((win) => win !== chooser && win !== splash);
+
+/** What's open, in words: "Plotra Cloud" or "‘My Library’". */
+function currentName(): string | null {
+  if (!current) return null;
+  return current.mode === "cloud" ? "Plotra Cloud" : quoted(current.library.dir);
+}
+
+/** Shows "Opening your library…" at once; the window is closed when the library's window is ready. */
+function showSplash(dir: string, status?: string) {
+  closeSplash();
+  const database = databaseDir(dir);
+  let isNew = false;
+  try {
+    isNew = !existsSync(database) || readdirSync(database).length === 0;
+  } catch {
+    // Unreadable: opening will say why.
+  }
+  const win = new BrowserWindow({
+    width: 420,
+    height: 220,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    frame: false,
+    center: true,
+    title: "Opening your library",
+    backgroundColor: windowBackground(),
+    show: false,
+    webPreferences: { contextIsolation: true, sandbox: true },
+  });
+  splash = win;
+  win.once("ready-to-show", () => !win.isDestroyed() && win.show());
+  win.on("closed", () => {
+    if (splash === win) splash = null;
+  });
+  const query: Record<string, string> = { name: folderName(dir) };
+  if (status) query.status = status;
+  else if (isNew) query.status = "Setting up your library for the first time…";
+  void win.loadFile(staticFile("opening.html"), { query }).catch(() => {});
+}
+
+function closeSplash() {
+  const win = splash;
+  splash = null;
+  if (win && !win.isDestroyed()) win.close();
+}
+
+/** Where "Try again" on the offline page goes, per window. */
+const failedUrls = new Map<number, string>();
+
+/** The offline page: shown in place of a page that couldn't load. */
+function showOffline(win: BrowserWindow, url: string) {
+  const id = win.webContents.id;
+  // The swap for a session can't be tried again by its URL alone: start from the top, which signs in again if need be.
+  failedUrls.set(id, url.includes("/api/desktop/exchange") ? CLOUD_URL : url);
+  win.once("closed", () => failedUrls.delete(id));
+  void win.loadFile(OFFLINE_PAGE, { query: { mode: current?.mode ?? "cloud" } }).catch(() => {});
+}
+
+/** The offline and sign-in pages' buttons are links back to the page with an `action`; they're handled here. */
+function pageAction(target: string, page: string): string | null {
+  try {
+    const url = new URL(target);
+    if (url.protocol !== "file:" || url.pathname !== pathToFileURL(page).pathname) return null;
+    return url.searchParams.get("action");
+  } catch {
+    return null;
+  }
+}
+
+/** Signing in to Plotra Cloud through the browser (./sign-in.ts): the one under way, and the window waiting on it. */
+let signingIn: { flow: SignInFlow; win: BrowserWindow } | null = null;
+
+/** Windows showing "Sign in in your browser", and the cloud's sign-in page each was sent to. */
+const pendingSignIn = new Map<number, string>();
+
+function cancelSignIn() {
+  signingIn?.flow.cancel();
+  signingIn = null;
+}
+
+/**
+ * In place of the cloud's sign-in page (`target`): a page in the window saying
+ * to sign in in the browser, which opens there. Once the browser hands over
+ * the code, the window swaps it for a session and goes where `target` would have.
+ */
+async function signInThroughBrowser(win: BrowserWindow, target: string) {
+  const mode = signInPage(target, CLOUD_URL);
+  if (!mode || win.isDestroyed()) return;
+  const id = win.webContents.id;
+  const expired = new URL(target).searchParams.get("desktop") === "expired";
+  cancelSignIn();
+  pendingSignIn.set(id, target);
+  let flow: SignInFlow;
+  try {
+    flow = await startSignIn(CLOUD_URL, mode);
+    await shell.openExternal(flow.browserUrl);
+  } catch {
+    if (!win.isDestroyed()) void win.loadFile(SIGN_IN_PAGE, { query: { failed: "1" } }).catch(() => {});
+    return;
+  }
+  if (win.isDestroyed()) return flow.cancel();
+  signingIn = { flow, win };
+  void win.loadFile(SIGN_IN_PAGE, { query: expired ? { expired: "1" } : {} }).catch(() => {});
+  let code: string;
+  try {
+    code = await flow.code;
+  } catch {
+    return; // Cancelled, replaced, or left too long: "Open the browser again" starts over.
+  }
+  if (signingIn?.flow === flow) signingIn = null;
+  if (win.isDestroyed()) return;
+  pendingSignIn.delete(id);
+  if (win.isMinimized()) win.restore();
+  win.show();
+  if (process.platform === "darwin") app.focus({ steal: true });
+  win.focus();
+  // The header is how the cloud knows it's this window asking (apps/app/app/api/desktop/exchange).
+  void win.loadURL(exchangeUrl(CLOUD_URL, code, flow.verifier, afterSignIn(target)), { extraHeaders: "x-plotra-desktop: 1\n" }).catch(() => {});
+  // Other windows that were waiting at the sign-in page come along, signed in by the same cookie.
+  for (const other of appWindows()) {
+    if (other !== win && pendingSignIn.has(other.webContents.id)) {
+      pendingSignIn.delete(other.webContents.id);
+      void other.loadURL(CLOUD_URL).catch(() => {});
+    }
+  }
+}
+
+const sameOrigin = (a: string, b: string) => {
+  try {
+    return new URL(a).origin === new URL(b).origin;
+  } catch {
+    return false;
+  }
+};
+
+function openWindow(url: string, onReady?: () => void): BrowserWindow {
+  const win = new BrowserWindow({
+    width: 1320,
+    height: 860,
+    minWidth: 720,
+    minHeight: 480,
+    title: "Plotra",
+    backgroundColor: windowBackground(),
+    show: false,
+    webPreferences: { contextIsolation: true, sandbox: true, spellcheck: true },
+  });
+  win.once("ready-to-show", () => {
+    win.show();
+    onReady?.();
+  });
+  // No connection (or the library's server gone): a page saying so, not a blank window.
+  win.webContents.on("did-fail-load", (_event, code, _description, failedUrl, isMainFrame) => {
+    // -3 is a navigation that was replaced or stopped, not a failure.
+    if (!isMainFrame || code === -3 || failedUrl.startsWith("file:")) return;
+    showOffline(win, failedUrl);
+  });
+  // A page still saving (it holds the close with beforeunload): ask, rather than close silently or never.
+  win.webContents.on("will-prevent-unload", (event) => {
+    const response = dialog.showMessageBoxSync(win, {
+      type: "warning",
+      message: "Plotra is still saving your changes",
+      detail: "Wait a moment for it to finish, or close now and lose the last few seconds of work.",
+      buttons: ["Wait", "Close anyway"],
+      defaultId: 0,
+      cancelId: 0,
+    });
+    if (response === 1) event.preventDefault();
+    else keptOpen.get(win)?.();
+  });
+  // Links to anywhere else open in the person's browser; the app's own pages open in a new window.
+  win.webContents.setWindowOpenHandler(({ url: target }) => {
+    if (current && sameOrigin(target, current.url)) return { action: "allow" };
+    if (/^https?:|^mailto:/.test(target)) void shell.openExternal(target);
+    return { action: "deny" };
+  });
+  // Plotra Cloud's sign-in pages never show in the window: the person signs in
+  // in their browser instead (./sign-in.ts). The server sending the window
+  // there (signed out, or a session run out), a link there, or the app moving
+  // there itself (signing out) all end up here.
+  const toBrowser = (event: { preventDefault: () => void } | null, target: string) => {
+    if (current?.mode !== "cloud" || !signInPage(target, CLOUD_URL)) return false;
+    event?.preventDefault();
+    void signInThroughBrowser(win, target);
+    return true;
+  };
+  win.webContents.on("will-redirect", (event, target, _inPlace, isMainFrame) => {
+    if (isMainFrame) toBrowser(event, target);
+  });
+  win.webContents.on("did-navigate", (_event, target) => void toBrowser(null, target));
+  win.webContents.on("did-navigate-in-page", (_event, target, isMainFrame) => {
+    if (isMainFrame) toBrowser(null, target);
+  });
+  const contentsId = win.webContents.id;
+  win.once("closed", () => {
+    pendingSignIn.delete(contentsId);
+    if (signingIn?.win === win) cancelSignIn();
+  });
+  // The window is the app, never plotra.ink's website (./navigation.ts).
+  win.webContents.on("will-navigate", (event, target) => {
+    const action = pageAction(target, OFFLINE_PAGE);
+    if (action) {
+      event.preventDefault();
+      if (action === "retry") void win.loadURL(failedUrls.get(win.webContents.id) ?? current?.url ?? url).catch(() => {});
+      else if (action === "local") showChooser();
+      return;
+    }
+    const signInAction = pageAction(target, SIGN_IN_PAGE);
+    if (signInAction) {
+      event.preventDefault();
+      if (signInAction === "reopen") void signInThroughBrowser(win, pendingSignIn.get(win.webContents.id) ?? new URL("/sign-in", CLOUD_URL).toString());
+      else if (signInAction === "local") showChooser();
+      return;
+    }
+    if (toBrowser(event, target)) return;
+    if (!current || staysInWindow(target, current.url, current.mode)) return;
+    event.preventDefault();
+    if (/^https?:/.test(target)) void shell.openExternal(target);
+  });
+  // A failed load is shown by did-fail-load above.
+  void win.loadURL(url).catch(() => {});
+  return win;
+}
+
+/** Every request the app's windows make to the local server carries its token. */
+function sendTokenTo(url: string, token: string) {
+  session.defaultSession.webRequest.onBeforeSendHeaders({ urls: [`${new URL(url).origin}/*`] }, (details, callback) => {
+    callback({ requestHeaders: { ...details.requestHeaders, "x-plotra-local": token } });
+  });
+}
+
+/** Called when a window that was asked to close stays open (the person chose "Wait"). */
+const keptOpen = new Map<BrowserWindow, () => void>();
+
+/**
+ * Closes a window the gentle way, so its page can finish saving. Resolves to
+ * false when the person keeps it open; a page that doesn't answer is closed
+ * after a while regardless.
+ */
+function closeWindow(win: BrowserWindow): Promise<boolean> {
+  if (win.isDestroyed()) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const finish = (closed: boolean) => {
+      clearTimeout(timer);
+      keptOpen.delete(win);
+      resolve(closed);
+    };
+    const timer = setTimeout(() => {
+      if (!win.isDestroyed()) win.destroy();
+    }, 15_000);
+    win.once("closed", () => finish(true));
+    keptOpen.set(win, () => finish(false));
+    win.close();
+  });
+}
+
+/** Closes the windows, then the library. Resolves to false (leaving it open) when the person keeps a window open. */
+async function closeCurrent(): Promise<boolean> {
+  closeSplash();
+  const closed = await Promise.all(appWindows().map(closeWindow));
+  if (closed.includes(false)) return false;
+  const was = current;
+  current = null;
+  cancelSignIn();
+  if (was?.mode === "local") {
+    await was.server?.stop();
+    was.unlock();
+  }
+  buildMenu();
+  return true;
+}
+
+function openCloud() {
+  current = { mode: "cloud", url: CLOUD_URL };
+  settings = { ...settings, mode: "cloud" };
+  save();
+  openWindow(CLOUD_URL);
+  buildMenu();
+}
+
+type OpenOptions = {
+  /** Extra settings for the library's server. */
+  env?: Record<string, string>;
+  /** What the opening window says under the library's name. */
+  status?: string;
+};
+
+async function openLocal(dir: string, { env = {}, status }: OpenOptions = {}): Promise<boolean> {
+  let library: Library;
+  let unlock: () => void;
+  try {
+    library = openLibrary(dir);
+    unlock = lockLibrary(library.dir);
+  } catch (error) {
+    await showProblem(describeError(error, "Couldn't open the library"), chooser);
+    return false;
+  }
+  showSplash(library.dir, status);
+  try {
+    let server: LocalServer | null = null;
+    let url = DEV_URL ?? "";
+    if (!DEV_URL) {
+      const port = await freePort(settings.ports[library.dir] ?? 17000 + Math.floor(Math.random() * 1000));
+      server = await startLocalServer(library, serverPaths(), port, env);
+      url = server.url;
+      sendTokenTo(url, server.token);
+      settings = { ...settings, ports: { ...settings.ports, [library.dir]: port } };
+    }
+    current = { mode: "local", url, library, server, unlock };
+    settings = rememberLibrary(settings, library.dir);
+    save();
+    openWindow(url, closeSplash);
+    buildMenu();
+    return true;
+  } catch (error) {
+    unlock();
+    closeSplash();
+    await showProblem(describeError(error, "Couldn't open the library"), chooser);
+    return false;
+  }
+}
+
+/**
+ * Closes what's open and opens something else, after asking when something is
+ * open (`to` names what comes next; without it there's no question). When the
+ * opening fails and nothing is open any more, the first-run choice comes back.
+ */
+async function switchTo(open: () => Promise<boolean> | boolean, to?: string): Promise<boolean> {
+  const from = currentName();
+  if (from && to) {
+    const { response } = await dialog.showMessageBox({
+      type: "question",
+      message: switchQuestion(from, to),
+      detail: "Plotra saves your work before it closes.",
+      buttons: ["Switch", "Cancel"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+    if (response !== 0) return false;
+  }
+  switching = true;
+  try {
+    if (!(await closeCurrent())) return false;
+    const opened = await open();
+    if (!opened && !current) showChooser();
+    return opened;
+  } finally {
+    switching = false;
+  }
+}
+
+/** Brings the open window forward; used when the choice is what's already open. */
+function focusCurrent(): boolean {
+  const win = appWindows()[0];
+  // Not when it's showing the offline page: then the choice means "open it again".
+  if (!win || win.webContents.getURL().startsWith("file:")) return false;
+  if (win.isMinimized()) win.restore();
+  win.focus();
+  return true;
+}
+
+const isOpen = (dir: string) => current?.mode === "local" && path.resolve(current.library.dir) === path.resolve(dir);
+
+function switchToCloud(): Promise<boolean> {
+  if (current?.mode === "cloud" && focusCurrent()) return Promise.resolve(true);
+  return switchTo(() => {
+    openCloud();
+    return true;
+  }, "Plotra Cloud");
+}
+
+async function switchToLibrary(dir: string): Promise<boolean> {
+  if (isOpen(dir) && focusCurrent()) return true;
+  return switchTo(() => openLocal(dir), quoted(dir));
+}
+
+/** Asks for a folder and makes a library there (or opens the one already there). */
+async function newLibrary(): Promise<boolean> {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: "Where should the new library go?",
+    message: "Pick an empty folder, or one to put a \"Plotra Library\" folder in.",
+    buttonLabel: "Make library here",
+    defaultPath: app.getPath("documents"),
+    properties: ["openDirectory", "createDirectory"],
+  });
+  if (canceled || !filePaths[0]) return false;
+  let library: Library;
+  try {
+    library = createLibrary(filePaths[0]);
+  } catch (error) {
+    await showProblem(describeError(error, "Couldn't make the library there"), chooser);
+    return false;
+  }
+  return switchToLibrary(library.dir);
+}
+
+async function chooseLibrary(): Promise<boolean> {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: "Open a Plotra library",
+    buttonLabel: "Open library",
+    defaultPath: settings.library ?? app.getPath("documents"),
+    properties: ["openDirectory"],
+  });
+  if (canceled || !filePaths[0]) return false;
+  if (!isLibrary(filePaths[0])) {
+    await showProblem({ title: "Not a Plotra library", message: NOT_A_LIBRARY }, chooser);
+    return false;
+  }
+  return switchToLibrary(filePaths[0]);
+}
+
+/** The first-run choice (and where "Switch…" leads): Plotra Cloud, or a library on this computer. */
+function showChooser() {
+  if (chooser) return chooser.focus();
+  chooser = new BrowserWindow({
+    width: 760,
+    height: 560,
+    resizable: false,
+    title: "Welcome to Plotra",
+    backgroundColor: windowBackground(),
+    webPreferences: { contextIsolation: true, sandbox: true, preload: path.join(__dirname, "preload.js") },
+  });
+  chooser.on("closed", () => {
+    chooser = null;
+    if (!current && !quitting) app.quit();
+  });
+  void chooser.loadFile(staticFile("chooser.html"));
+}
+
+ipcMain.handle("plotra:recent", () => libraryLabels(settings.recent.filter(isLibrary)).map(({ dir, label }) => ({ path: dir, name: label })));
+/** The library that was open last time, when it can't be found any more (moved, or its drive unplugged). */
+ipcMain.handle("plotra:missing", () => (settings.mode === "local" && settings.library && !isLibrary(settings.library) ? settings.library : null));
+ipcMain.handle("plotra:choose", async (_event, choice: "cloud" | "new" | "open" | { library: string }) => {
+  let opened = false;
+  if (choice === "cloud") opened = await switchToCloud();
+  else if (choice === "new") opened = await newLibrary();
+  else if (choice === "open") opened = await chooseLibrary();
+  else if (typeof choice === "object" && isLibrary(choice.library)) opened = await switchToLibrary(choice.library);
+  if (opened) chooser?.close();
+  return opened;
+});
+
+async function backUpNow() {
+  if (current?.mode !== "local" || !current.server) return;
+  const { library, server } = current;
+  try {
+    const file = await server.snapshot();
+    const { response } = await dialog.showMessageBox({
+      message: "Backup saved",
+      detail: backupSaved(new Date()),
+      buttons: ["OK", `Show in ${fileManager()}`],
+      defaultId: 0,
+      cancelId: 0,
+    });
+    if (response === 1) shell.showItemInFolder(path.join(snapshotsDir(library.dir), file));
+  } catch (error) {
+    await showProblem({ ...describeError(error, "Couldn't back up the library"), log: server.log });
+  }
+}
+
+/**
+ * Puts the library back as it was in a snapshot. The database as it is now is
+ * kept beside it ("Database before restore …"), never deleted.
+ */
+async function restoreSnapshot() {
+  if (current?.mode !== "local" || !current.server) return;
+  const dir = current.library.dir;
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: "Restore a snapshot",
+    buttonLabel: "Restore",
+    defaultPath: snapshotsDir(dir),
+    filters: [{ name: "Plotra snapshots", extensions: ["gz"] }],
+    properties: ["openFile"],
+  });
+  const snapshot = filePaths[0];
+  if (canceled || !snapshot) return;
+  const { response } = await dialog.showMessageBox({
+    type: "warning",
+    message: `Restore ${path.basename(snapshot)}?`,
+    detail: "The library goes back to how it was then. Its database as it is now is kept in the library folder, as \"Database before restore\", in case you want it back.",
+    buttons: ["Restore", "Cancel"],
+    defaultId: 1,
+    cancelId: 1,
+  });
+  if (response !== 0) return;
+  await switchTo(async () => {
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, (c) => (c === "T" ? " " : "."));
+    try {
+      renameSync(databaseDir(dir), path.join(dir, `Database before restore ${stamp}`));
+    } catch (error) {
+      await showProblem(describeError(error, "Couldn't restore the snapshot"));
+      return openLocal(dir);
+    }
+    return openLocal(dir, { env: { PLOTRA_RESTORE_SNAPSHOT: snapshot }, status: "Restoring the snapshot…" });
+  });
+}
+
+function buildMenu() {
+  const local = current?.mode === "local" ? current : null;
+  const recent = libraryLabels(settings.recent.filter(isLibrary));
+  const file: MenuItemConstructorOptions[] = [
+    { label: "New Window", accelerator: "CmdOrCtrl+Shift+N", enabled: Boolean(current), click: () => current && openWindow(current.url) },
+    { type: "separator" },
+    { label: "New Library…", click: () => void newLibrary() },
+    { label: "Open Library…", accelerator: "CmdOrCtrl+Shift+O", click: () => void chooseLibrary() },
+    {
+      label: "Open Recent",
+      enabled: recent.length > 0,
+      submenu: recent.map(({ dir, label }) => ({
+        label,
+        sublabel: dir,
+        toolTip: dir,
+        click: () => void switchToLibrary(dir),
+      })),
+    },
+    { type: "separator" },
+    { label: "Show Library in Folder", enabled: Boolean(local), click: () => local && shell.openPath(local.library.dir) },
+    { label: "Back Up Now", enabled: Boolean(local?.server), click: () => void backUpNow() },
+    { label: "Restore a Snapshot…", enabled: Boolean(local?.server), click: () => void restoreSnapshot() },
+    { type: "separator" },
+    current?.mode === "cloud"
+      ? { label: "Use a Library on This Computer…", click: showChooser }
+      : { label: "Switch to Plotra Cloud", click: () => void switchToCloud() },
+  ];
+  if (process.platform !== "darwin") file.push({ type: "separator" }, { role: "quit" });
+
+  const template: MenuItemConstructorOptions[] = [
+    ...(process.platform === "darwin" ? [{ role: "appMenu" as const }] : []),
+    { label: "File", submenu: file },
+    { role: "editMenu" },
+    { role: "viewMenu" },
+    { role: "windowMenu" },
+    {
+      role: "help",
+      submenu: [
+        { label: "Plotra Docs", click: () => void shell.openExternal("https://docs.plotra.ink") },
+        { label: "plotra.ink", click: () => void shell.openExternal("https://www.plotra.ink") },
+        { label: "Check for Updates…", click: () => void checkForUpdates(true) },
+      ],
+    },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+// One copy of the app at a time: a second launch focuses the first.
+if (!app.requestSingleInstanceLock()) app.quit();
+else {
+  app.on("second-instance", () => {
+    const win = appWindows()[0] ?? chooser ?? splash;
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.focus();
+    }
+  });
+
+  // Lets pages know they're in the app (apps/app/lib/desktop.ts): the sign-in page drops its link to the website.
+  app.userAgentFallback = `${app.userAgentFallback} PlotraDesktop/${app.getVersion()}`;
+
+  app.whenReady().then(async () => {
+    settings = loadSettings(settingsDir());
+    buildMenu();
+    // The opening window may be the only one for a while: that's expected.
+    switching = true;
+    try {
+      if (settings.mode === "cloud") openCloud();
+      else if (settings.mode === "local" && settings.library && isLibrary(settings.library) && (await openLocal(settings.library))) {
+        // Opened where it was left.
+      } else showChooser();
+    } finally {
+      switching = false;
+    }
+    void checkForUpdates(false);
+  });
+
+  // macOS keeps the app open with no windows; clicking the dock icon brings one back.
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length) return;
+    if (current) openWindow(current.url);
+    else showChooser();
+  });
+
+  app.on("window-all-closed", () => {
+    if (process.platform !== "darwin" && !switching && !quitting && !chooser) app.quit();
+  });
+
+  // Saves what's open and closes the database before the app goes.
+  app.on("before-quit", (event) => {
+    if (quitting) return;
+    quitting = true;
+    if (current?.mode !== "local") return;
+    event.preventDefault();
+    void closeCurrent().then(
+      (closed) => {
+        if (closed) app.quit();
+        else quitting = false; // A window was kept open to finish saving.
+      },
+      () => app.quit(),
+    );
+  });
+}

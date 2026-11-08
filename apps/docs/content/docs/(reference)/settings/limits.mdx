@@ -1,0 +1,175 @@
+---
+title: Limits on the hosted version
+description: No limit locks a feature, deletes your work or blocks export. What the limits and rate limits are on each plan, why they exist, and the exact message when you reach one.
+---
+
+No limit locks a feature, deletes what you wrote or stops you exporting it. Every view and tool is on both plans; the plan limits are only on room: projects, storage and people.
+
+The Free limits exist because storage, database space and email all cost money, and everyone on the Free plan shares what the project can afford. Pro raises them, at one price for the whole workspace. The plans are described in [Plans and billing](/docs/settings/plans).
+
+A self-hosted Plotra has no plans and none of the plan limits. The rate limits and the fixed caps further down apply there too.
+
+## The limits
+
+| Limit | Free | Pro | Why |
+| --- | --- | --- | --- |
+| Projects per workspace | 10 | Unlimited | Database space |
+| Storage per workspace | 50 MB | 50 GB | File storage. Counts uploaded files and version snapshots |
+| One uploaded file | 10 MB | 100 MB | File storage. Files go straight to it from your browser |
+| Files in one project | 2 GB | No separate limit | Keeps one project from filling shared storage. On Free the 50 MB workspace limit is reached first |
+| Files on one note | 100 | 100 | The same |
+| Workspace members | 3, counting the owner | 25 | The collaboration server and email. Open invitations count |
+| Guests per shared project | 5 | 200 | The same. A guest is someone a project is shared with who is not a workspace member |
+| Hosted AI | None | 1,500 credits a month | The model bill |
+| Automatic versions per note | The latest 40 | The latest 40 | File storage. Versions you name are kept |
+
+## What has no limit
+
+- Views and tools. Every feature is on both plans.
+- The number of notes in a project, and the number of workspaces you can start.
+- Export.
+
+## What happens when you reach one
+
+- You get a message that says what the limit is.
+- You can't add more of that thing until you free some room (remove files and old versions, or take someone off the workspace or the project) or the workspace [moves to Pro](/docs/settings/plans#upgrading).
+- **Nothing is deleted, and nothing becomes read-only.** You can keep writing in the projects you have.
+- **Export always works.** No limit ever stops you taking your work out.
+
+If you keep reaching a limit, Pro is the fix that takes a minute: unlimited projects, 50 GB of storage, 25 members and 200 guests per project, for $10 a month for the whole workspace. See [when Pro is worth it](/docs/settings/plans#when-pro-is-worth-it).
+
+The same holds for a workspace that goes from Pro back to Free while it is over the Free limits: it keeps everything, and only can't add more.
+
+### Projects
+
+Creating a project in a full workspace is refused with "A workspace can hold 10 projects on the Free plan. Delete one, or start another workspace. Pro raises this: an owner can upgrade in Settings → Plan & billing."
+
+The check runs for every way a project is made: a blank project, a project from a template, a sample project and the first project made during sign-up. The ways past it are to [delete a project](/docs/settings/project#deleting-a-project) (owners and admins), start another workspace, or move to Pro.
+
+### Storage
+
+Storage is the uploaded files and the version snapshots of every project in the workspace, added together. Release snapshots are versions and count too. The **Storage** meter in **Workspace settings → Plan & billing** shows what is used.
+
+When the workspace is full, the oldest **automatic** versions make room first. They go oldest first, across the workspace, and each note keeps its latest one. Versions you named, release snapshots and "Before AI" versions are never removed to make room.
+
+Only when that isn't enough, because the space is taken by files and named versions:
+
+- **Uploading a file** is refused with "This workspace's 50 MB of storage is full. Remove some files or old versions first."
+- **Saving a named version** is refused with the same message.
+- **Automatic versions** stop being kept, without a message. Your text is still saved as you type; only the history stops growing.
+- **The AI agent can't edit a note's text**, because it couldn't keep the "Before AI" version that makes the edit undoable. See [Undoing a run](/docs/ai#undoing-a-run).
+
+Writing, moving notes, comments and everything else that isn't a file or a version carry on.
+
+### Uploaded files
+
+- A file over the size limit is refused with "Files can be up to 10 MB." (100 MB on Pro).
+- An empty file is refused with "That file is empty."
+- A note that already has 100 files answers "This source has as many files as it can hold."
+- A Free project whose files add up to 2 GB answers "This project's file storage is full. Remove some files first."
+
+For an image larger than the limit, add it by its web address instead of uploading it.
+
+### Members
+
+Inviting someone to a full workspace is refused with "This workspace can have 3 members on the Free plan, counting invitations still open. Pro raises this: an owner can upgrade under Plan & billing. To let someone into one project only, share that project with them instead."
+
+Invitations that are still open and have not expired count toward the limit. Inviting the same address again doesn't count twice.
+
+### Guests
+
+Sharing a project with one more person than the plan allows is refused with "A project can be shared with 5 people on the Free plan. Pro raises this: the workspace's owner can upgrade in Settings → Plan & billing." On Pro, at 200: "This project is shared with as many people as it can be."
+
+Everyone the project is shared with counts, whatever their role. Changing the role of someone it is already shared with adds nobody. 200 is the most a project can be shared with on any plan, and on a self-hosted server too.
+
+### Automatic versions
+
+A note that is being edited gets an automatic version at most once every half hour, or as often as the project's [Automatic versions](/docs/settings/project#automatic-versions) setting says: 10 minutes to 3 hours, or never. Each note keeps its latest 40; older automatic ones are removed as new ones arrive, and sooner when the workspace's storage is full (see [Storage](#storage)). Versions you name are never removed this way.
+
+## Rate limits
+
+A rate limit counts how often one person does one thing in a stretch of time. They keep one script from tying up the server or using the email service for spam, and they are the same on both plans and on a self-hosted server.
+
+Past one, you see "That's a lot in a short time. Try again in a minute." (or the number of minutes left). The count starts again when its stretch of time ends.
+
+| What | Limit per person |
+| --- | --- |
+| Invitations to a workspace | 40 an hour |
+| Sharing a project with someone | 60 an hour |
+| Turning a project's public link on or off, or replacing it | 60 an hour |
+| Comments, replies and reactions | 600 an hour |
+| Chat messages | 120 every 10 minutes |
+| Changing a quest's state or ticking its objectives | 600 every 10 minutes |
+| Saving a named version | 120 an hour |
+| Changing a line's status on a recording sheet | 3,000 an hour |
+| Web clips | 60 an hour |
+| File uploads | 200 an hour |
+| Imports | 30 every 10 minutes |
+| Import previews | 120 every 10 minutes |
+| Adding the pictures of an imported vault | 60 requests every 10 minutes |
+| Sending a `.plotra` project file | 20 every 10 minutes |
+| Importing a `.plotra` project file | 10 every 10 minutes |
+| Importing a dialogue (Ink, Yarn Spinner, Twine) | 30 every 10 minutes |
+| Importing translations (CSV, XLIFF) | 60 an hour |
+| New projects from a template | 20 an hour |
+| Sample projects | 10 an hour |
+| Copying a public project into your workspace | 10 an hour |
+| First projects made during sign-up | 20 an hour |
+| Messages to the AI agent | 40 every 10 minutes |
+| Inline AI actions in the editor | 120 every 10 minutes |
+| Steps of AI long jobs | 120 an hour |
+| Undoing AI runs | 20 every 10 minutes |
+| Testing AI settings | 12 every 10 minutes |
+| Saving AI settings | 30 an hour |
+| The workspace's AI switch and its promise of no AI | 20 an hour |
+| Making API tokens | 20 an hour |
+| Requests with an API token | 300 a minute per token |
+| Adding or changing webhooks | 60 an hour |
+| Adding or changing plugins | 60 an hour |
+| GitHub: saving the settings | 30 an hour |
+| GitHub: **Copy now** | 20 every 10 minutes |
+| Making a setup the project's or the workspace's default | 60 an hour |
+| Starting a checkout | 20 an hour |
+| Opening **Manage billing** | 30 an hour |
+
+Three have their own wording or count differently:
+
+- **File uploads** past the limit answer "That's a lot of files in a short time. Try again in a few minutes."
+- **Signing in** is limited to 5 attempts a minute, and **creating an account** to 5 an hour. Asking for a **password reset link** and **changing your email** are limited to 5 an hour each. Other sign-in requests are limited to 100 a minute.
+- **A public read-only link** is limited to 300 requests a minute for each visitor's address, pages and images together. Past it the visitor sees "That's a lot in a short time. Wait a minute, then reload the page."
+
+Notification emails have a budget as well: at most 12 an hour to one person, and 60 a day from the whole server. Past either, the notification still appears in the app and the email is not sent. See [Notifications](/docs/collaboration/notifications).
+
+## Other fixed caps
+
+These are the same on every plan.
+
+| What | Cap | What happens past it |
+| --- | --- | --- |
+| One import | 10 MB, 3,200 files, 1,500 notes; a Scrivener project, 60 MB of text | "An import can be up to 10 MB. Import it in parts." See [Import and export](/docs/import-export) |
+| One `.plotra` project file | 66 MB on Free, 256 MB on Pro, 1 GB self-hosted | "A project file can be up to … MB here." See [Plotra project files](/docs/import-export/import#plotra-project-files) |
+| Languages a project is translated into | 30, each a code of up to 20 characters | "That isn't a language Plotra knows. Pick one from the list, or type its code, like ‘pt-BR’." |
+| One comment | 5,000 characters | The comment is refused |
+| One chat message | 4,000 characters | The message is refused |
+| A clipped web page | 2 MB of page, 120,000 characters of text | The rest of the page is left out |
+| The Read view | 400 notes | Notes past the 400th are left out. See [Planning views](/docs/views/planning) |
+| The Translate view | 300 documents loaded per scope, 20,000 characters per translation, 5,000 rows per imported file | Documents past the 300th are left out, a longer translation is cut at 20,000, and a larger file answers "That file has more than 5,000 rows. Split it up." See [Localization](/docs/modules/localization) |
+| A string in the string table | 5,000 characters of text, an ID of 80 characters, a character limit of up to 10,000 | "An ID can be at most 80 characters." See [Interactive narrative](/docs/modules/interactive) |
+| A dialogue line | 2,000 characters a line, 500 an expression | The field takes no more |
+| One message to the AI agent | 8,000 characters, 12 notes pointed at with `@` | "That message is too long. Shorten it, or point at a note with @ instead of pasting it." |
+| A selection for an inline AI action | 12,000 characters | "That's too much text at once. Select a shorter passage." |
+| An AI long job | 40 steps | The agent plans a shorter list |
+
+On the hosted version an import is also held to the platform's upload limit of about 4.5 MB for one request, so a larger manuscript has to be imported in parts.
+
+## The AI agent
+
+On your own API key, or on a model on your own computer, there is no AI allowance to run out of: what a run costs is between you and your provider. That is the only way to run the agent on Free, and it works on Pro too.
+
+A Pro workspace also has hosted AI, with 1,500 credits a month. One credit is 1,000 input tokens, and output tokens count five times. When the credits are used up, a person with no model of their own sees "This workspace has used its 1,500 AI credits for this month. They come back on …" with the date, and hosted runs stop until then; runs on your own key carry on. See [Hosted AI and credits](/docs/settings/plans#hosted-ai-and-credits).
+
+On both plans the agent has the rate limits in the table above, which protect the server and have nothing to do with money. They are also listed in [The AI agent](/docs/ai/models-and-privacy#rate-limits).
+
+## What it costs to run
+
+What each service the hosted version runs on costs, and how Pro subscriptions and sponsorship pay for it, is in [the README](https://github.com/ItzSudhan/plotra#what-it-costs-to-run).

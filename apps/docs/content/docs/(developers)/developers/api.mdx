@@ -1,0 +1,73 @@
+---
+title: API tokens and the REST API
+description: "Make an API token, then read and write your projects and notes over HTTP: the endpoints, writing text, and the errors."
+---
+
+Scripts, automations and AI assistants sign in to Plotra with an **API token** and act as you. This page covers tokens and the REST API. The same token works for the [MCP server](/docs/developers/mcp) and [webhooks](/docs/developers/webhooks).
+
+## API tokens
+
+Open **Your settings** from the account menu, open **Advanced: for scripts and AI assistants** at the bottom, and find **API tokens**.
+
+![Your settings: the API tokens form with name, what it can do and when it expires, two tokens with their first characters, Read only, Never used and expiry date, and the Plugins section below](/shots/dev-api-tokens.webp)
+
+| Field | Notes |
+| --- | --- |
+| **Name** | What the token is for, so you can tell them apart: "Claude on my laptop". |
+| **Can** | **Read only**: list, read and search. **Read and write**: also make notes, change their details and write their text. |
+| **Expires** | 30 days, 90 days, a year, or never. An expired token stops working; make a new one. |
+
+Click **Make a token**. The token (it starts with `plt_`) is shown **once**: copy it then. Plotra keeps only a fingerprint of it and can't show it again. Anyone who has it can act as you, so keep it like a password.
+
+The list shows each token's name, its first characters, what it can do, when it was last used and when it expires. **Revoke** stops it at once.
+
+| Fact | Detail |
+| --- | --- |
+| Tokens per person | 20 |
+| New tokens | 20 an hour |
+| Requests | 300 a minute per token, then `429` with a `Retry-After` header |
+| Tokens and the API | A token can't make, list or revoke tokens: only you can, signed in |
+
+## The REST API
+
+The same things, as plain HTTP and JSON, under `/api/v1`. Send the token in the `Authorization` header:
+
+```sh
+curl -H "Authorization: Bearer plt_…" https://<your Plotra address>/api/v1/projects
+```
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/v1/projects` | `{ projects: [{ id, title, type, workspaceId, updatedAt }] }` |
+| `GET /api/v1/projects/{project}/notes` | `{ notes: [{ id, parentId, kind, title, synopsis, tags, aliases, status, wordCount, updatedAt, canEdit }] }`, in binder order, without the trash |
+| `GET /api/v1/projects/{project}/notes/{note}` | `{ note }`, with `markdown`: its text. `null` for a canvas, timeline or dialogue |
+| `GET /api/v1/projects/{project}/search?q=…&limit=20` | `{ hits: [{ id, title, kind, snippet }] }` |
+| `POST /api/v1/projects/{project}/notes` | Makes a note. Body: `{ title, kind?, parentId?, markdown?, tags?, synopsis? }`. `201` with `{ note }` |
+| `PATCH /api/v1/projects/{project}/notes/{note}` | Body: any of `{ title, synopsis, tags, aliases, status }`. `{ note }` |
+| `POST /api/v1/projects/{project}/notes/{note}/text` | Body: `{ mode: "append" \| "replace", markdown, suggest? }`. `{ markdown }`: the note's text after |
+
+`kind` is one of `folder`, `chapter`, `scene`, `note`, `character` or `location` (default `note`). Bodies are JSON, sent with `Content-Type: application/json`.
+
+### Writing text
+
+Text is written through the live document, the way a collaborator's typing is: anyone with the note open sees it arrive, and nothing they're typing is lost.
+
+- `append` adds the Markdown to the end of the note.
+- `replace` rewrites the whole note. What was there is saved first as a version named "Before an API change", in the note's [history](/docs/collaboration/version-history).
+- With `suggest: true` the change arrives as [suggestions](/docs/collaboration/comments-and-suggestions), to accept or reject, and the text is unchanged until then.
+
+`[[Title]]` in the Markdown links to the note of that title or alias. A note that is locked by its stage can't be written.
+
+### Errors
+
+Errors are JSON: `{ "error": "…" }`.
+
+| Status | Means |
+| --- | --- |
+| `400` | Something in the request is wrong; the message says what |
+| `401` | No token, a token that doesn't exist, or one that has expired or been revoked |
+| `403` | The token is read-only, or you don't have permission for that in the project |
+| `404` | There's no such project or note, or you can't see it. The two are the same answer on purpose |
+| `413` | Too much text (200,000 characters per note) |
+| `415` | The body isn't JSON |
+| `429` | Too many requests; wait for `Retry-After` seconds |

@@ -1,0 +1,55 @@
+---
+title: Interactive narrative
+description: Write branching dialogue as cards and jumps, test it by playing it, chain quests by what unlocks what, keep short strings inside their character limits, and import from and export to Ink, Yarn Spinner and Twine.
+---
+
+A story the player steers is not one text but many paths through it. The **Interactive narrative** module gives a project the tools for that: a **Dialogue** type of note where a conversation is drawn as cards joined by jumps, a play-through that walks it the way a game would, a **Quests** view that shows which quest unlocks which, and a **Strings** view for the short texts that have to fit a button or a tooltip. Every line, choice and string gets a stable **String ID**, so a game, a voice session and a translation can all point at the same text.
+
+![A dialogue being played: the ferryman's first line, two numbered choices, and the variables with their values](/shots/mod-dialogue-play.webp)
+
+## In this section
+
+<Cards>
+  <Card title="Branching dialogue" href="/docs/modules/interactive/dialogue" description="Dialogue notes, the nine kinds of card, jumps, variables, playing a dialogue through and checking it." />
+  <Card title="Conditions and variables" href="/docs/modules/interactive/expressions" description="The small expression language for conditions and assignments." />
+  <Card title="Dialogue files" href="/docs/modules/interactive/files" description="Export to and import from Ink, Yarn Spinner and Twine, JSON and a CSV of strings." />
+  <Card title="Quests and strings" href="/docs/modules/interactive/quests-and-strings" description="The quest map of what unlocks what, and short strings with character limits." />
+</Cards>
+
+## Switching it on
+
+A project of the type **Game** starts with this module on. Every other type starts with it off. Switch it on in [Project settings](/docs/settings/project#tools), under **Tools**. That takes the right to manage the project. Once on, it is on for everyone in the project. See [Modules](/docs/modules#switching-a-module-on).
+
+The module adds:
+
+| Where | What |
+| --- | --- |
+| The binder's **New…** menu, and **All commands** | **Dialogue** as a type of note. The command is "New dialogue". |
+| The ribbon, under **More → Tools** | The **Quests** and **Strings** views. The commands are "Open quest designer" and "Open strings (short game text)". |
+| The project's note types | A **Quest** note type for world entries, made for the project once the module is on. |
+| The [Translate view](/docs/modules/localization#the-translate-view) | A scope called **Strings and dialogue lines**, when the Localization module is also on. |
+
+## Who can do what
+
+"Edit" means workspace members and people the project or the note is shared with as editors. See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+| Action | Who |
+| --- | --- |
+| Open a dialogue, play it, export it | Anyone who can read the note |
+| Add, change, join or delete cards and variables | Anyone who can edit the dialogue note. Everyone else sees **Read only** in the toolbar. A dialogue in a locked stage can be changed only by its approvers; everyone else sees **Locked: only an approver can change it** in the toolbar. |
+| Replace a dialogue with an imported file | Anyone who can change its cards, as above |
+| Import a file as a new dialogue | Anyone who can add notes where it goes: the folder of the dialogue it's imported from, or the top of the binder |
+| Open the Quests view | Everyone in the project, for the quests they can see |
+| Create a quest | Anyone who can edit the project |
+| Change a quest, its state, its ticked objectives, its prerequisites or its saved place on the map | Anyone who can edit that quest |
+| Open the Strings view, **Export CSV** | Everyone in the project |
+| Add, change, reorder or delete a string | Anyone who can edit the project |
+
+## Related
+
+<Cards>
+  <Card title="Localization" href="/docs/modules/localization" description="Translate strings, dialogue lines and documents side by side, with a glossary and files for translators." />
+  <Card title="Canon" href="/docs/canon" description="World entries, releases, and the spoiler horizon the quest map obeys." />
+  <Card title="Modules" href="/docs/modules" description="What a module is, and how to switch one on or off." />
+  <Card title="Project types" href="/docs/reference/project-types" description="What a Game project starts with." />
+</Cards>

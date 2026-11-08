@@ -1,0 +1,326 @@
+---
+title: Localization
+description: "The Translate view: translate a project block by block beside its source, see what went out of date when the source changed, keep names consistent with a glossary, and send CSV, XLIFF and subtitle files to people outside Plotra."
+---
+
+A translation is only useful while it matches the text it was made from. The **Localization** module keeps each translation next to its source, one paragraph or one string at a time, with a status of its own. When the source changes, the translation is flagged. A **glossary** keeps names and invented words spelled the same way everywhere, and **CSV** and **XLIFF** files carry the work to a translator outside Plotra and back.
+
+## Switching it on
+
+Localization is off in a new project of every type. Switch it on in [Project settings](/docs/settings/project#tools), under **Tools**. That takes the right to manage the project. Once on, it is on for everyone in the project. See [Modules](/docs/modules#switching-a-module-on).
+
+The module adds one view, **Translate**:
+
+- in the ribbon, under **More → Read and publish**;
+- in **All commands**, as "Open translate";
+- in the binder, when you right-click a folder, a chapter or any note that has notes inside it: **Translate** opens the view on that part of the project.
+
+The view has two tabs, **Translate** and **Glossary**.
+
+## Who can do what
+
+"Edit" means workspace members and people the project is shared with as editors. See [Roles and permissions](/docs/reference/roles-and-permissions).
+
+| Action | Who |
+| --- | --- |
+| Open the view, read the translations and the glossary | Everyone in the project, for the notes they can read |
+| Export CSV, XLIFF, SRT or VTT | Everyone in the project |
+| Type a translation, set a status, **Import** | Anyone who can edit the project |
+| Add, change or delete a glossary term | Anyone who can edit the project |
+| Set the project's languages | Anyone who can edit the project |
+
+## Languages
+
+A project is written in one language and translated into any number of others. Both are set in **Project settings → Reveals & languages**. See [Reveals and languages](/docs/settings/project#reveals-and-languages).
+
+![Project settings, Reveals & languages: the project is written in en and translated into fr](/shots/mod-localization-languages.webp)
+
+| Setting | What it is |
+| --- | --- |
+| **Written in** | The source language, picked by name. English unless you change it. It heads the source column of the Translate view and is written into XLIFF files. |
+| **Translated into** | The target languages. Start typing a language's name ("French", "Japanese") or its code (`pt-BR`), pick it from the list, or press **Add**. Up to 30. The cross beside one removes it. |
+
+Plotra shows languages by name in Project settings, and keeps them as codes such as `fr`, `de` or `pt-BR`; the Translate view and the files for translators use the codes. A language Plotra doesn't know is refused: "That isn't a language Plotra knows. Pick one from the list, or type its code, like ‘pt-BR’."
+
+Until a project has a target language the Translate view reads "No languages yet", with a link, **Add languages in project settings**.
+
+Each language has its own translation of every unit and its own status for it. If you remove a language, nothing can be saved in it and it leaves the menus. Its translations are not deleted. Add the same code again and they are back.
+
+## The Translate view
+
+The table has three columns: the source, the language you are translating into, and a status.
+
+![The Translate view into French: each source block beside its translation and status, two marked Translated with Source changed, the rest To do](/shots/mod-translate.webp)
+
+### The toolbar
+
+| Control | What it does |
+| --- | --- |
+| **Translate** / **Glossary** | Switches between the two tabs. |
+| **Scope** | What to translate. See below. |
+| **Into** | The target language, from the project's list. |
+| **Show** | Filters the rows: **Everything**, one of the four statuses (each with its count), or **Source changed since**. |
+| The counter | "12 / 40 translated": the units in the scope whose status is anything but **To do**, out of all of them. |
+| **CSV**, **XLIFF**, **SRT**, **VTT** | Exports. See [Files for translators](#files-for-translators) and [Subtitles](#subtitles). |
+| **Import** | Reads a translated CSV or XLIFF back in. |
+
+### Scope
+
+| Scope | What it lists |
+| --- | --- |
+| **Strings and dialogue lines** | The short-text fields of the Strings view and the lines and choices of every dialogue. Only offered when the [Interactive narrative](/docs/modules/interactive) module is on. |
+| **Every document** | Every text note in the project. |
+| A folder, a chapter, or a note with notes inside it | That note and everything inside it. If it goes to the trash, the scope is empty. |
+
+The view opens on the folder or chapter you have selected in the binder, or on the folder of the note you are in. With nothing selected it opens on **Strings and dialogue lines** if that scope is offered, and on **Every document** otherwise.
+
+What counts as a document: folders, chapters, scenes, notes, characters, locations, research notes and world entries that have text in them. Canvases, timelines and notes in the trash are left out. Branching dialogues are translated through the **Strings and dialogue lines** scope.
+
+When a scope has nothing in it yet, the view reads "Nothing to translate here": add strings in the Strings view or lines in a dialogue, or, for a document scope, wait until its notes have saved text. A button offers the next step: **Open Strings**, or **Translate every document**.
+
+A document scope loads up to 300 documents at once. Past that a notice reads "This is a large scope: only its first 300 documents are shown. Pick a folder to work through the rest."
+
+The view does not apply the [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon). It lists the text of every note you can read.
+
+### Units
+
+The view cuts the text into **units**. One row is one unit.
+
+- In a document, a unit is a block: a paragraph, a heading, a list item, a line of script. Blocks with no text are skipped.
+- In the strings scope, a unit is one short-text field, one dialogue line or one choice.
+
+In a document scope, each note's units sit under a bar with the note's title. Click the title to open the note in a split beside the view.
+
+The source column also shows, where it applies:
+
+- the **speaker**, in small type, above a line of script dialogue or a branching dialogue line;
+- the **String ID** and the string's context, under a string;
+- the **glossary terms** found in the source. See [The glossary](#the-glossary).
+
+A translation is attached to its unit, not to its place in the text. A block's translation stays with that block; a string's translation stays with its String ID.
+
+### Translating
+
+Type in the middle column. The translation is saved when you leave the box, and also when you switch the scope, the language or the tab with the box still open. If you try to close or reload the page with a translation typed but not saved, the browser asks first. A translation can be up to 20,000 characters.
+
+Each column is set in its own language's direction: a right-to-left language such as `ar`, `he`, `fa` or `ur` (or a code with a right-to-left script, such as `pa-Arab`) is typed and shown right to left.
+
+If the string has a character limit, the count shows under the box, such as `21 / 24`, and turns red when the translation is over. The limit does not stop you typing or saving.
+
+### Status
+
+Every unit has one status per language.
+
+| Status | Meaning |
+| --- | --- |
+| **To do** | Nothing usable yet. Every unit starts here. |
+| **Translated** | There is a translation. |
+| **Reviewed** | Someone has checked it. |
+| **Approved** | It is final. |
+
+How a status changes:
+
+- Saving text in an empty unit sets it to **Translated**. Clearing the text sets it back to **To do**.
+- You set **Reviewed** and **Approved** yourself, with the menu in the status column. You may set any status at any time; nothing checks who sets it.
+- **Editing the text of a translation always sets it back to Translated**, even if it was Reviewed or Approved. Set the status again after the edit.
+
+Statuses are a record for the team. They do not lock a translation and they do not restrict any export.
+
+### When the source changes
+
+When a translation is saved, Plotra remembers the source text it was made from. If the source is different later, the row shows **Source changed** under its status, with a warning sign. Choose **Source changed since** under **Show** to list only those rows.
+
+What counts:
+
+- Any change to the unit's source text counts: a word, a comma, a capital. Changes to formatting alone (bold, italics, a link) do not, because a unit is compared as plain text. Spaces at the start or end of a block are ignored.
+- A unit with no translation is never flagged. It is simply **To do**.
+- The flag does not change the status. An **Approved** translation whose source changed is still Approved, with the flag beside it.
+
+The flag clears when the translation is saved against the new source. That happens when you:
+
+- change the translation's text;
+- change its status;
+- import a file that has a translation for that unit.
+
+To accept a translation as still correct, change its status. If it should keep the status it has, move it to another and back. To see what the source used to say, open the note's [version history](/docs/collaboration); the Translate view keeps no copy of the old source.
+
+Two limits to know:
+
+- Source text is read from the last synced copy of each note. Something typed a few seconds ago may not be in the list yet. Change the scope or the language and come back to load it again.
+- If a block is deleted, or a string's ID is changed, its translation stays stored but no longer shows, because no unit has that key any more. A paragraph that is cut and typed again is a new block with no translation.
+
+## The glossary
+
+The **Glossary** tab is the project's term base: the official spelling of each name and invented word in each language, and the words that must never be translated.
+
+### Adding a term
+
+Type the word in **A name or invented word…** and press **Add term**. A term can be up to 120 characters. The list is in alphabetical order.
+
+| Column | What it is |
+| --- | --- |
+| **Term** | The word as it appears in the source. |
+| **Rule** | **Translate as…** (the default) or **Do not translate**. |
+| **Language** | **Every language**, or one of the project's target languages. |
+| **Official translation** | What the term must become, up to 200 characters. Not used for **Do not translate**, where the field reads "kept as written". |
+| **Note** | Anything a translator should know, up to 500 characters. It is the tooltip of the term in the Translate tab. |
+
+A change is saved when you leave the field. The bin at the end of a row deletes the term at once; **Undo** in the message that appears brings it back.
+
+If the same term is entered both for **Every language** and for one language, the one for the language is used in that language.
+
+For a name that differs by language, add the term once per language: "Greywater" with **Language** `fr` and its French form, and again with `de`. For a name that must stay as it is everywhere, add it once with **Do not translate** and **Every language**.
+
+A **Translate as…** term with no official translation does nothing until you fill one in.
+
+### How terms are checked
+
+In the Translate tab, each row is checked against the terms that apply to the language you are translating into: the terms for that language, and the terms for every language.
+
+- A term is **found** when it appears in the source as a whole word. Capitals don't matter. "Grey" is not found inside "Greywater".
+- Each term found is listed under the source: `Greywater → Eaugrise`, or `Greywater → keep as is` for **Do not translate**.
+- Once the unit has a translation, the term is marked **(missing)** in red if the translation does not contain what is expected: the official translation, or the term itself for **Do not translate**. Capitals don't matter here either.
+
+The check looks for the expected text anywhere in the translation, not as a whole word. A language that inflects the name ("Eaugrises") still passes if the official form is inside it, and fails if the ending changes the stem.
+
+The glossary only flags. It does not change a translation, and it does not stop you saving, approving or exporting a unit with a missing term.
+
+## Files for translators
+
+A translator does not need a Plotra account. Export the scope, send the file, and import what comes back.
+
+Every export holds **all the units of the current scope in the current language**, whatever the **Show** filter is set to. The file is named after the project, the scope and the language, such as `the-gate-strings-fr.csv`, `the-gate-all-fr.xlf` or `the-gate-act-one-fr.csv`.
+
+### CSV
+
+One row per unit, with a header row.
+
+| Column | What it holds |
+| --- | --- |
+| `key` | What the unit is. `str:` and the String ID for a string or dialogue line; the note's id and the block's id for a block of a document. **Leave it as it is.** |
+| `source` | The source text |
+| `target` | The translation so far, or empty. **This is the column the translator fills in.** |
+| `status` | `draft` (To do), `translated`, `reviewed` or `approved` |
+| `context` | The speaker and the unit's context, joined with " · ": the note's title for a block; the string's context, or the dialogue's title and the line's note, for a string |
+
+The file is UTF-8 with a byte-order mark, so spreadsheet apps open it with accents intact. Cells that hold a comma, a semicolon, a tab, a quote mark or a line break are quoted.
+
+A cell that starts with `=`, `+`, `-` or `@` is written with an apostrophe in front (`'- Run!`), so a spreadsheet app shows it as text instead of running it as a formula. The apostrophe is taken off again when the file is imported.
+
+### XLIFF
+
+**XLIFF** saves an XLIFF 1.2 file (`.xlf`) for translation tools. The file names the source language (**Written in**) and the target language.
+
+Each unit is a `trans-unit`:
+
+```xml
+<trans-unit id="str:menu.start" xml:space="preserve">
+  <source>Start game</source>
+  <target state="translated">Commencer</target>
+  <note>Main menu</note>
+</trans-unit>
+```
+
+The `id` is the same key as in the CSV. The `note` is the same context. Plotra's statuses become XLIFF states:
+
+| Status | Written as | Read back from |
+| --- | --- | --- |
+| To do | `needs-translation` | `new`, `needs-translation`, `needs-adaptation`, `needs-l10n` |
+| Translated | `translated` | `translated` |
+| Reviewed | `needs-review-translation` | `needs-review-translation`, `needs-review-adaptation`, `needs-review-l10n` |
+| Approved | `final` | `final`, `signed-off` |
+
+Source and target are plain text. Bold, italics and links in the source are not carried into the file as inline tags, and inline tags a tool adds inside a `target` are dropped on import (the text inside them is kept). Characters XML does not allow, such as stray control characters, are left out of the file.
+
+Import also reads **XLIFF 2.0**, for tools that send that back. A unit's segments are joined into one translation, and its status is that of its least finished segment: `initial` is To do, `translated` Translated, `reviewed` Reviewed and `final` Approved.
+
+### Importing
+
+**Import** takes a `.csv`, `.xlf` or `.xliff` file. It is read as XLIFF if its name ends in `.xlf` or `.xliff` or it contains an `xliff` element, and as CSV otherwise.
+
+1. Set **Scope** to the scope the file was exported from, and **Into** to its language. The file itself does not say which language it is; the import goes into the language you have chosen.
+2. Click **Import** and pick the file.
+3. A message reports the result: "Imported 38 translations, skipped 2 (empty, or not in this scope)."
+
+The rules:
+
+- A CSV needs a `key` column and a `target` column. Other columns may be missing, added or reordered. Without those two: "The file needs “key” and “target” columns, like the exported CSV."
+- The separator may be a comma, a semicolon or a tab. Plotra uses whichever the header row uses, because spreadsheet apps save differently by region.
+- A row with an **empty target is skipped**. An import never clears a translation.
+- A row whose key is **not in the scope on screen** is skipped. That includes units past the 300-document limit of a large scope.
+- A row **replaces** the translation that is there for that unit and language. If the file repeats a key, the last row wins.
+- The status is taken from the file if it is one of `draft`, `translated`, `reviewed` or `approved`, in any case (or an XLIFF state from the table above). Otherwise the unit becomes **Translated**.
+- A file with no translations in it at all is refused: "No translations found in that file."
+- A translation longer than 20,000 characters is cut there.
+- A file may hold up to 5,000 rows. Past that: "That file has more than 5,000 rows. Split it up."
+- Each person can import up to 60 files an hour. Past that, a message says "That's a lot in a short time. Try again in" and how many minutes to wait.
+
+<Callout type="warn" title="An import is marked as up to date">
+Every imported translation is recorded as made from the source as it is now, so none of them shows **Source changed**. If the source was edited while the file was away, the translator worked from the older text and Plotra can't tell. Before sending a file, agree that the source is frozen, or compare the file's `source` column with a fresh export when it comes back.
+</Callout>
+
+### The round trip
+
+1. Add the language in Project settings.
+2. Fill in the glossary, so the translator has the official names.
+3. In the Translate tab, choose the scope and the language, and export **CSV** or **XLIFF**.
+4. The translator fills in `target` (and may set `status`), leaving `key` alone.
+5. With the same scope and language chosen, **Import** the file.
+6. Read through the rows. Check the terms marked **(missing)** and any character count in red, then set **Reviewed** or **Approved**.
+
+The glossary is not part of either file. Send it separately if the translator needs it.
+
+## Subtitles
+
+**SRT** saves subtitles for the scope as a SubRip file (`.srt`), and **VTT** as a WebVTT file (`.vtt`), in the language chosen under **Into**. Both hold the same cues with the same timings; in the WebVTT file `&`, `<` and `>` are written as entities, as the format requires.
+
+- Subtitles are made from the **dialogue lines of script-format scenes**: the Dialogue element of a screenplay, stage play, comic or audio script. See [Script formats](/docs/modules/scripts). Action, scene headings, character cues and parentheticals are left out.
+- Each line uses its translation. A line with no translation yet falls back to the source text, so the file is complete.
+- Speaker names are not written into the cues.
+- The lines of a branching dialogue, and prose, produce no subtitles. In a scope with no script dialogue the button reports: "No script dialogue here: subtitles are made from dialogue lines of script-format scenes."
+
+There is no button for subtitles in the source language; to get those, add a language and leave it untranslated.
+
+### Timing
+
+Plotra has no audio or picture to time against, so the timings are estimates from reading speed. Treat the file as a first pass to adjust against the cut in a subtitle editor.
+
+| Rule | Value |
+| --- | --- |
+| Line length | Up to 42 characters, broken between words |
+| Lines per cue | Up to 2. A longer speech becomes several cues. |
+| How long a cue stays | Its word count divided by 2.5, plus 0.4 seconds; never under 1.2 seconds or over 7 |
+| Gap between cues | 0.2 seconds |
+| First cue | Starts at 00:00:01 |
+
+Cues follow one another from the first second with no pauses for action or scene changes. The times will not match a recording.
+
+## Translating strings and dialogue
+
+With the [Interactive narrative](/docs/modules/interactive) module on, the **Strings and dialogue lines** scope lists the project's whole string table: the short-text fields in their own order, then each dialogue's lines and choices in reading order.
+
+What each row brings with it:
+
+| From | Shown with the source |
+| --- | --- |
+| A short-text field | Its String ID, its context, and its character limit as a count under the translation |
+| A dialogue line | The speaker, the String ID, and a context made of the dialogue's title and the card's **Note for translators and actors** |
+| A choice | The String ID, and a context made of the dialogue's title, "Choice", and the card's note or "Reply to:" and the line it answers |
+
+Things to know:
+
+- A translation is attached to the **String ID**. A dialogue line's ID never changes, so you can rewrite the line and keep its translation (flagged **Source changed**). A short-text field's ID can be edited in the Strings view; change it and the translations stay behind with the old ID.
+- The character limit is the one set on the source string. It applies to every language.
+- The count under a translation counts most emoji as two characters. The count in the Strings view counts them as one.
+- Dialogue lines are read from the last synced copy of each dialogue. Dialogues in the trash are left out.
+- Rows in this scope have no title bar and no link back to the note.
+- The dialogue's own exports (Ink, Yarn Spinner, Twine, JSON) and the Strings view's **Export CSV** hold the **source text only**. Translations leave Plotra through this view's CSV and XLIFF, keyed by String ID, for the game to load.
+
+## Related
+
+<Cards>
+  <Card title="Interactive narrative" href="/docs/modules/interactive" description="Dialogues, String IDs and the Strings view that this module translates." />
+  <Card title="Script formats" href="/docs/modules/scripts" description="The script elements that subtitles are made from." />
+  <Card title="Project settings" href="/docs/settings/project#reveals-and-languages" description="Where the project's languages are set." />
+  <Card title="Modules" href="/docs/modules" description="What a module is, and how to switch one on or off." />
+</Cards>

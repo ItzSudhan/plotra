@@ -1,0 +1,149 @@
+---
+title: Plans and billing
+description: The Free and Pro plans on the hosted version, what an AI credit is, who can manage billing, and how to upgrade, cancel, get a refund or go back to Free.
+---
+
+The hosted version of Plotra has two plans, **Free** and **Pro**. A plan belongs to a **workspace**, not to a person: everyone in a Pro workspace gets its limits, and nobody pays per seat.
+
+No feature is locked behind Pro. Every view and tool is on Free, with no time limit and no card. Pro is more room, more collaborators and hosted AI: $10 a month covers the whole workspace, so a writing group of five pays $2 each.
+
+<StartWriting>Start on Free</StartWriting>
+
+A team that needs more than Pro can arrange an **Enterprise** plan. Its limits, terms and price are worked out with the team: write to [sudhan@plotra.ink](mailto:sudhan@plotra.ink).
+
+A self-hosted Plotra has no plans, no billing and none of these limits. See [Self-hosting](/docs/self-hosting).
+
+## The plans
+
+| | Free | Pro |
+| --- | --- | --- |
+| Price | $0 | $10 a month, or $96 a year ($8 a month, 20% less), per workspace |
+| Projects per workspace | 10 | Unlimited |
+| Storage per workspace | 50 MB | 50 GB |
+| One uploaded file | 10 MB | 100 MB |
+| One `.plotra` project file to import | 66 MB | 256 MB |
+| Workspace members | 3, counting the owner | 25 |
+| Guests per shared project | 5 | 200 |
+| Views, tools and features | All of them | All of them |
+| AI agent on your own key or a local model | Yes | Yes, and it uses no credits |
+| Hosted AI | No | 1,500 credits a month |
+| Export | Always | Always |
+
+- **Storage** counts uploaded files and version snapshots, across every project in the workspace.
+- **One uploaded file.** Files go straight to file storage, so the plan's size applies: 10 MB on Free, 100 MB on Pro.
+- A **member** belongs to the workspace and can open every project in it. The owner counts as one, and so does every invitation that is still open.
+- A **guest** is someone a single project is shared with, as a viewer, commenter or editor, who is not a member of the workspace. A beta reader or an outside editor is a guest. See [Working together](/docs/collaboration).
+
+What happens when you reach a limit, and the limits that are the same on both plans, are in [Limits on the hosted version](/docs/settings/limits).
+
+## When Pro is worth it
+
+Free is enough to write a book on. A workspace moves to Pro when one of these is true:
+
+- **You have more than a few people.** Free holds 3 members and 5 guests per project. Pro holds 25 members and 200 guests, which covers a writing group, a full round of beta readers or a table of players, at the same $10.
+- **You are running out of room.** Maps, reference images and version snapshots fill 50 MB quickly. Pro has 50 GB, a thousand times more.
+- **You have more than 10 projects.** A series, its spin-offs and a campaign or two get there. Pro has no project limit.
+- **You want the AI agent without setting anything up.** On Pro nobody in the workspace needs an API key or a local model.
+
+The price is per workspace, so it doesn't rise as people join. Paying yearly is $96, which is $8 a month. A first payment is refunded in full if you ask within 14 days, and going back to Free deletes nothing, so trying Pro costs you nothing if it isn't for you.
+
+## Hosted AI and credits
+
+On Free, the [AI agent](/docs/ai) runs on your own API key or on a model on your own computer. That works on Pro too.
+
+Pro adds **hosted AI**: the agent runs on a model Plotra provides, so nobody in the workspace needs a key. It is paid for with credits.
+
+- A Pro workspace gets **1,500 credits a month**, shared by everyone in it.
+- **1 credit is 1,000 input tokens**, the text the model reads.
+- **Output tokens count five times**: 1,000 tokens the model writes cost 5 credits.
+- The cost is the same whichever kind of run it is: a chat with the agent, a step of a long job, or an inline action in the editor. Each run is rounded up to a whole credit.
+- A run on **your own key or a local model uses no credits**. If you have saved a model of your own, your runs always use it.
+
+For example, a run that reads 20,000 tokens of your notes and writes 2,000 tokens costs 20 + 10 = 30 credits. Each of the agent's steps reads the conversation so far again, so a run with many steps reads more than the notes alone.
+
+### When credits reset
+
+Credits are monthly, on a yearly subscription too. The month starts on the day of the month the subscription's current period began: a workspace that subscribed on the 14th gets a full allowance on the 14th of every month. A day the month doesn't have, such as the 31st, falls on its last day. Unused credits **don't roll over**.
+
+The allowance, what has been used and the date it is full again are shown under **AI credits this month** in **Workspace settings → Plan & billing**.
+
+### When credits run out
+
+- A run that has already started finishes, even if it takes the workspace past the allowance.
+- A run that was stopped or that failed still counts for what it used.
+- After that, a person with no model of their own sees "This workspace has used its 1,500 AI credits for this month. They come back on …. Until then, add your own AI key in Settings → AI."
+- Runs on your own key carry on as before.
+
+On a hosted run, the notes the agent reads are sent to the model provider Plotra uses, not to a provider you chose. The privacy page on the Plotra site says more.
+
+## Who can manage billing
+
+| | Owner | Admin | Member, guest |
+| --- | --- | --- | --- |
+| See **Plan & billing**: the plan and what the workspace uses | Yes | Yes | No |
+| Upgrade | Yes | No | No |
+| **Manage billing**: invoices, payment method, cancelling | Yes | No | No |
+
+An admin sees "Only an owner of the workspace can change its plan." in place of the upgrade buttons.
+
+The **Plan** box shows the plan, its price, a line about the subscription's state, and four meters: **Projects**, **Storage**, **Members** and, on Pro, **AI credits this month**. A meter turns red when it is full.
+
+## Upgrading
+
+1. Open **Workspace settings → Plan & billing**.
+2. Under **Upgrade to Pro**, press **$96 a year** or **$10 a month**.
+3. You are taken to a checkout page run by Creem. Pay there.
+4. You come back to **Plan & billing**, and the workspace is on Pro at once.
+
+The subscription renews at the end of each month or year until it is cancelled. A workspace that is already on Pro can't start a second subscription.
+
+Payments are handled by **Creem** (creem.io), which is the merchant of record. Creem charges your card, adds sales tax or VAT where it applies, and sends the invoice. Plotra never sees your card: it stores only a customer id, a subscription id, which product was bought and the state and dates of the subscription.
+
+## Cancelling
+
+Open **Workspace settings → Plan & billing** and press **Manage billing**. This opens Creem's customer portal, where you cancel, see invoices and change the payment method.
+
+Cancelling stops the next renewal. The workspace stays on Pro until the end of the period you already paid for, and the page says "Cancelled. Pro stays until" with the date. Then it goes back to Free.
+
+Cancelling is not the same as asking for a refund: see [Refunds](#refunds).
+
+## When a payment fails
+
+| What the Plan box says | What it means | Plan |
+| --- | --- | --- |
+| "Renews on" and a date | The subscription is paid up. | Pro |
+| "Cancelled. Pro stays until …, then the workspace goes back to Free." | Cancelled, with paid time left. | Pro |
+| "The last payment didn't go through and is being retried. Update the payment method under Manage billing to keep Pro." | A renewal failed. Creem tries the charge again over the following days. | Pro, while it is retried |
+| "The subscription ended because a payment failed. Nothing was deleted; the Free limits apply to anything new." | The retries ran out. | Free |
+| "The subscription was cancelled. Nothing was deleted; the Free limits apply to anything new." | The paid period of a cancelled subscription is over. | Free |
+| "The subscription is paused. The Free limits apply until it resumes." | The subscription was paused. | Free |
+
+To get Pro back after a subscription has ended, upgrade again.
+
+## Refunds
+
+- **Your first payment is refunded in full** if you ask within 14 days of it, on the monthly or the yearly plan. You don't have to give a reason. This is once per workspace.
+- **A yearly renewal is refunded in full** if you ask within 14 days of the renewal.
+- **A monthly renewal is not refunded.** Cancel, and the workspace keeps Pro to the end of the month already paid for.
+- **A charge made by mistake is always refunded**: being charged twice, or charged after you cancelled.
+- **Time left on a plan you cancel part-way through is not refunded**, outside the 14 days above. The workspace keeps Pro to the end of the period instead.
+
+To ask, write to [sudhan@plotra.ink](mailto:sudhan@plotra.ink) from the email address on your account, with the name of the workspace and the date of the charge if you have it. You get a reply within 3 working days. The refund is made through Creem to the card or method you paid with and usually shows up within 5 to 10 working days.
+
+When a payment is refunded, the subscription it paid for ends and the workspace goes back to Free. Everything in it stays.
+
+Refunds don't cover runs on your own API key, which your provider bills, or sponsorship. The whole policy is on the refunds page of the Plotra site.
+
+## Going back to Free
+
+A workspace that goes back to Free **keeps all its data**: every project, note, file and version.
+
+- Nothing you made is deleted, and nothing becomes read-only. (Old automatic versions are a rolling history, and give way when storage is full.)
+- You can't add beyond the Free limits. A workspace with 14 projects keeps all 14 and can write in them, but can't create a 15th until it has fewer than 10. The same goes for storage, members and guests: everyone who is already in stays in.
+- A workspace that is over the Free storage limit first gives up its oldest automatic versions to make room. If that isn't enough, it can't upload files or save named versions until it is under the limit, and automatic versions stop being kept. Writing itself is never stopped.
+- Hosted AI stops. The agent still works on your own key.
+- **Export always works.**
+
+## Sponsoring
+
+Plotra also takes sponsorship through GitHub Sponsors. Sponsoring is a gift: it doesn't change a workspace's plan or limits. What the hosted version costs to run is in [the README](https://github.com/ItzSudhan/plotra#what-it-costs-to-run).

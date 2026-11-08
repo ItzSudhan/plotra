@@ -1,0 +1,31 @@
+# The build context for the self-hosting images (docker/*.Dockerfile) is the
+# repo root. Keep it to source: dependencies are installed inside the image, and
+# no local secret or build output may leak into a layer.
+
+.git
+.github
+**/node_modules
+**/.next
+**/.turbo
+**/.wrangler
+**/.source
+**/.vercel
+**/*.tsbuildinfo
+**/.DS_Store
+**/coverage
+
+# Secrets and local settings. The examples are harmless and stay.
+**/.env
+**/.env.*
+!**/.env.example
+**/.dev.vars
+**/.dev.vars.*
+!**/.dev.vars.example
+
+# Not part of any image. `bun install --frozen-lockfile` skips workspaces that
+# are in the lockfile but not on disk.
+apps/web
+apps/docs
+scripts
+
+*.md

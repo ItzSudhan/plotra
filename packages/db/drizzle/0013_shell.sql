@@ -1,0 +1,1 @@
+ALTER TABLE "user_pref" ADD COLUMN "shell" jsonb DEFAULT '{}'::jsonb NOT NULL;

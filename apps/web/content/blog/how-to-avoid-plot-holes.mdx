@@ -1,0 +1,186 @@
+import knows from "./shots/holes-who-knows.webp";
+import layers from "./shots/holes-layers.webp";
+import setups from "./shots/holes-setups.webp";
+import continuity from "./shots/holes-continuity.webp";
+
+export const meta = {
+  title: "How to avoid plot holes: six continuity errors to check",
+  description: "How to avoid plot holes: the six kinds of continuity error, a manual check for each one, and a way to track who knows what across a whole series.",
+  date: "2026-10-05",
+  updated: "2026-10-06",
+  tag: "Craft",
+  art: "thread",
+  faq: [
+    {
+      q: "What is the difference between a plot hole and a continuity error?",
+      a: "A continuity error is a detail that contradicts an earlier one, such as an age or a date. A plot hole is a contradiction the story depends on: the plot only works if the reader ignores it. Both are found the same way, by writing the facts down and comparing them.",
+    },
+    {
+      q: "How do you find plot holes in a finished draft?",
+      a: "Make one pass for each kind of error instead of one pass for everything. Date every scene, list who knows each secret and where they learn it, list every setup with its payoff, then read the draft against those lists.",
+    },
+    {
+      q: "How do you keep continuity across a series?",
+      a: "Keep a list for each book of what it tells the reader for the first time. Before you write the next book, read the lists for the earlier ones. That is everything you can rely on, and everything you can no longer present as a surprise.",
+    },
+    {
+      q: "Can software find plot holes for you?",
+      a: "It can check what you have recorded: dates, places, deaths, who learns which secret, which setups are still open. Plotra's continuity checks do not read your prose, so a contradiction that exists only in a sentence still needs a human reader.",
+    },
+  ],
+};
+
+A plot hole is rarely a failure of imagination. It is a failure of bookkeeping. The story said one thing in chapter 4, it needs another in chapter 30, and nobody put the two side by side.
+
+Bookkeeping can be checked. This post sorts continuity errors into six kinds, with a manual check for each, then shows which of those checks Plotra runs for you and which it can't. The examples come from Romeo and Juliet, since you already know the plot.
+
+## The six kinds of continuity error
+
+### A character knows something before learning it
+
+The Nurse knows about the secret marriage. Lord Capulet does not. Write a scene where Capulet rages at Juliet about "that husband of yours" before anyone has told him, and the plot breaks: he would never have arranged the wedding to Paris.
+
+It happens because you know everything, so every character feels as if they do too.
+
+**Check:** for each secret, list who knows it and the scene where they find out. Then read every earlier scene told from that character's point of view and look for the secret leaking in.
+
+### Someone is in two places at once
+
+Romeo is banished to Mantua. A scene that puts him under Juliet's window on the night she drinks the potion can't be true.
+
+It happens when you move a scene, or draft two storylines separately and join them later.
+
+**Check:** give every scene a date, a length and a place. Sort by date and read down the list once for each main character. A [story timeline](/blog/how-to-make-a-story-timeline) makes the overlaps visible.
+
+### The dead walk back in
+
+Tybalt dies in the street. Two chapters later he is at the family table, because that dinner was written before the duel and moved after it.
+
+**Check:** keep a list of deaths with the scene each one happens in. Search for the name in everything that follows.
+
+### A fact changes between books
+
+In book one Juliet is not yet fourteen. Book two remembers her as sixteen that summer.
+
+It happens because the fact lives only in a sentence, and you wrote the second sentence two years after the first.
+
+**Check:** keep one page for each character and place with its fixed facts, the core of a [story bible](/blog/how-to-write-a-story-bible). When you change a fact on purpose, write down the old version and the reason.
+
+### A setup is never paid off
+
+The Friar's first scene has him gathering herbs and musing that one plant can hold both poison and medicine. That is a setup, and the sleeping potion pays it off. Cut the potion in a rewrite and the herb speech becomes a promise nobody keeps.
+
+**Check:** list every setup in two columns, where it is planted and where it pays off. An empty second cell is a scene to write or a line to cut. Check too that the payoff still comes after the setup.
+
+### A reveal the reader was already given
+
+The audience watches Juliet drink the potion. Her waking in the tomb is suspense, not surprise. A version that staged "she was alive all along" as a twist would land flat, because the reader was there.
+
+**Check:** for each reveal, write down the earliest place the reader could have learned it. If that is before the reveal scene, either remove the early mention or rewrite the scene as dread instead of surprise.
+
+## A worked example: who knows the death is faked
+
+Here is the ledger for the play's biggest secret, "Juliet is asleep, not dead."
+
+| Character | What they know | Learned in | Note |
+| --- | --- | --- | --- |
+| Friar Laurence | The truth | His cell, when he gives her the vial | It is his plan |
+| Juliet | The truth | The same scene | She agrees to it |
+| The Nurse, the Capulets, Paris | A false version | The morning she is found | They believe she is dead |
+| Balthasar | A false version | The funeral | He saw her laid in the tomb |
+| Romeo | A false version | Mantua, when Balthasar arrives | The Friar's letter never came |
+
+The Friar's letter exists to move Romeo from the last row to the first. Friar John, who carries it, is shut inside a house suspected of plague, and the letter never leaves Verona. Balthasar reaches Mantua first with what he saw. Romeo acts on the false version, and Juliet wakes too late.
+
+Nothing here is a plot hole, because every character acts on exactly what they have been told. A gap in someone's knowledge is either your plot or your mistake, and you can only tell which when it is written down.
+
+## The special problem of a series
+
+A standalone novel has two layers of knowledge: what is true, and what each character knows. A series adds a third: what the reader has been told as of each book.
+
+Book three can't lean on a fact you only ever wrote in your notes, and it can't unveil something book one already gave away.
+
+The manual method is a list per book of what that book reveals for the first time:
+
+- **Book 1:** the two houses are at war. Romeo and Juliet marry in secret. The Friar and the Nurse know.
+- **Book 2:** Tybalt kills Mercutio. Romeo kills Tybalt and is banished. The Friar has a potion.
+- **Not told yet:** what the Friar's letter said.
+
+Before you draft book three, read the lists for books one and two. Use them again for a recap or a blurb.
+
+## How Plotra tracks secrets and setups
+
+In Plotra the ledger is the **Secrets & setups** view, opened from the ribbon (**Secrets**). It needs the **Releases & reveals** module, which a novel project starts with switched off: turn it on in the **Modules** tab of Project settings.
+
+On the [who knows what](/docs/canon/secrets-and-continuity#who-knows-what) tab, fill in the line at the top with a secret (any note) and a character, then press **Track**. For each character you record:
+
+- **Learned in:** the scene or chapter where they find out. "Knew all along" is the default.
+- **What they know:** "The truth" or "A false version".
+- **Note:** how they find out, or what they think instead.
+
+Romeo's row would read: a false version, learned in the Mantua scene, "Balthasar saw the funeral."
+
+<Screenshot
+  src={knows}
+  alt="The Who knows what tab of Secrets & setups. Two secrets, Married in secret and Juliet is only asleep, each list the characters who know, where they learned it, and whether they hold the truth or a false version."
+  caption="Who knows what in the sample project. Romeo holds a false version of the second secret."
+/>
+
+The **Knowledge layers** tab handles the reader. A note or a single passage can be marked **Truth** or **Belief**, the false version people are led to believe. The tab sorts the project into **True, but untold**, **Told to the audience** and **Believed**. The middle column is the place to look before you stage a reveal.
+
+<Screenshot
+  src={layers}
+  alt="The Knowledge layers tab with three columns: True, but untold; Told to the audience; and Believed."
+  caption="Knowledge layers: what is true and untold, what the reader has been told, and what people wrongly believe."
+/>
+
+The [setups and payoffs](/docs/canon/secrets-and-continuity#setups-and-payoffs) tab is the two-column list. Each row has a kind, the note it is set up in, the note it pays off in, and a status: Open, Paid off or Dropped. An open setup shows how long it has waited, such as "open for 12 scenes".
+
+<Screenshot
+  src={setups}
+  alt="The Setups & payoffs tab: two rows, each with a kind, what was set up, the chapter it is set up in, the chapter it pays off in, and the status Paid off."
+  caption="Setups and payoffs, one row for each promise made to the reader."
+/>
+
+<StartWriting />
+
+## What the continuity checks run, and what they can't see
+
+The **Continuity** view needs the **World bible** module. It runs plain rules over the project. There is no AI in it, and the same project always gives the same answer. These are the [rules](/docs/canon/secrets-and-continuity#the-rules) that match the errors above:
+
+| Error | Rule | Triggered when |
+| --- | --- | --- |
+| Knows too early | Knows something before learning it | A scene links to a secret, and its POV character is recorded as learning it in a later scene |
+| Two places | In two places at once | A character is in two dated scenes that overlap, counting each **Duration**, with different **Location** values |
+| The dead return | Appears after death | A character is in a scene dated after their **Died** date |
+| A changed fact | Canon scene relies on something that isn't canon | A scene marked Canon links to a note that is Retconned or Non-canon |
+| Unpaid setup | Setup still open | An Open setup has a note it is planted in |
+| Reversed setup | Payoff comes before its setup | The payoff note comes before the setup note in the binder |
+
+Other rules cover a character who appears before birth, an age that doesn't match the timeline, a closed plot thread referenced again, and a story date that can't be read.
+
+Be clear about [what the checks read](/docs/canon/secrets-and-continuity#what-the-checks-read): scene and character properties, links, plot threads, your who-knows-what entries, your setups and canon status. A character counts as in a scene only when they are its POV or the scene links to them. Scenes without a story date are skipped by the date rules, and two scenes need a location each to count as two places.
+
+<Screenshot
+  src={continuity}
+  alt="The Continuity view reporting one thing to look at, under Knows something before learning it: Romeo is the point of view of The Balcony, which refers to Married in secret, but he only learns it in The Secret Wedding."
+  caption="The sample project has one slip left in on purpose, and the Continuity view finds it."
+/>
+
+The checks don't read your prose. If Tybalt is named in a scene with no link to his page, the rule can't see him. If Juliet's age changes inside a sentence, nothing flags it. And no rule looks for a reveal the reader already had: that one is still yours, with the Knowledge layers tab to help. A result that is intentional, such as a ghost, can be dismissed.
+
+Retconning a note asks for a reason and saves the old text as a version.
+
+## Releases and the spoiler horizon
+
+For the series problem, add a [release](/docs/canon/releases-and-reveals#releases) for each book in the **Release roadmap** and set **Ships** to that book's folder. Everything inside is then revealed by that book. To hold back one passage on a page readers otherwise know, tag the block with `⌘⌥T` for a later release, or **Never**.
+
+Then choose a book under **World as of**. That is [the spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon): the binder dims what readers don't know yet, the Codex, graph and timeline leave it out, and Knowledge layers shows **Told by this point**.
+
+Two limits. The Continuity view always works on the whole project, whatever the horizon. And the horizon is a way of looking, not a lock: someone you share the project with can still read everything.
+
+All of this is on the Free plan ([pricing](/pricing)). The [guide for novelists](/docs/for/novelists) has the full setup.
+
+## What to do next
+
+Pick the one secret your plot turns on. Write its ledger today: who knows the truth, who holds a false version, and the scene where each of them learns it. Then read the scenes before each of those moments and look for the leak. When that one is clean, date your scenes and start the list of setups.

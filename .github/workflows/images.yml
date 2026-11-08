@@ -1,0 +1,88 @@
+name: Docker images
+
+# Builds the self-hosting images and publishes them to the GitHub Container
+# Registry, so docker/compose.yaml can `docker compose pull` instead of
+# building:
+#   ghcr.io/<owner>/plotra-app, plotra-migrate, plotra-collab
+#
+# Runs when a tag like v0.1.0 is pushed (tagged 0.1.0, 0.1 and latest), or by
+# hand (tagged edge). The app image is built with a placeholder collab URL that
+# docker/app-entrypoint.mjs replaces with NEXT_PUBLIC_COLLAB_URL at start.
+#
+# After the first run, make each package public once: the repository's
+# Packages page → the package → Package settings → Change visibility.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    name: Build (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    # arm64 builds under emulation, which makes the app image slow to build.
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: app
+            dockerfile: docker/app.Dockerfile
+            build-args: |
+              NEXT_PUBLIC_COLLAB_URL=https://plotra-collab-url.invalid
+          - name: migrate
+            dockerfile: docker/migrate.Dockerfile
+            build-args: ""
+          - name: collab
+            dockerfile: docker/collab.Dockerfile
+            build-args: ""
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Image name
+        id: name
+        # Registry names must be lower case.
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/plotra-${{ matrix.name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.name.outputs.image }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=raw,value=edge,enable=${{ github.event_name == 'workflow_dispatch' }}
+          labels: |
+            org.opencontainers.image.title=plotra-${{ matrix.name }}
+            org.opencontainers.image.licenses=AGPL-3.0-or-later
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Sign in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          build-args: ${{ matrix.build-args }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}

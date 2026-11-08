@@ -1,0 +1,173 @@
+---
+title: Quests and strings
+description: The Quests view, which lays quests out by what unlocks what, and the Strings view, for short texts that must fit their character limits.
+---
+
+Two views that come with the module: **Quests**, a map of which quest unlocks which, and **Strings**, a table of the short texts a game shows on buttons, tooltips and menus.
+
+## The Quests view
+
+The **Quests** view, the quest designer, shows the project's quests as a map of what unlocks what. Open it from the ribbon under **More → Tools**, or run "Open quest designer".
+
+![The Quests view: three quests in three tiers joined by arrows, the first Done, the second Active, the third Not started, with the state counts in the toolbar](/shots/mod-quests.webp)
+
+A quest is a world entry of the **Quest** note type: a page in the binder, with text of its own and six properties.
+
+| Property | What it holds |
+| --- | --- |
+| **Given by** | One character note |
+| **Prerequisites** | The quests that must be done first |
+| **Objectives** | A list of short steps, in order |
+| **Reward** | A line of text |
+| **Reveals** | Notes the player learns about by doing the quest |
+| **State** | **Not started**, **Active**, **Done** or **Failed**. Empty counts as Not started. |
+
+The Quest note type is made by the module. You don't need the World bible module to use it, but without World bible the type is not listed in the binder's **New…** menu: create quests with **New quest** in this view.
+
+A quest's **State** is yours to use. A game master tracks the campaign with it: what the party has taken on, finished or failed. A game writer can use it as design status instead. Each objective can also be ticked off as done, in the panel.
+
+Projects made before quests had states get the **State** property the next time the project is opened. If you remove it from the Quest note type it comes back on the next open; the Quests view can set a state either way.
+
+### The toolbar
+
+| Button | What it does |
+| --- | --- |
+| **New quest** | Creates a quest called "New quest" beside the other quests in the binder, and selects it on the map. |
+| **Arrange by tier** | Puts every quest back into columns, one per tier, and forgets the places you dragged them to. |
+| **Fit everything** | Zooms so that every quest is on screen. |
+
+Beside the buttons is a button for each state, with how many quests are in it. Click one to hide the quests in that state from the map, and again to show them. Hiding a state hides only cards and their arrows: tiers and saved places stay the same. With every quest hidden, a hint says to turn a state back on. The filter is yours alone and resets when the view reloads.
+
+The right of the toolbar counts the quests and tiers and reminds you that "an arrow means “do this first”".
+
+### Tiers and arrows
+
+An arrow from quest A to quest B means A must be done before B. It is stored in B's **Prerequisites**.
+
+A quest's **tier** is its depth in the chain. A quest that needs nothing is tier 1, and its card reads "Tier 1 · open from the start". Any other quest is one tier past its deepest prerequisite.
+
+Each card shows the tier, its state, the title, the number of objectives and who gives the quest ("from Anna"). Once an objective is ticked it reads "2/3 objectives done". The card's left edge has the state's colour: grey for Not started, blue for Active, green for Done and red for Failed. A failed quest's title is struck through.
+
+Once any quest in the project has a state, a Not started quest whose prerequisites are all **Done** shows **Ready** instead of Not started. A quest that needs nothing is ready from the start.
+
+- **Add a prerequisite**: drag from the dot on a quest's right and let go on the quest it unlocks. Or select the later quest and use **Add a quest to do first…** in its panel.
+- **Remove one**: click the arrow, then **Remove this prerequisite** at the top right, or press `⌫` or `Delete`. Or use the cross beside it in the panel. **Undo** in the message that appears puts it back.
+- **Open a quest's page**: double-click its card, or use **Open page** in the panel.
+- **Move a card**: drag it. The place is saved on the quest, so everyone sees the same map. A quest nobody has placed sits in its tier's column.
+
+A prerequisite that would make a loop is refused: "That would make a loop: … already needs … first." The panel's list of quests to add leaves those out.
+
+### The quest panel
+
+Select a card and a panel opens on the right, headed "Quest · tier", the number and the quest's state.
+
+![A quest's panel: its state, title, who gives it, the quest it needs first, two objectives with tick boxes, and its reward](/shots/mod-quests-panel.webp)
+
+| Field | How it works |
+| --- | --- |
+| **State** | Not started, Active, Done or Failed. A Not started quest that is ready says "Ready to start: everything it needs first is done." |
+| **Title** | Renames the quest's note. |
+| **Given by** | A menu of the project's character notes, or **Nobody**. |
+| **Needs first** | The prerequisites, each with a cross to remove it, and **Add a quest to do first…**. With none: "Nothing: it's open from the start." |
+| **Objectives** | Type one and press `↵`. Each is up to 80 characters, a quest holds up to 50, and the same text can't be listed twice. Edit one in place. The buttons beside a row are **Move up**, **Move down** and **Remove**; clearing an objective's text removes it too, and **Undo** brings a removed one back. Tick the box beside one to mark it done, and its text is struck through; a line above the list counts how many are ("2 of 3 done. Tick the box to mark one off."). A tick follows its objective when you rename it. Once a quest has 50 objectives, the field to add one goes away. |
+| **Reward** | A line of text. |
+| **Reveals** | Type part of a note's title in **Link a note it reveals…** and pick from up to six matches, or press `↵` for the first; with none it reads "No matching notes." `Esc` clears what you typed. Any note but a folder can be linked. Click a linked note to open it, or the cross beside it to unlink it. |
+
+**Reveals** is a list of links on the quest. It records your intent. It does not mark anything as revealed in [Releases & reveals](/docs/canon/releases-and-reveals#releases), and it hides nothing.
+
+Title aside, these fields are the properties of the quest's page, and the panel is a second place to edit them. The **State** shows in the inspector's **Properties** like the others. Ticked objectives are kept on the quest too, but you tick them only in the panel.
+
+### What you can and can't see
+
+- With a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) set, the map leaves out the quests that the horizon hides. Their arrows go with them, and the tiers are worked out from the quests that are left. The counts on the state buttons only count the quests that are left, and a prerequisite the horizon hides doesn't stop a quest being **Ready**.
+- A prerequisite, a giver or a revealed note that is in the trash or that you can't see is listed as "A quest you can't see", "Someone you can't see" or "A note you can't see".
+- If you can't edit a quest you can still drag its card, but the place is not saved and the map puts it back when it reloads. Linking to it is refused: "You can't edit" and its title.
+
+### Empty states
+
+- **No quests yet.** The view explains what a quest is and offers **New quest**.
+- **No Quest type.** The Quest note type was deleted. **Restore the Quest type** brings it back; your other notes aren't touched. If the view is still open in a tab after the module was switched off, it says to switch Interactive narrative on, with **Open project settings**.
+- With two or more quests and no arrows, a hint reads "Drag from the dot on a quest's right to the quest it unlocks."
+
+## The Strings view
+
+The **Strings** view holds the project's **short-text fields**: button labels, item descriptions, captions, alt text. They are the texts that have to fit somewhere. Each has a stable String ID and can have a character limit. Open it from the ribbon under **More → Tools**, or run "Open strings (short game text)".
+
+![The Strings view: strings grouped by category, each with its string ID, text, a count against its character limit, and its context](/shots/mod-strings.webp)
+
+Strings are kept in the project, not in a note. They are not in the binder and not in search. A [Plotra project file](/docs/import-export/import#plotra-project-files) carries them, with their translations.
+
+### Categories
+
+Strings are grouped under four built-in categories, always shown: **UI text**, **Item descriptions**, **Captions** and **Alt text**. Categories of your own follow them in alphabetical order.
+
+**New category** asks for a name (up to 40 characters); press `↵` and the category is made with its first string in it. A category of your own exists only while it has a string. Empty it and it is gone.
+
+### Adding and editing
+
+**New string** adds a string to the category of the row you have selected, or to **UI text** if none is selected. The **+** beside a category's name adds one there.
+
+| Column | What it is |
+| --- | --- |
+| **String ID** | The key the game or app looks the text up by. A new string is given one from its category and a number: `ui.string_1`, `item.string_1`, or `menu_labels.string_1` in a category of your own called "Menu labels". Change it to something that means more, such as `menu.start`. |
+| **Text** | The text itself, up to 5,000 characters. `Esc` puts back what was saved. |
+| **Count** | Its length now, and the limit if there is one: `18 / 24`. |
+| **Limit** | The most characters it may have, from 1 to 10,000. Empty means no limit. |
+| **Context** | Where it is shown, up to 500 characters. Translators see it. |
+
+A change is saved when you leave the field.
+
+A String ID may use letters, digits, dots, dashes and underscores, up to 80 characters, and must be different from every other string's ID. It can't have the shape of a dialogue line's String ID, such as `d3f9_0001`, so the two never clash in the string table. One that breaks a rule is refused and the old ID is put back.
+
+A project holds up to 10,000 strings.
+
+<Callout type="warn" title="Renaming a String ID after translating">
+A translation is attached to the String ID. If you change the ID of a string that has been translated, its translations stay with the old ID and the string shows as untranslated. Settle the IDs before translation starts.
+</Callout>
+
+On a row, the buttons beside it are **Move up**, **Move down** and **Delete**. A string moves within its category. Delete takes effect at once, with no confirmation; **Undo** in the message that appears brings the string back.
+
+**Filter…** narrows the table to strings whose ID or text contains what you type. While a filter is on, empty categories are hidden and rows can't be moved.
+
+### Character limits
+
+A limit does not stop you typing. It tells you when you have gone over:
+
+- the **Count** turns red and bold, and the text box gets a red border;
+- the toolbar, after the number of strings, counts them: "42 strings · 3 over the limit".
+
+Length is counted in characters as a reader sees them: an accented letter or an emoji is one.
+
+### The preview panel
+
+Select a row and a panel opens on the right.
+
+- **Preview** draws a box the size of the limit, in a fixed-width typeface, 32 characters to a line. Text that fits is inside. Text that doesn't is marked in red. Below it: "18 of 24 characters: 6 left." or "30 of 24 characters: 6 too many." With no limit it gives the count and reads "Set a limit to see whether it fits." The box follows what you type.
+- **Category** moves the string to another category.
+- **Context** is the same field as in the table, with more room.
+
+The box shows the count, not the real width on screen. A game's own typeface will set the text differently.
+
+### Exporting the string table
+
+**Export CSV** saves the project's whole string table: every short-text field, then the lines and choices of every dialogue. Everyone in the project can use it. The file is named after the project, such as `the-gate-strings.csv`.
+
+| Column | What it holds |
+| --- | --- |
+| `id` | The String ID |
+| `speaker` | For a dialogue line, who says it |
+| `text` | The text |
+| `source` | `string` for a short-text field, `dialogue` for a line or a choice |
+| `context` | The string's context. For a dialogue line: the dialogue's title, "Choice" if it is one, and the card's note. |
+| `char_limit` | The limit, or empty |
+
+Things to know about this file:
+
+- Short-text fields come first, then the dialogues, each in reading order.
+- Dialogues in the trash, and dialogues you can't see, are left out.
+- Dialogue lines are read from the last synced copy of each dialogue. A line someone typed a few seconds ago may be missing.
+- It holds the source text only. For a file a translator fills in, use [the Translate view's CSV or XLIFF](/docs/modules/localization#files-for-translators).
+
+### Empty state
+
+"No strings yet", with a **New string** button for people who can edit.

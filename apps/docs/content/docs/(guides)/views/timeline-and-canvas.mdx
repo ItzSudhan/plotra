@@ -1,0 +1,271 @@
+---
+title: Timeline and canvas
+description: "Lay the story out in story time, with lanes, events and your own calendar, or arrange it by hand on a canvas of cards, shot panels, groups and arrows."
+---
+
+A timeline shows when things happen in the story. A canvas is a board where you place things wherever you like. Both are notes in the binder, so a project can have as many of each as it needs: one timeline for the war and one for the heist, a canvas per act.
+
+Neither needs a module.
+
+## Creating and opening
+
+Create a timeline or a canvas like any other note: **New…** at the top of the binder, then **Timeline** or **Canvas**. "New timeline" and "New canvas" in **All commands** do the same. Click the note in the binder to open it.
+
+A timeline or a canvas cannot be changed into another type of note, and a text note cannot be changed into one.
+
+## Timeline
+
+Story time runs left to right. Scenes sit where their **Story date** says, and last as long as their **Duration** says. Events that are not scenes, such as a war or a birth, are added straight to the timeline.
+
+![A timeline with a lane for each plot thread, scenes and events placed on their story dates across a week in July, and the Calendar and Lanes controls above](/shots/view-timeline.webp)
+
+### What appears on a timeline
+
+| Item | Where it comes from | Look |
+| --- | --- | --- |
+| A scene (or another dated note) | Any note with a **Story date** the timeline's calendar can read. Folders, canvases and timelines are skipped. | A bar with the note's icon |
+| An event | Added on this timeline. It belongs to this timeline only. | A bar with a flag |
+
+Every timeline in a project shows the same dated notes, because the dates are properties of the notes. Events are separate for each timeline.
+
+Scenes with no story date are listed along the bottom as **Undated scenes**. Each has a calendar button, **Set a date for** *its title*, that asks for the date.
+
+### Story dates and durations
+
+A scene has two properties that place it, both in the **Properties** panel of the inspector:
+
+- **Story date** is written `YYYY-MM-DD`, or `YYYY-MM-DD HH:mm` with a time. The month and day may be left off: `1820` is the first day of that year. A year can be negative, `-0450-02-01`, and up to six digits.
+- **Duration** is written as a number and a unit: `2h`, `3 days`, `1h 30m`, `2 weeks`. The units are minutes, hours, days, weeks, months and years, in full or shortened.
+
+With the Gregorian calendar a story date can also be written the way your browser understands, such as "3 May 1820". With a custom calendar it can be written with a month's name and two numbers, such as "4 Frostmonth 312".
+
+A date the calendar cannot read leaves the scene among the undated ones.
+
+To give another type of note a place on the timeline, add a text property called "Story date" to that type, and "Duration" if you want a length. See [custom fields](/docs/writing/properties-and-tags#custom-fields).
+
+The World bible's **Event** type has a **Story date** field already, so those entries appear on the timeline too. They cannot be dragged: change the date in the entry's properties.
+
+### Placing scenes
+
+There are four ways to put a scene on the timeline. Each one writes the scene's **Story date**, so the others follow.
+
+1. Type a **Story date** in the scene's properties.
+2. Drag the scene from the **Undated scenes** strip onto the timeline, or click the calendar button beside it and type the date.
+3. Drag a note from the binder onto the timeline.
+4. Click a scene on the timeline and change the date in the panel that opens.
+
+When you drop a note from the binder, a note whose type has a **Story date** property is placed at that point. Any other note, or one you cannot edit, becomes a new event with the note's title, linked to the note. Dropping works in **Chronological** mode only.
+
+### Moving and stretching
+
+- **Drag** a bar sideways to change when it starts. Its length stays the same.
+- **Drag the right edge** to change how long it lasts. This writes the scene's **Duration**.
+- **Click** a bar to select it and open its panel.
+- **Double-click** a bar to open the scene, or the note an event is about, in a new tab.
+- With the keyboard, `Tab` to a bar and press `↵` to open its panel and change its dates.
+
+Movement snaps to a round unit for the zoom you are at: a minute when zoomed right in, then 5 and 15 minutes, an hour, 6 hours, a day, a week, 30 days, a year.
+
+You can move a scene if you can edit that scene, and an event if you can edit the timeline.
+
+### The panel
+
+Clicking a bar opens a panel at the top right.
+
+For a scene: its title (click to open it), **Story date**, **Duration**, and the date written out in full. Clearing the story date takes the scene off the timeline.
+
+For an event:
+
+| Field | What it is |
+| --- | --- |
+| **Title** | Up to 80 characters. |
+| **Starts** | A date in the timeline's calendar. |
+| **Ends** | Optional. It must be after the start. |
+| **Lane** | Shown when lanes are on. Which lane the event sits in. |
+| **About** | A note the event is about, or **No linked note**. Double-clicking the event then opens that note. |
+| **Notes** | Free text, up to 4,000 characters. |
+| Colour dots | The event's colour. Click the chosen colour again for grey. |
+| **Delete event** | Removes it at once. **Undo** in the message that appears brings it back. |
+
+A date the calendar cannot read is outlined in red and not saved.
+
+### Events
+
+- Click **Event** in the toolbar to add one in the middle of what you can see.
+- Double-click an empty part of the timeline to add one at that moment, in that lane.
+
+A new event is called "New event". Events are for things that happen in the story but are not a scene you write. Deleting the note an event is about keeps the event and drops the link.
+
+### Lanes
+
+**Lanes** in the toolbar splits the timeline into rows.
+
+| Lanes | A lane for each | A scene goes in |
+| --- | --- | --- |
+| **No lanes** | — | One row for everything |
+| **Plot threads** | Plot thread | Every thread it is in on the [plot grid](/docs/views/planning#plot-grid). A scene in two threads appears in both lanes, in the thread's colour. |
+| **POV character** | Character who is some scene's point of view | The lane of its **POV** property |
+| **Location** | Location some scene is set in | The lane of its **Location** property |
+
+Whatever has no lane goes in the last one: **No thread**, or **Unassigned**.
+
+Dragging a scene up or down into another lane:
+
+- In **POV character** or **Location** lanes, it changes the scene's **POV** or **Location**. Dropping it in **Unassigned** clears the property.
+- In **Plot threads** lanes, scenes do not change lane by dragging. Put a scene in a thread on the plot grid.
+
+An event can be dragged to any lane. An event remembers one lane, so after you switch from one kind of lanes to another it sits in **No thread** or **Unassigned** until you place it again.
+
+Bars that overlap in time are stacked on separate rows inside their lane.
+
+### Zoom and pan
+
+| Do this | And |
+| --- | --- |
+| `⌘` and scroll | Zoom in or out around the pointer |
+| **Zoom out** and **Zoom in** in the toolbar | Zoom around the middle |
+| **Fit everything** | Show the whole span of scenes and events |
+| Drag an empty part of the timeline | Pan |
+| Scroll sideways, or `⇧` and scroll | Pan |
+
+The zoom runs from single minutes to hundreds of thousands of years on one screen. The axis labels change with it, from times of day to days, months and years.
+
+A timeline with nothing on it opens on the thirty days around today in the Gregorian calendar, or around the first day of year 1 in a custom calendar.
+
+### Chronological and narrative
+
+The two buttons in the toolbar choose what the horizontal axis means.
+
+- **Chronological** is story time. Everything above applies.
+- **Narrative** lays the dated scenes out in reading order, one slot each, numbered, with each scene's date above it. A scene that happens earlier in story time than the one before it is marked **flashback**. Events are not shown. Nothing can be dragged, and **Event** is greyed out.
+
+In **Chronological**, the **Show reading order** button draws a line from each scene to the next in reading order. It is on to begin with. A step backwards in time is drawn as a dashed orange line: a flashback. Point at a line to see which two scenes it joins.
+
+### Calendars
+
+A timeline uses the Gregorian calendar until you choose another. The **Calendar** list in the toolbar has every calendar in the project and **Manage calendars…**.
+
+To make a calendar for an invented world:
+
+1. Choose **Calendar**, then **Manage calendars…**.
+2. Click **New calendar**. In a project with no calendars yet, the dialog opens straight on a new one.
+3. Fill in the fields below. A line at the bottom shows how the date 312-02-05 reads in your calendar.
+4. Click **Save calendar**. A new calendar is put on this timeline at once.
+
+| Field | What it is | Limits |
+| --- | --- | --- |
+| **Name** | The calendar's name. | 80 characters |
+| **Hours per day** | The length of a day. Starts at 24. | 1 to 1,000 |
+| **Months** | A name and a number of days for each. A new calendar starts with twelve months of 30 days. **+ Add month** adds one; the `×` removes one. | 1 to 60 months, each 1 to 1,000 days, names up to 40 characters |
+| **Eras** | Optional. A name and the year the era starts in. Years are then counted from the era's first year: with an era "AE" starting in year 300, the year 312 reads "13 AE". | Up to 50 |
+
+A month with no name, or an era with no name, is dropped when you save.
+
+Things to know about calendars:
+
+- Calendars belong to the project. Every timeline can use any of them, and each timeline remembers its own choice.
+- A custom calendar has no leap years. Every year is the same length.
+- Dates are still written as numbers: `312-04-17` is day 17 of the fourth month of year 312.
+- In the Gregorian calendar, years before 1 are shown as BC.
+- **Edit** and **Delete** in the dialog change or remove a calendar. Plotra asks before deleting one. A timeline whose calendar was deleted goes back to Gregorian.
+- Scene dates are text, so they are read again in whatever calendar the timeline uses. Events keep their place as a count of minutes, so their dates read differently after you switch calendar.
+- Saving a project as a template copies its calendars.
+- The [continuity checks](/docs/canon/secrets-and-continuity#continuity-checks) read story dates too.
+
+Creating, editing and deleting calendars needs edit access to the project. Choosing a timeline's calendar needs edit access to that timeline.
+
+### What is saved, and for whom
+
+The calendar, the lanes, chronological or narrative, and the reading-order line are saved on the timeline, so everyone sees it the same way. If you cannot edit the timeline you can still change lanes and mode for yourself; that is not saved. The zoom and position are kept in your browser for each timeline, so it opens where you left it; on another computer, or after changing the calendar, it fits everything again. **Fit everything** in the toolbar does that at any time.
+
+### Under a spoiler horizon
+
+When a [spoiler horizon](/docs/canon/releases-and-reveals#the-spoiler-horizon) is on, the timeline shows only the scenes the audience knows by then.
+
+## Canvas
+
+An endless board for arranging things by hand: a storyboard, a mind map, a whiteboard for planning a session, a wall of index cards with string between them. Everyone who has the canvas open works on it together, and you see their pointers with their names.
+
+A canvas can also be made as a map, a picture of your world with places pinned to it; see [Maps](/docs/views/maps).
+
+### The toolbar
+
+The buttons at the top left are **Add**, **Draw** and **Fit everything**. **Add** opens a menu:
+
+| Choice | What it adds |
+| --- | --- |
+| **Note card…** | Opens a search box. Type part of a title and click a note, or press `↵` for the first match. Folders and canvases are not offered. |
+| **Text card** | A plain card to write on. |
+| **Image or shot panel** | A picture with a caption and shot details. |
+| **Group** | A labelled frame that holds other cards. |
+| **Sticky note** | A coloured square to scribble on. |
+| **Shape** | A box, an oval or a diamond with a label: for flowcharts, plans and diagrams. |
+
+**Draw** picks up the pen: drag on the canvas to draw. The coloured dots beside the button choose the pen's colour. Click **Stop drawing**, or press `Esc`, to put the pen down. **Fit everything** zooms to show the whole canvas.
+
+A new card appears in the middle of what you can see. You can also drag any note from the binder onto the canvas to make a note card where you drop it.
+
+### Kinds of card
+
+**Note card.** A live window onto a note in the binder: its type, status dot, title and the first lines of its synopsis. Change the note and the card changes. Double-click it, or select it and press `↵`, to open the note in a new tab. If the note is in the trash the card reads "In the trash". If it was deleted, or you are not allowed to see it, the card reads "Restricted or deleted note" and does not show its title.
+
+**Text card.** Double-click to write (or select it and press `↵` or `F2`), click away to save. Up to 5,000 characters. A colour tints the whole card.
+
+**Image / shot panel.** Select it and fill in the panel at the top right:
+
+| Field | What it is |
+| --- | --- |
+| **Add a picture…** | Upload a picture from your computer (PNG, JPEG, GIF, WebP or AVIF), or paste a link to one on the web. An uploaded picture is kept with the canvas. **Change picture…** and **Remove** replace or take it off. |
+| **Caption / action** | Text under the picture, up to 500 characters. |
+| **Shot…** | Extreme wide, Wide, Full, Medium, Medium close-up, Close-up, Extreme close-up, Over the shoulder, POV or Insert. |
+| **Camera…** | Static, Pan, Tilt, Dolly, Truck, Crane, Handheld, Zoom or Tracking. |
+| **Duration (seconds)** | How long the shot lasts. |
+
+The shot, camera move and duration show as small badges on the picture.
+
+**Sticky note.** Yellow unless you choose a colour. Double-click (or press `↵`) to write, click away to save.
+
+**Shape.** A box, an oval or a diamond, chosen in its panel, with a label written in the middle (double-click to write). Its colour sets the outline and a light fill. Shapes connect to other cards with arrows like any card.
+
+**Pen stroke.** Each line you draw is a card of its own: select it to change its colour or its thickness (**Fine**, **Medium**, **Thick**), drag it to move it, resize it to stretch it, or press `Delete` to remove it. While the pen is down, the canvas doesn't pan; put the pen down to move around.
+
+**Group.** A dashed frame with a label, for an act or a sequence. Select it to change the label (up to 120 characters) and the colour. Drag a card onto a group to put it inside; it then moves with the group. Drag it out to take it out. Removing a group leaves its cards where they were.
+
+### Working with cards
+
+| To do this | Do this |
+| --- | --- |
+| Move a card | Drag it. |
+| Resize a card | Select it and drag a corner or an edge. |
+| Change its colour | Select it and click a colour dot in the panel. Click the same colour again to remove it. |
+| Remove a card | Select it and press `⌫` or `Delete`, or click **Remove from canvas** in the panel. **Undo** in the message that appears puts it back. |
+| Select several | Hold `⇧` and drag a box, or `⌘`-click cards. |
+
+Removing a note card takes it off the canvas only. The note itself is untouched.
+
+### Connections
+
+Drag from one of the four dots on a card's edges to another card to draw an arrow between them. Groups have no dots and cannot be connected.
+
+Click an arrow to select it. The panel at the top right then has a **Label** field (up to 80 characters), for a word such as "causes", "then" or "meanwhile", and **Remove**. `⌫` also removes a selected arrow, and **Undo** in the message that appears puts it back. Removing a card removes its arrows.
+
+A selected card's panel lists its arrows under **Connections**, as "To ‘…’" or "From ‘…’". Click one to select that arrow, or click its bin to remove it, without needing to point at the arrow itself.
+
+### Getting around
+
+Drag the background to pan and scroll to zoom. The buttons at the bottom left zoom in, zoom out and fit. The small map at the bottom right shows the whole canvas; drag in it to move.
+
+### What a canvas feeds
+
+- A note card counts as a link from the canvas to that note. The canvas shows up in the note's **Mentioned in** list (see [Links](/docs/writing/links#backlinks)) and in the [graph](/docs/views/world#graph).
+- The text of text cards and captions is searchable, and a `#tag` written there is a tag on the canvas.
+- That text gives the canvas a word count in the binder. It is not counted in your [writing stats](/docs/writing/goals#what-is-counted).
+- A canvas has version history like a text note. A version shows how many cards and connections it had; restore it to see it.
+
+### Who can edit
+
+If you cannot edit the canvas, the toolbar reads **Read only**. You can still pan, zoom and open notes from their cards.
+
+A canvas is saved the same way as a text note, including while you are offline. See [Saving and working offline](/docs/writing/editor#saving-and-working-offline). If two people change the same card at the same moment, the later change wins for that card; changes to different cards are both kept.
+
+The Canvas view shows everything, whatever the spoiler horizon is.
