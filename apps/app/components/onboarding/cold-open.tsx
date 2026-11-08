@@ -27,7 +27,7 @@ import { LocalAiStep } from "./local-ai-step";
 type Template = { id: string; title: string; type: ProjectType };
 
 /**
- * The library this is, in local mode (desktop-onboarding-plan.md, step 2): its
+ * The library this is, in local mode: its
  * name and folder, and whether to ask about AI after naming it (not when AI
  * is set up already, or was taken out of this build).
  */

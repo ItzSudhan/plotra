@@ -254,7 +254,7 @@ The repository has seven workflows:
 | `digest.yml` | 06:41 UTC every day | Calls the app's `/api/cron/digest`, which emails the daily notification digest |
 | `dco.yml` | every pull request | Checks that every commit carries a `Signed-off-by` line matching its author |
 | `images.yml` | a tag like `v0.1.0`, or by hand | Builds the self-hosting images and publishes them to the GitHub Container Registry. See [Releases](#releases) |
-| `desktop.yml` | a tag like `desktop-v0.2.0` | Builds the desktop app and publishes it as a GitHub release. See [Releases](#releases) |
+| `desktop.yml` | a GitHub release being published | Builds the desktop app and attaches its installers to the release. See [Releases](#releases) |
 
 `ci.yml`, `dco.yml` and `images.yml` need nothing, and `desktop.yml` only needs secrets to sign. The other three do nothing until these exist, under **Settings → Secrets and variables → Actions**.
 
@@ -404,7 +404,7 @@ When all of it passes, add the uptime variables if you held them back in step 7,
 
 **Self-hosting images.** Push a tag like `v0.1.0`. `images.yml` builds `ghcr.io/<owner>/plotra-app`, `-migrate` and `-collab` for amd64 and arm64, and tags them `0.1.0`, `0.1` and `latest`; run it by hand for an `edge` build. The app image is built with a placeholder collab address, which the container replaces with its `NEXT_PUBLIC_COLLAB_URL` when it starts. After the first run, make each package public once: the repository's **Packages** page → the package → **Package settings** → **Change visibility**.
 
-**The desktop app.** Set `version` in `apps/desktop/package.json`, then push the matching tag, such as `desktop-v0.2.0`. `desktop.yml` builds macOS, Windows and Linux and publishes a GitHub release, which installed apps update from and [plotra.ink/download](https://www.plotra.ink/download) links to. Without these repository secrets the builds are unsigned:
+**The desktop app.** Publish a GitHub release whose tag is the version, such as `v0.2.0`. `desktop.yml` builds macOS (`.dmg`), Windows (`.exe`) and Linux (`.AppImage`, `.deb`) at that tag, with the tag's version, and attaches the files to the release, which installed apps update from and [plotra.ink/download](https://www.plotra.ink/download) links to. Without these repository secrets the builds are unsigned:
 
 | Platform | Secrets |
 | --- | --- |

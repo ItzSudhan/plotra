@@ -25,7 +25,7 @@ const updatedFormat = new Intl.DateTimeFormat("en", { month: "short", day: "nume
 export default async function WorkspacePage({ params }: PageProps<"/w/[workspace]">) {
   const workspace = await requireWorkspace((await params).workspace);
   const [projects, shared, noAi] = await Promise.all([listProjects(workspace.id), listSharedProjects(), getNoAiPromise(workspace.slug)]);
-  // A cloud account in the desktop app sees "Plotra on your desktop" once (desktop-onboarding-plan.md, step 3).
+  // A cloud account in the desktop app sees "Plotra on your desktop" once.
   const desktopEmail = !isLocalMode && (await inDesktopApp()) ? await desktopWelcomeFor() : null;
 
   return (

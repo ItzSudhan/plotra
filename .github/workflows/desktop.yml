@@ -1,26 +1,36 @@
 name: Desktop release
 
-# Builds the desktop app (apps/desktop) for macOS, Windows and Linux and
-# publishes it as a GitHub release, which the installed apps update from
-# (apps/desktop/src/updates.ts) and plotra.ink/download links to.
+# Builds the desktop app (apps/desktop) for macOS (.dmg, .zip), Windows (.exe)
+# and Linux (.AppImage, .deb), and attaches the files to a GitHub release.
+# The installed apps update from the latest release (apps/desktop/src/updates.ts)
+# and plotra.ink/download links to its files.
 #
-# Runs when a tag like desktop-v0.2.0 is pushed. The tag's version must match
-# apps/desktop/package.json's "version": electron-builder names the release
-# after the package.
+# Runs when a release is published on GitHub. The release's tag is the app's
+# version: v0.2.0, 0.2.0 and desktop-v0.2.0 all build version 0.2.0. It can
+# also be run by hand (Actions → Desktop release → Run workflow) for an
+# existing release's tag.
 #
-# Signing (local-mode-plan.md, phase 7) uses these secrets when they exist;
-# without them the builds are unsigned:
+# Signing uses these secrets when they exist; without them the builds are
+# unsigned, and macOS and Windows warn on first open:
 #   macOS    MAC_CSC_LINK, MAC_CSC_KEY_PASSWORD (a Developer ID certificate, base64 .p12),
 #            APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID (notarizing)
 #   Windows  WIN_CSC_LINK, WIN_CSC_KEY_PASSWORD
 
 on:
-  push:
-    tags: ["desktop-v*"]
+  release:
+    types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "The release's tag to build and attach files to (e.g. v0.2.0)"
+        required: true
 
 permissions:
   contents: write
+
+concurrency:
+  group: desktop-release-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -34,9 +44,12 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: "1"
       TURBO_TELEMETRY_DISABLED: "1"
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
@@ -51,6 +64,20 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
 
+      # The release's tag is the version, so the update files match what's published.
+      - name: Set the version from the tag
+        working-directory: apps/desktop
+        shell: bash
+        run: |
+          version="${TAG#desktop-}"
+          version="${version#v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::The tag '$TAG' isn't a version (expected something like v0.2.0)."
+            exit 1
+          fi
+          node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("package.json","utf8"));p.version=process.argv[1];fs.writeFileSync("package.json",JSON.stringify(p,null,2)+"\n")' "$version"
+          echo "Building Plotra $version"
+
       # Bun doesn't run Electron's install script, which fetches its binary.
       - name: Fetch Electron
         working-directory: apps/desktop
@@ -60,11 +87,10 @@ jobs:
         working-directory: apps/desktop
         run: bun run test
 
-      - name: Build and publish
+      - name: Build
         working-directory: apps/desktop
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ runner.os == 'macOS' && secrets.MAC_CSC_LINK || '' }}
           CSC_KEY_PASSWORD: ${{ runner.os == 'macOS' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
@@ -77,4 +103,21 @@ jobs:
           if [ -z "$CSC_LINK" ]; then export CSC_IDENTITY_AUTO_DISCOVERY=false; fi
           bun run compile
           bun run bundle-server
-          npx electron-builder --config electron-builder.yml --publish always $([ -n "$APPLE_ID" ] && echo "-c.mac.notarize=true")
+          # Built only: the files are attached to the release below, which already exists.
+          npx electron-builder --config electron-builder.yml --publish never $([ -n "$APPLE_ID" ] && echo "-c.mac.notarize=true")
+
+      - name: Attach to the release
+        working-directory: apps/desktop/release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          shopt -s nullglob
+          # The installers, and what automatic updates read (latest*.yml and the blockmaps).
+          files=(*.dmg *.zip *.exe *.AppImage *.deb *.blockmap latest*.yml)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::Nothing was built."
+            exit 1
+          fi
+          printf 'Attaching %s\n' "${files[@]}"
+          gh release upload "$TAG" "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"

@@ -13,7 +13,7 @@ const useMac = () =>
   );
 
 /**
- * "Plotra on your desktop" (desktop-onboarding-plan.md, step 3): shown once,
+ * "Plotra on your desktop": shown once,
  * on the projects page, to someone signed in to Plotra Cloud in the desktop
  * app. What the app does that the website doesn't, and that a private library
  * is one menu away. Closing it is saved with their settings, so it stays closed

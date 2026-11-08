@@ -133,7 +133,7 @@ export type GettingStarted = {
   dismissed?: boolean;
   /** A sample's try-out is closed on its own. */
   dismissedTryout?: boolean;
-  /** The desktop app's "Plotra on your desktop" card, for a cloud account (desktop-onboarding-plan.md, step 3). */
+  /** The desktop app's "Plotra on your desktop" card, for a cloud account. */
   dismissedDesktop?: boolean;
 };
 

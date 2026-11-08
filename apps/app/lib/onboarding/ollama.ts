@@ -1,4 +1,4 @@
-// Finding a model on this computer for a new library's AI (desktop-onboarding-plan.md, step 2).
+// Finding a model on this computer for a new library's AI.
 // Plain data: the server action that asks Ollama is lib/local-setup-actions.ts.
 
 /** Where Ollama listens unless told otherwise. Asked by the server, which in local mode is this computer. */

@@ -13,8 +13,7 @@ import type { OllamaFound } from "@/lib/onboarding/ollama";
 const SHOWN = 6;
 
 /**
- * A new library's AI, asked once, after its name (desktop-onboarding-plan.md,
- * step 2). In a library AI runs on a model on this computer or with the
+ * A new library's AI, asked once, after its name. In a library AI runs on a model on this computer or with the
  * person's own key: there's no hosted model. Ollama, when it's running, is
  * found and set up in one click, which also switches AI on for the library.
  * Everything here can be done later in Settings, so "Not now" is always there.

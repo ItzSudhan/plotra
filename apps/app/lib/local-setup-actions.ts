@@ -5,8 +5,8 @@ import { isLocalMode } from "./local-mode";
 import { modelNames, OLLAMA_TAGS_URL, rankOllamaModels, type OllamaFound } from "./onboarding/ollama";
 
 /**
- * Looks for Ollama on this computer, for a new library's AI step
- * (desktop-onboarding-plan.md, step 2). Only in local mode, where the server
+ * Looks for Ollama on this computer, for a new library's AI step.
+ * Only in local mode, where the server
  * is this computer: a hosted server never calls anyone's machine.
  */
 export async function findOllama(): Promise<OllamaFound> {
