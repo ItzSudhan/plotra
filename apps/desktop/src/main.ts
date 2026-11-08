@@ -9,6 +9,7 @@ import { staysInWindow } from "./navigation";
 import { freePort, startLocalServer, type LocalServer } from "./server";
 import { loadSettings, rememberLibrary, saveSettings, type Settings } from "./settings";
 import { afterSignIn, exchangeUrl, signInPage, startSignIn, type SignInFlow } from "./sign-in";
+import { closeGently, isClosing, showGently } from "./motion";
 import { checkForUpdates } from "./updates";
 
 // Plotra's desktop app (local-mode-plan.md, phase 4). It works one of two ways,
@@ -85,7 +86,7 @@ function loadWithStatus(win: BrowserWindow, url: string, status: string, options
 const windowBackground = () => (nativeTheme.shouldUseDarkColors ? "#141311" : "#f7f6f3");
 
 /** The app's own windows: not the chooser or the opening window. */
-const appWindows = () => BrowserWindow.getAllWindows().filter((win) => win !== chooser && win !== splash);
+const appWindows = () => BrowserWindow.getAllWindows().filter((win) => win !== chooser && win !== splash && !isClosing(win));
 
 /** What's open, in words: "Plotra Cloud" or "‘My Library’". */
 function currentName(): string | null {
@@ -118,7 +119,7 @@ function showSplash(dir: string, status?: string) {
     webPreferences: { contextIsolation: true, sandbox: true },
   });
   splash = win;
-  win.once("ready-to-show", () => !win.isDestroyed() && win.show());
+  win.once("ready-to-show", () => showGently(win));
   win.on("closed", () => {
     if (splash === win) splash = null;
   });
@@ -131,7 +132,7 @@ function showSplash(dir: string, status?: string) {
 function closeSplash() {
   const win = splash;
   splash = null;
-  if (win && !win.isDestroyed()) win.close();
+  if (win) closeGently(win);
 }
 
 /** Where "Try again" on the offline page goes, per window. */
@@ -259,8 +260,7 @@ function openWindow(url: string, onReady?: () => void, { load = true }: { load?:
   });
   win.once("ready-to-show", () => {
     // Waiting on a sign-in in the browser: show the window without pulling it in front of the browser.
-    if (pendingSignIn.has(win.webContents.id)) win.showInactive();
-    else win.show();
+    showGently(win, { inactive: pendingSignIn.has(win.webContents.id) });
     onReady?.();
   });
   // The loading, offline and sign-in pages aren't somewhere to go back to: once the app's own page is in, they're forgotten.
@@ -564,12 +564,15 @@ function showChooser({ screen }: { screen?: "new" } = {}) {
     resizable: false,
     title: "Welcome to Plotra",
     backgroundColor: windowBackground(),
+    show: false,
     webPreferences: { contextIsolation: true, sandbox: true, preload: path.join(__dirname, "preload.js") },
   });
-  chooser.on("closed", () => {
-    chooser = null;
+  const win = chooser;
+  win.on("closed", () => {
+    if (chooser === win) chooser = null;
     if (!current && !quitting) app.quit();
   });
+  win.once("ready-to-show", () => showGently(win));
   void chooser.loadFile(staticFile("chooser.html"), screen ? { query: { screen } } : {});
 }
 
@@ -605,7 +608,12 @@ ipcMain.handle("plotra:choose", async (_event, choice: Choice) => {
   else if (typeof choice === "object" && choice && "cloud" in choice) opened = await switchToCloud(choice.cloud === "sign-up" ? "sign-up" : "sign-in");
   else if (typeof choice === "object" && choice && "create" in choice && isPlace(choice.create)) opened = await newLibrary(choice.create);
   else if (typeof choice === "object" && choice && "library" in choice && isLibrary(choice.library)) opened = await switchToLibrary(choice.library);
-  if (opened) chooser?.close();
+  if (opened && chooser) {
+    // Gone at once as far as the app is concerned, while it fades out.
+    const win = chooser;
+    chooser = null;
+    closeGently(win);
+  }
   return opened;
 });
 

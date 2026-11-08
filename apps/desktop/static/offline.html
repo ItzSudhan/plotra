@@ -83,14 +83,83 @@
         outline: none;
         box-shadow: 0 0 0 3px var(--ring);
       }
+      .art {
+        display: block;
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        fill: none;
+        stroke: var(--muted);
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .art .spark {
+        stroke: var(--accent);
+      }
+      .art[hidden] {
+        display: none;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        main > * {
+          animation: rise 560ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+          animation-delay: calc(var(--i, 0) * 80ms);
+        }
+        .art .body {
+          animation: float 5s ease-in-out 600ms infinite;
+        }
+        .art .spark {
+          animation: blink 2.6s ease-in-out infinite;
+        }
+        a.button {
+          transition: transform 150ms cubic-bezier(0.2, 0.7, 0.2, 1), filter 150ms;
+        }
+        a.button:hover {
+          transform: translateY(-1px);
+        }
+        a.button.primary:hover {
+          filter: brightness(1.08);
+        }
+        a.button:active {
+          transform: scale(0.97);
+        }
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+      }
+      @keyframes float {
+        50% {
+          transform: translateY(-3px);
+        }
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 0.25;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
     </style>
   </head>
   <body>
     <!-- The buttons link back to this page with an `action`; the app handles them (src/main.ts). -->
     <main role="alert">
-      <h1 id="title">Can't reach Plotra Cloud</h1>
-      <p id="message">Check your internet connection.</p>
-      <div class="buttons">
+      <svg class="art" id="cloud-art" viewBox="0 0 64 64" aria-hidden="true">
+        <path class="body" d="M19 46h27a10 10 0 0 0 1.4-19.9A14 14 0 0 0 20 23.2 11.5 11.5 0 0 0 19 46Z" />
+        <path class="spark" d="M30 33l6 6m0-6-6 6" />
+      </svg>
+      <svg class="art" id="folder-art" viewBox="0 0 64 64" aria-hidden="true" hidden>
+        <path class="body" d="M10 20v24a4 4 0 0 0 4 4h36a4 4 0 0 0 4-4V26a4 4 0 0 0-4-4H31l-5-6H14a4 4 0 0 0-4 4Z" />
+        <path class="spark" d="M29 32l6 6m0-6-6 6" />
+      </svg>
+      <h1 id="title" style="--i: 1">Can't reach Plotra Cloud</h1>
+      <p id="message" style="--i: 2">Check your internet connection.</p>
+      <div class="buttons" style="--i: 3">
         <a class="button primary" id="retry" href="offline.html?action=retry">Try again</a>
         <a class="button" id="local" href="offline.html?action=local">Open a library on this computer</a>
       </div>
@@ -100,6 +169,8 @@
         document.getElementById("title").textContent = "Can't reach your library";
         document.getElementById("message").textContent = "Plotra lost touch with the library. Try again, or open it again from File → Open Recent.";
         document.getElementById("local").textContent = "Choose a library";
+        document.getElementById("cloud-art").hidden = true;
+        document.getElementById("folder-art").hidden = false;
       }
       document.getElementById("retry").focus();
     </script>

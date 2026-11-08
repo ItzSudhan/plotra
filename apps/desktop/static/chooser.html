@@ -16,6 +16,10 @@
         --accent-fg: #ffffff;
         --accent-text: #b5461a;
         --ring: rgba(226, 96, 42, 0.55);
+        --glow: rgba(226, 96, 42, 0.09);
+        --tint: rgba(226, 96, 42, 0.1);
+        --accent-line: rgba(181, 70, 26, 0.35);
+        --shadow: rgba(60, 40, 20, 0.35);
       }
       @media (prefers-color-scheme: dark) {
         :root {
@@ -28,6 +32,10 @@
           --accent-fg: #ffffff;
           --accent-text: #f08a5d;
           --ring: rgba(226, 96, 42, 0.6);
+          --glow: rgba(226, 96, 42, 0.1);
+          --tint: rgba(226, 96, 42, 0.14);
+          --accent-line: rgba(240, 138, 93, 0.4);
+          --shadow: rgba(0, 0, 0, 0.7);
         }
       }
       * {
@@ -35,7 +43,7 @@
       }
       body {
         margin: 0;
-        padding: 40px 48px;
+        padding: 32px 48px 36px;
         font: 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
         background: var(--bg);
         color: var(--fg);
@@ -65,7 +73,7 @@
         background: var(--card);
       }
       .choice h2 {
-        margin: 0 0 8px;
+        margin: 0;
         font-size: 17px;
         font-weight: 600;
       }
@@ -220,23 +228,214 @@
       .setup .buttons {
         margin-top: 4px;
       }
+      /* Warm light behind the page, drifting slowly. */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -20%;
+        z-index: -1;
+        pointer-events: none;
+        background:
+          radial-gradient(40% 35% at 18% 12%, var(--glow), transparent 70%),
+          radial-gradient(35% 30% at 88% 92%, var(--glow), transparent 70%);
+      }
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--accent-text);
+      }
+      .eyebrow svg {
+        width: 14px;
+        height: 14px;
+        fill: currentColor;
+      }
+      .choice-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .choice-head h2 {
+        margin: 0;
+      }
+      .glyph {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: var(--tint);
+        color: var(--accent-text);
+      }
+      .glyph svg {
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        overflow: visible;
+      }
+      .glyph .lid {
+        transform-origin: 3px 9px;
+      }
+      .inside li::marker {
+        color: var(--accent-text);
+      }
+      button.busy::before {
+        content: "";
+        display: inline-block;
+        width: 11px;
+        height: 11px;
+        margin-right: 8px;
+        vertical-align: -1px;
+        border-radius: 50%;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        opacity: 0.8;
+      }
       @media (prefers-reduced-motion: no-preference) {
+        body::before {
+          animation: drift 18s ease-in-out infinite alternate;
+        }
         button {
-          transition: border-color 120ms, filter 120ms, box-shadow 120ms;
+          transition: border-color 150ms, filter 150ms, box-shadow 150ms, transform 150ms cubic-bezier(0.2, 0.7, 0.2, 1);
+        }
+        button:active:not(:disabled) {
+          transform: scale(0.97);
+        }
+        button.busy::before {
+          animation: spin 0.8s linear infinite;
+        }
+        /* Each screen comes in a piece at a time; going between them, it slides the way you went. */
+        .screen:not([hidden]) > *,
+        .choice,
+        .setup > * {
+          animation: rise 560ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+          animation-delay: calc(var(--i, 0) * 70ms);
+        }
+        .setup > * {
+          animation-delay: calc(var(--i, 0) * 50ms + 120ms);
+        }
+        .screen > .choices,
+        .screen > .setup {
+          animation: none;
+        }
+        body[data-going="forward"] .screen:not([hidden]) {
+          animation: in-forward 380ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        }
+        body[data-going="back"] .screen:not([hidden]) {
+          animation: in-back 380ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        }
+        .eyebrow svg {
+          animation: twinkle 1.6s ease-in-out 600ms both;
+        }
+        .choice {
+          transition: transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 220ms, border-color 220ms;
+        }
+        .choice:hover,
+        .choice:focus-within {
+          transform: translateY(-2px);
+          border-color: var(--accent-line);
+          box-shadow: 0 10px 28px -14px var(--shadow);
+        }
+        .glyph svg,
+        .glyph .lid {
+          transition: transform 320ms cubic-bezier(0.3, 1.4, 0.5, 1);
+        }
+        .choice:hover .cloud-glyph svg {
+          transform: translateY(-2px);
+        }
+        .choice:hover .lid {
+          transform: translateY(-1.5px) rotate(-6deg);
+        }
+        .recent button {
+          animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+          animation-delay: calc(var(--i, 0) * 45ms + 300ms);
+        }
+        .recent button:hover:not(:disabled) {
+          transform: translateX(2px);
+        }
+        .missing:not([hidden]) {
+          animation: rise 400ms ease-out both;
+        }
+        .will-be.changed {
+          animation: settle 360ms ease-out;
+        }
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+      }
+      @keyframes in-forward {
+        from {
+          opacity: 0;
+          transform: translateX(18px);
+        }
+      }
+      @keyframes in-back {
+        from {
+          opacity: 0;
+          transform: translateX(-18px);
+        }
+      }
+      @keyframes settle {
+        from {
+          opacity: 0.35;
+        }
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes twinkle {
+        0% {
+          opacity: 0;
+          transform: scale(0.4) rotate(-40deg);
+        }
+        60% {
+          opacity: 1;
+          transform: scale(1.2) rotate(8deg);
+        }
+        100% {
+          transform: scale(1) rotate(0);
+        }
+      }
+      @keyframes drift {
+        to {
+          transform: translate(3%, -2%) scale(1.05);
         }
       }
     </style>
   </head>
   <body>
     <section class="screen" id="choose" aria-labelledby="choose-heading">
-      <h1 id="choose-heading">Where should your work live?</h1>
-      <p class="lede">You can change this later from the File menu, and use both. Projects in the cloud and in a library are kept separately.</p>
+      <p class="eyebrow" style="--i: 0">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c.5 4.2 2.8 6.6 8 8-5.2 1.4-7.5 3.8-8 8-.5-4.2-2.8-6.6-8-8 5.2-1.4 7.5-3.8 8-8Z" /></svg>
+        <span id="welcome">Welcome to Plotra</span>
+      </p>
+      <h1 id="choose-heading" style="--i: 1">Where should your work live?</h1>
+      <p class="lede" style="--i: 2">You can change this later from the File menu, and use both. Projects in the cloud and in a library are kept separately.</p>
 
       <p class="missing" id="missing" role="status" hidden></p>
 
       <div class="choices">
-        <section class="choice" aria-labelledby="cloud-heading">
-          <h2 id="cloud-heading">Plotra Cloud</h2>
+        <section class="choice" style="--i: 3" aria-labelledby="cloud-heading">
+          <div class="choice-head">
+            <span class="glyph cloud-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.3 9.1 4.75 4.75 0 0 0 7 18.5Z" /></svg>
+            </span>
+            <h2 id="cloud-heading">Plotra Cloud</h2>
+          </div>
           <ul>
             <li>Your Plotra account, the same projects as on the web</li>
             <li>Write with others, share, and sync between devices</li>
@@ -248,8 +447,16 @@
           </div>
         </section>
 
-        <section class="choice" aria-labelledby="local-heading">
-          <h2 id="local-heading">On this computer</h2>
+        <section class="choice" style="--i: 4" aria-labelledby="local-heading">
+          <div class="choice-head">
+            <span class="glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 7.5V18a1.5 1.5 0 0 0 1.5 1.5h15A1.5 1.5 0 0 0 21 18V9.5A1.5 1.5 0 0 0 19.5 8h-8l-2-2.5h-5A1.5 1.5 0 0 0 3 7Z" />
+                <path class="lid" d="M3 11h18" />
+              </svg>
+            </span>
+            <h2 id="local-heading">On this computer</h2>
+          </div>
           <ul>
             <li>No account, no internet needed</li>
             <li>Everything in a folder you choose: a library</li>
@@ -262,45 +469,45 @@
         </section>
       </div>
 
-      <div class="recent" id="recent" hidden>
+      <div class="recent" id="recent" style="--i: 5" hidden>
         <h3 id="recent-heading">Recent libraries</h3>
         <div id="recent-list" role="group" aria-labelledby="recent-heading"></div>
       </div>
 
-      <p class="note">Signing in happens in your browser, where your password manager and Google sign-in work. On this computer, AI works with your own key, or a model that runs on your computer.</p>
+      <p class="note" style="--i: 6">Signing in happens in your browser, where your password manager and Google sign-in work. On this computer, AI works with your own key, or a model that runs on your computer.</p>
     </section>
 
     <section class="screen" id="new" aria-labelledby="new-heading" hidden>
-      <h1 id="new-heading">Set up your library</h1>
-      <p class="lede">A library is a folder on this computer that holds your projects. You can make more later, from the File menu.</p>
+      <h1 id="new-heading" style="--i: 0">Set up your library</h1>
+      <p class="lede" style="--i: 1">A library is a folder on this computer that holds your projects. You can make more later, from the File menu.</p>
 
       <form class="setup" id="setup">
-        <label class="field">
+        <label class="field" style="--i: 0">
           Name
           <input type="text" id="library-name" maxlength="80" autocomplete="off" spellcheck="false" required />
         </label>
-        <div class="field">
+        <div class="field" style="--i: 1">
           <span id="where-label">Where</span>
           <div class="where">
             <span id="parent" aria-labelledby="where-label"></span>
             <button type="button" id="change">Change…</button>
           </div>
         </div>
-        <p class="will-be" id="will-be" aria-live="polite"></p>
+        <p class="will-be" id="will-be" style="--i: 2" aria-live="polite"></p>
 
-        <ul class="inside" aria-label="What the library keeps">
+        <ul class="inside" style="--i: 3" aria-label="What the library keeps">
           <li><strong>Your projects</strong>, in a database that Plotra opens</li>
           <li><strong>A Markdown copy</strong> of every project, readable in any app</li>
           <li><strong>A snapshot</strong> of everything once a day, and whenever you choose File → Back Up Now</li>
         </ul>
 
-        <div class="buttons">
+        <div class="buttons" style="--i: 4">
           <button type="submit" class="primary" id="create">Create library</button>
           <button type="button" data-screen="choose">Back</button>
         </div>
       </form>
 
-      <p class="note">Back it up like any folder. If it's in iCloud Drive or Dropbox, close Plotra on one computer before you open the library on another.</p>
+      <p class="note" style="--i: 2">Back it up like any folder. If it's in iCloud Drive or Dropbox, close Plotra on one computer before you open the library on another.</p>
     </section>
 
     <script>
@@ -309,11 +516,13 @@
         const label = button.textContent;
         buttons().forEach((b) => (b.disabled = true));
         button.textContent = "Opening…";
+        button.classList.add("busy");
         document.body.setAttribute("aria-busy", "true");
         try {
           await work();
         } finally {
           button.textContent = label;
+          button.classList.remove("busy");
           buttons().forEach((b) => (b.disabled = false));
           document.body.removeAttribute("aria-busy");
         }
@@ -328,7 +537,8 @@
       });
 
       // The two screens: the choice, and "Set up your library".
-      function show(screen) {
+      function show(screen, { animate = true } = {}) {
+        if (animate) document.body.dataset.going = screen === "new" ? "forward" : "back";
         for (const section of document.querySelectorAll(".screen")) section.hidden = section.id !== screen;
         document.title = screen === "new" ? "Set up your library" : "Welcome to Plotra";
         if (screen === "new") {
@@ -349,7 +559,13 @@
         const ask = ++asked;
         const dir = place.parent ? await window.plotra.libraryPath(place.parent, place.name) : null;
         if (ask !== asked) return;
-        willBe.textContent = dir ? `The library will be the folder ${dir}` : "";
+        const text = dir ? `The library will be the folder ${dir}` : "";
+        if (text === willBe.textContent) return;
+        willBe.textContent = text;
+        // A gentle settle each time the folder changes, so the change is noticed.
+        willBe.classList.remove("changed");
+        void willBe.offsetWidth;
+        willBe.classList.add("changed");
       }
       nameField.addEventListener("input", () => {
         place.name = nameField.value;
@@ -376,7 +592,11 @@
         void preview();
       });
 
-      if (new URLSearchParams(location.search).get("screen") === "new") show("new");
+      if (new URLSearchParams(location.search).get("screen") === "new") show("new", { animate: false });
+
+      const hour = new Date().getHours();
+      const part = hour < 5 ? null : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+      if (part) document.getElementById("welcome").textContent = `${part}, and welcome to Plotra`;
 
       window.plotra.missing().then((dir) => {
         if (!dir) return;
@@ -389,10 +609,11 @@
       window.plotra.recent().then((libraries) => {
         if (!libraries.length) return;
         const list = document.getElementById("recent-list");
-        for (const library of libraries) {
+        for (const [i, library] of libraries.entries()) {
           const button = document.createElement("button");
           button.textContent = library.name;
           button.title = library.path;
+          button.style.setProperty("--i", String(i));
           button.setAttribute("aria-label", `${library.name}, ${library.path}`);
           button.addEventListener("click", () => run(button, () => window.plotra.choose({ library: library.path })));
           list.appendChild(button);

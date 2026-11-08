@@ -17,6 +17,7 @@
         --muted: #5f5a53;
         --line: #e2ded6;
         --accent: #e2602a;
+        --glow: rgba(226, 96, 42, 0.1);
       }
       @media (prefers-color-scheme: dark) {
         :root {
@@ -24,6 +25,7 @@
           --fg: #ece9e3;
           --muted: #a8a299;
           --line: #2e2b27;
+          --glow: rgba(226, 96, 42, 0.12);
         }
       }
       html,
@@ -41,21 +43,60 @@
         box-sizing: border-box;
         text-align: center;
         font: 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-        background: var(--bg);
+        background: radial-gradient(ellipse 50% 40% at 50% 48%, var(--glow), transparent 70%), var(--bg);
         color: var(--fg);
         -webkit-user-select: none;
         user-select: none;
         cursor: default;
+        overflow: hidden;
+      }
+      #greeting {
+        margin: 0 0 2px;
+        font-size: 13px;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+        min-height: 1.5em;
       }
       .mark {
+        position: relative;
         margin: 0;
-        font: 400 44px/1 "Instrument Serif", "Iowan Old Style", Charter, Georgia, serif;
+        font: 400 52px/1 "Instrument Serif", "Iowan Old Style", Charter, Georgia, serif;
         letter-spacing: -0.01em;
       }
+      .mark span {
+        display: inline-block;
+      }
+      .swash {
+        display: block;
+        width: 150px;
+        height: 16px;
+        margin: -2px auto 0;
+        overflow: visible;
+      }
+      .swash path {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 2.2;
+        stroke-linecap: round;
+      }
       #status {
-        margin: 0;
+        margin: 6px 0 0;
         color: var(--muted);
         min-height: 1.5em;
+      }
+      .dots {
+        display: flex;
+        gap: 6px;
+        margin-top: 6px;
+        height: 10px;
+        align-items: center;
+      }
+      .dots span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: 0.5;
       }
       #slow {
         margin: 6px 0 0;
@@ -67,30 +108,49 @@
       #slow.shown {
         opacity: 1;
       }
-      .bar {
-        margin-top: 8px;
-        width: 180px;
-        height: 3px;
-        border-radius: 3px;
-        background: var(--line);
-        overflow: hidden;
-      }
-      .bar span {
-        display: block;
-        width: 40%;
-        height: 100%;
-        border-radius: 3px;
-        background: var(--accent);
-      }
       @media (prefers-reduced-motion: no-preference) {
-        body > * {
-          animation: rise 360ms ease-out both;
+        /* The name writes itself in, a letter at a time, and the stroke under it is drawn after. */
+        .mark span {
+          animation: ink 620ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+          animation-delay: calc(var(--i) * 55ms + 80ms);
         }
-        .bar span {
-          animation: slide 1.4s ease-in-out infinite;
+        .swash path {
+          stroke-dasharray: 1;
+          stroke-dashoffset: 1;
+          animation: draw 900ms cubic-bezier(0.6, 0, 0.2, 1) 480ms forwards;
+        }
+        #greeting {
+          animation: rise 600ms ease-out both;
+        }
+        #status {
+          animation: rise 500ms ease-out 650ms both;
+        }
+        .dots {
+          animation: rise 500ms ease-out 750ms both;
+        }
+        .dots span {
+          animation: bob 1.2s ease-in-out infinite;
+        }
+        .dots span:nth-child(2) {
+          animation-delay: 0.15s;
+        }
+        .dots span:nth-child(3) {
+          animation-delay: 0.3s;
         }
         #slow {
-          transition: opacity 300ms;
+          transition: opacity 400ms;
+        }
+      }
+      @keyframes ink {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+          filter: blur(5px);
+        }
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
         }
       }
       @keyframes rise {
@@ -99,20 +159,25 @@
           transform: translateY(4px);
         }
       }
-      @keyframes slide {
-        from {
-          transform: translateX(-100%);
+      @keyframes bob {
+        0%,
+        100% {
+          opacity: 0.35;
+          transform: translateY(0);
         }
-        to {
-          transform: translateX(250%);
+        50% {
+          opacity: 1;
+          transform: translateY(-3px);
         }
       }
     </style>
   </head>
   <body role="status" aria-live="polite">
-    <p class="mark" aria-hidden="true">Plotra</p>
+    <p id="greeting" aria-hidden="true"></p>
+    <p class="mark" aria-hidden="true"><span style="--i: 0">P</span><span style="--i: 1">l</span><span style="--i: 2">o</span><span style="--i: 3">t</span><span style="--i: 4">r</span><span style="--i: 5">a</span></p>
+    <svg class="swash" viewBox="0 0 150 16" aria-hidden="true"><path pathLength="1" d="M6 10 C 34 3, 62 14, 92 7 S 136 5, 144 9" /></svg>
     <p id="status">Loading…</p>
-    <div class="bar" aria-hidden="true"><span></span></div>
+    <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
     <p id="slow">This is taking longer than usual. Check your internet connection; Plotra keeps trying.</p>
     <script>
       const query = new URLSearchParams(location.search);
@@ -121,6 +186,9 @@
         document.getElementById("status").textContent = status;
         document.title = status.replace(/…$/, "");
       }
+      const hour = new Date().getHours();
+      document.getElementById("greeting").textContent =
+        hour < 5 ? "Writing late? Good to see you." : hour < 12 ? "Good morning." : hour < 18 ? "Good afternoon." : "Good evening.";
       // Only Plotra Cloud waits on the internet: a library's page is on this computer.
       if (query.get("online") === "1") setTimeout(() => document.getElementById("slow").classList.add("shown"), 8000);
     </script>

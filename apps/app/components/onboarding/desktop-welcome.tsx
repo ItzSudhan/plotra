@@ -2,7 +2,9 @@
 
 import { Icon, type IconName } from "@plotra/icons";
 import { useState, useSyncExternalStore } from "react";
+import { motionOn } from "@/lib/motion";
 import { updateGettingStarted } from "@/lib/notify-actions";
+import { cn } from "@plotra/ui/lib/utils";
 
 /** ⌘ on a Mac, Ctrl elsewhere; Ctrl until the page is in the app. */
 const useMac = () =>
@@ -21,11 +23,14 @@ const useMac = () =>
  */
 export function DesktopWelcome({ email }: { email: string }) {
   const [closed, setClosed] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const mac = useMac();
   if (closed) return null;
 
   const close = () => {
-    setClosed(true);
+    // It folds away before it's gone.
+    setLeaving(true);
+    setTimeout(() => setClosed(true), motionOn() ? 200 : 0);
     // Not saved (offline): it comes back next time, which is no harm.
     void updateGettingStarted({ dismissedDesktop: true }).catch(() => {});
   };
@@ -44,7 +49,13 @@ export function DesktopWelcome({ email }: { email: string }) {
   ];
 
   return (
-    <section aria-labelledby="desktop-welcome-heading" className="mb-8 rounded-xl border bg-card p-5">
+    <section
+      aria-labelledby="desktop-welcome-heading"
+      className={cn(
+        "mb-8 rounded-xl border bg-card p-5",
+        leaving ? "pointer-events-none animate-out fade-out-0 slide-out-to-top-1 zoom-out-95 fill-mode-forwards duration-200" : "motion-safe:animate-rise",
+      )}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 id="desktop-welcome-heading" className="font-medium">
@@ -58,15 +69,15 @@ export function DesktopWelcome({ email }: { email: string }) {
           type="button"
           onClick={close}
           aria-label="Close “Plotra on your desktop”"
-          className="grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+          className="group grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
-          <Icon name="close-linear" className="size-3.5" />
+          <Icon name="close-linear" className="size-3.5 transition-transform duration-200 group-hover:rotate-90" />
         </button>
       </div>
       <ul className="mt-4 grid gap-2.5 text-sm text-muted-foreground sm:grid-cols-3 sm:gap-4">
-        {tips.map((tip) => (
-          <li key={tip.icon} className="flex items-start gap-2.5">
-            <Icon name={tip.icon} className="mt-0.5 size-4 shrink-0 text-ember-ink" />
+        {tips.map((tip, i) => (
+          <li key={tip.icon} className="group/tip flex items-start gap-2.5 motion-safe:animate-rise" style={{ animationDelay: `${180 + i * 90}ms` }}>
+            <Icon name={tip.icon} className="mt-0.5 size-4 shrink-0 text-ember-ink transition-transform duration-300 group-hover/tip:-translate-y-0.5 group-hover/tip:scale-110" />
             <span className="min-w-0">{tip.text}</span>
           </li>
         ))}

@@ -136,9 +136,22 @@ export function ColdOpen({
 
         <div className="flex w-full max-w-xl flex-1 flex-col justify-center py-10">
           {creating ? (
-            <p role="status" className="animate-rise font-display text-4xl tracking-tight motion-reduce:animate-none">
-              Setting up your project…
-            </p>
+            <div role="status" className="animate-rise motion-reduce:animate-none">
+              <p className="font-display text-4xl tracking-tight">Setting up your project…</p>
+              {/* An ink stroke drawn under it while the project is made. */}
+              <svg viewBox="0 0 220 18" aria-hidden="true" className="mt-2 h-4 w-56 overflow-visible text-ember">
+                <path
+                  d="M4 11 C 50 3, 92 16, 140 8 S 200 5, 214 10"
+                  pathLength={1}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.2}
+                  strokeLinecap="round"
+                  strokeDasharray={1}
+                  className="animate-draw motion-reduce:animate-none"
+                />
+              </svg>
+            </div>
           ) : (
             // Keyed by step, so each question rises in and its field takes the focus.
             <div key={stepId} className="animate-rise motion-reduce:animate-none">
