@@ -39,7 +39,7 @@ curl -H "Authorization: Bearer plt_…" https://app.plotra.ink/api/v1/projects
 | Request | What it does |
 | --- | --- |
 | `GET /api/v1/me` | `{ user: { id, name, email, image }, workspaces: [{ id, name, slug, role }] }` |
-| `GET /api/v1/projects` | `{ projects: [{ id, title, type, workspaceId, updatedAt }] }` |
+| `GET /api/v1/projects` | `{ projects: [{ id, slug, title, type, workspaceId, workspaceName, workspaceSlug, updatedAt }] }` |
 | `GET /api/v1/projects/{project}/notes` | `{ notes: [{ id, parentId, kind, title, synopsis, tags, aliases, status, wordCount, updatedAt, canEdit }] }`, in binder order, without the trash |
 | `GET /api/v1/projects/{project}/notes/{note}` | `{ note }`, with `markdown`: its text. `null` for a canvas, timeline or dialogue |
 | `GET /api/v1/projects/{project}/search?q=…&limit=20` | `{ hits: [{ id, title, kind, snippet }] }` |

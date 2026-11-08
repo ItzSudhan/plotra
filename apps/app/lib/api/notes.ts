@@ -32,7 +32,7 @@ import { ApiError } from "./handler";
 // app does, as whoever the token belongs to; the routes in app/api/v1 and the
 // tools in lib/api/mcp.ts only turn requests into calls and results into JSON.
 
-const { node, project } = schema;
+const { node, organization, project } = schema;
 
 export const MAX_MARKDOWN = 200_000;
 // What can be made through the API: the kinds an import makes, which are text.
@@ -40,7 +40,7 @@ export const creatableKinds = ["folder", "chapter", "scene", "note", "character"
 export type CreatableKind = (typeof creatableKinds)[number];
 export const createableKindsText = creatableKinds.join(", ");
 
-export type ApiProject = { id: string; title: string; type: string; workspaceId: string; updatedAt: Date };
+export type ApiProject = { id: string; slug: string; title: string; type: string; workspaceId: string; workspaceName: string | null; workspaceSlug: string | null; updatedAt: Date };
 
 export type ApiNote = {
   id: string;
@@ -78,11 +78,24 @@ export async function listApiProjects(options?: { withSettings: true }): Promise
     // Row-level security already limits this to what they can see.
     const rows = await userDb((tx) =>
       tx
-        .select({ id: project.id, title: project.title, type: project.type, workspaceId: project.organizationId, updatedAt: project.updatedAt, settings: project.settings })
+        .select({
+          id: project.id,
+          slug: project.slug,
+          title: project.title,
+          type: project.type,
+          workspaceId: project.organizationId,
+          workspaceName: organization.name,
+          workspaceSlug: organization.slug,
+          updatedAt: project.updatedAt,
+          settings: project.settings,
+        })
         .from(project)
+        .leftJoin(organization, eq(organization.id, project.organizationId))
         .orderBy(project.title),
     );
-    return options?.withSettings ? rows : rows.map((p) => ({ id: p.id, title: p.title, type: p.type, workspaceId: p.workspaceId, updatedAt: p.updatedAt }));
+    return options?.withSettings
+      ? rows
+      : rows.map((p) => ({ id: p.id, slug: p.slug, title: p.title, type: p.type, workspaceId: p.workspaceId, workspaceName: p.workspaceName, workspaceSlug: p.workspaceSlug, updatedAt: p.updatedAt }));
   });
 }
 

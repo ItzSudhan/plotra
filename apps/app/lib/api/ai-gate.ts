@@ -21,7 +21,7 @@ export async function requireAiProject(projectId: string): Promise<void> {
 }
 
 /** The projects the person can open where AI is on: what an assistant sees. */
-export async function listAiProjects(): Promise<ApiProject[]> {
+export async function listAiProjects(): Promise<Pick<ApiProject, "id" | "title" | "type" | "workspaceId" | "updatedAt">[]> {
   const projects = await listApiProjects({ withSettings: true });
   const open = await Promise.all(projects.map(async (p) => (await workspaceAiEnabled(p.workspaceId)) && hasModule(p.type as ProjectType, p.settings, "ai")));
   return projects.filter((_, i) => open[i]).map((p) => ({ id: p.id, title: p.title, type: p.type, workspaceId: p.workspaceId, updatedAt: p.updatedAt }));
