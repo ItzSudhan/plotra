@@ -13,7 +13,17 @@ export async function GET(request: Request) {
     return new Response("This Plotra library is open in the Plotra app. Use the app's window.", { status: 403 });
   }
   const next = safeCallbackURL(new URL(request.url).searchParams.get("next") ?? undefined);
-  const cookies = await signInLocalPerson();
+  let cookies: string[];
+  try {
+    cookies = await signInLocalPerson();
+  } catch (error) {
+    // Said in words, not a blank page: the desktop window would otherwise sit empty.
+    console.error(error);
+    return new Response("Plotra couldn't open this library. Close the window and open the library again from File → Open Recent.", {
+      status: 500,
+      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+    });
+  }
   const response = NextResponse.redirect(new URL(next, request.url));
   for (const cookie of cookies) response.headers.append("set-cookie", cookie);
   response.headers.set("cache-control", "no-store");

@@ -154,7 +154,9 @@ export const auth = betterAuth({
   // Every server action and route handler looks the session up; a signed
   // cookie copy saves that database round trip. Revoked sessions keep working
   // until it expires.
-  session: { cookieCache: { enabled: true, maxAge: 5 * 60 }, ...(localMode && { expiresIn: 10 * 365 * 24 * 60 * 60 }) },
+  // In local mode, as long as a cookie may last (400 days, the most browsers
+  // allow, and more is refused when it's set). Each day it's used, it starts over.
+  session: { cookieCache: { enabled: true, maxAge: 5 * 60 }, ...(localMode && { expiresIn: 400 * 24 * 60 * 60 }) },
   // Counted in Postgres so the limits hold across serverless instances
   // (plan.md Phase 8 "Rate limits on auth"). Off in development.
   rateLimit: {
