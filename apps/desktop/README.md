@@ -1,9 +1,9 @@
 # Plotra desktop
 
-Plotra as an app on your computer (see [local-mode-plan.md](../../local-mode-plan.md)). On first run it asks where your work should live:
+Plotra as an app on your computer (see [local-mode-plan.md](../../local-mode-plan.md), and [desktop-onboarding-plan.md](../../desktop-onboarding-plan.md) for the first run). On first run it asks where your work should live:
 
-- **Plotra Cloud**: a window on app.plotra.ink.
-- **On this computer**: a *library*, a folder you choose. The app runs Plotra's own server on this computer, in local mode, with the library's database (PGlite) inside that folder. No account, no internet.
+- **Plotra Cloud**: a window on app.plotra.ink. "Sign in" and "Create an account" both continue in the browser.
+- **On this computer**: a *library*, a folder you name and place on the "Set up your library" screen (default: "Plotra Library" in Documents). The app runs Plotra's own server on this computer, in local mode, with the library's database (PGlite) inside that folder. No account, no internet.
 
 Signing in to Plotra Cloud happens in your own browser, where Google and your password manager work: the app catches the cloud's sign-in page, opens the browser there, and waits on a port of its own at 127.0.0.1 for a one-time code, which its window swaps for a session (src/sign-in.ts, and packages/auth/src/desktop.ts for the cloud's half).
 

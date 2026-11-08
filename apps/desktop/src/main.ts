@@ -3,7 +3,7 @@ import { existsSync, readdirSync, renameSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { showProblem } from "./dialogs";
-import { createLibrary, databaseDir, isLibrary, lockLibrary, openLibrary, snapshotsDir, type Library } from "./library";
+import { createLibrary, databaseDir, DEFAULT_LIBRARY_NAME, isLibrary, lockLibrary, newLibraryPath, openLibrary, snapshotsDir, type Library } from "./library";
 import { backupSaved, describeError, fileManager, folderName, libraryLabels, NOT_A_LIBRARY, quoted, switchQuestion } from "./messages";
 import { staysInWindow } from "./navigation";
 import { freePort, startLocalServer, type LocalServer } from "./server";
@@ -20,6 +20,15 @@ import { checkForUpdates } from "./updates";
 const CLOUD_URL = process.env.PLOTRA_CLOUD_URL || "https://app.plotra.ink";
 /** Points the app at a `next dev` already running in local mode, instead of the bundled server. */
 const DEV_URL = process.env.PLOTRA_DESKTOP_DEV_URL;
+
+/** Where Plotra Cloud starts on first run: the sign-in page, or making an account. */
+type CloudStart = "sign-in" | "sign-up";
+
+/** What the first-run window (static/chooser.html, through ./preload.ts) can ask for. */
+type Choice = "cloud" | "open" | { cloud: CloudStart } | { create: { parent: string; name: string } } | { library: string };
+
+const isPlace = (value: unknown): value is { parent: string; name: string } =>
+  typeof value === "object" && value !== null && typeof (value as { parent?: unknown }).parent === "string" && typeof (value as { name?: unknown }).name === "string" && path.isAbsolute((value as { parent: string }).parent);
 
 type Current =
   | { mode: "cloud"; url: string }
@@ -329,11 +338,15 @@ async function closeCurrent(): Promise<boolean> {
   return true;
 }
 
-function openCloud() {
+/**
+ * Opens Plotra Cloud. `start` is the first-run window's choice: "sign-up" goes
+ * straight to making an account (in the browser, as signing in does).
+ */
+function openCloud(start: CloudStart = "sign-in") {
   current = { mode: "cloud", url: CLOUD_URL };
   settings = { ...settings, mode: "cloud" };
   save();
-  openWindow(CLOUD_URL);
+  openWindow(start === "sign-up" ? new URL("/sign-up", CLOUD_URL).toString() : CLOUD_URL);
   buildMenu();
 }
 
@@ -420,10 +433,10 @@ function focusCurrent(): boolean {
 
 const isOpen = (dir: string) => current?.mode === "local" && path.resolve(current.library.dir) === path.resolve(dir);
 
-function switchToCloud(): Promise<boolean> {
+function switchToCloud(start?: CloudStart): Promise<boolean> {
   if (current?.mode === "cloud" && focusCurrent()) return Promise.resolve(true);
   return switchTo(() => {
-    openCloud();
+    openCloud(start);
     return true;
   }, "Plotra Cloud");
 }
@@ -433,25 +446,20 @@ async function switchToLibrary(dir: string): Promise<boolean> {
   return switchTo(() => openLocal(dir), quoted(dir));
 }
 
-/** Asks for a folder and makes a library there (or opens the one already there). */
-async function newLibrary(): Promise<boolean> {
-  const { canceled, filePaths } = await dialog.showOpenDialog({
-    title: "Where should the new library go?",
-    message: "Pick an empty folder, or one to put a \"Plotra Library\" folder in.",
-    buttonLabel: "Make library here",
-    defaultPath: app.getPath("documents"),
-    properties: ["openDirectory", "createDirectory"],
-  });
-  if (canceled || !filePaths[0]) return false;
+/** Makes a library called `name` in `parent` (the first-run window's "Set up your library"), or opens the one already there. */
+async function newLibrary({ parent, name }: { parent: string; name: string }): Promise<boolean> {
   let library: Library;
   try {
-    library = createLibrary(filePaths[0]);
+    library = createLibrary(newLibraryPath(parent, name));
   } catch (error) {
     await showProblem(describeError(error, "Couldn't make the library there"), chooser);
     return false;
   }
   return switchToLibrary(library.dir);
 }
+
+/** Where "Set up your library" puts a library unless told otherwise. */
+const defaultParent = () => app.getPath("documents");
 
 async function chooseLibrary(): Promise<boolean> {
   const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -468,12 +476,19 @@ async function chooseLibrary(): Promise<boolean> {
   return switchToLibrary(filePaths[0]);
 }
 
-/** The first-run choice (and where "Switch…" leads): Plotra Cloud, or a library on this computer. */
-function showChooser() {
-  if (chooser) return chooser.focus();
+/**
+ * The first-run choice (and where "Switch…" leads): Plotra Cloud, or a library
+ * on this computer. `screen: "new"` opens it at "Set up your library", for
+ * File → New Library….
+ */
+function showChooser({ screen }: { screen?: "new" } = {}) {
+  if (chooser) {
+    if (screen) chooser.webContents.send("plotra:screen", screen);
+    return chooser.focus();
+  }
   chooser = new BrowserWindow({
     width: 760,
-    height: 560,
+    height: 620,
     resizable: false,
     title: "Welcome to Plotra",
     backgroundColor: windowBackground(),
@@ -483,18 +498,41 @@ function showChooser() {
     chooser = null;
     if (!current && !quitting) app.quit();
   });
-  void chooser.loadFile(staticFile("chooser.html"));
+  void chooser.loadFile(staticFile("chooser.html"), screen ? { query: { screen } } : {});
 }
 
 ipcMain.handle("plotra:recent", () => libraryLabels(settings.recent.filter(isLibrary)).map(({ dir, label }) => ({ path: dir, name: label })));
 /** The library that was open last time, when it can't be found any more (moved, or its drive unplugged). */
 ipcMain.handle("plotra:missing", () => (settings.mode === "local" && settings.library && !isLibrary(settings.library) ? settings.library : null));
-ipcMain.handle("plotra:choose", async (_event, choice: "cloud" | "new" | "open" | { library: string }) => {
+/** What "Set up your library" starts with. */
+ipcMain.handle("plotra:library-defaults", () => ({ parent: defaultParent(), name: DEFAULT_LIBRARY_NAME }));
+/** The folder a library called `name` would get in `parent`, shown under the fields as they're typed in. */
+ipcMain.handle("plotra:library-path", (_event, place: unknown) => {
+  if (!isPlace(place)) return null;
+  try {
+    return newLibraryPath(place.parent, place.name);
+  } catch {
+    return null;
+  }
+});
+/** "Change…": a folder to put the library in, or null when the dialog was closed. */
+ipcMain.handle("plotra:pick-parent", async (_event, from: unknown) => {
+  const options: Electron.OpenDialogOptions = {
+    title: "Where should the library go?",
+    buttonLabel: "Choose",
+    defaultPath: typeof from === "string" && from ? from : defaultParent(),
+    properties: ["openDirectory", "createDirectory"],
+  };
+  const { canceled, filePaths } = chooser ? await dialog.showOpenDialog(chooser, options) : await dialog.showOpenDialog(options);
+  return canceled || !filePaths[0] ? null : filePaths[0];
+});
+ipcMain.handle("plotra:choose", async (_event, choice: Choice) => {
   let opened = false;
   if (choice === "cloud") opened = await switchToCloud();
-  else if (choice === "new") opened = await newLibrary();
   else if (choice === "open") opened = await chooseLibrary();
-  else if (typeof choice === "object" && isLibrary(choice.library)) opened = await switchToLibrary(choice.library);
+  else if (typeof choice === "object" && choice && "cloud" in choice) opened = await switchToCloud(choice.cloud === "sign-up" ? "sign-up" : "sign-in");
+  else if (typeof choice === "object" && choice && "create" in choice && isPlace(choice.create)) opened = await newLibrary(choice.create);
+  else if (typeof choice === "object" && choice && "library" in choice && isLibrary(choice.library)) opened = await switchToLibrary(choice.library);
   if (opened) chooser?.close();
   return opened;
 });
@@ -560,7 +598,7 @@ function buildMenu() {
   const file: MenuItemConstructorOptions[] = [
     { label: "New Window", accelerator: "CmdOrCtrl+Shift+N", enabled: Boolean(current), click: () => current && openWindow(current.url) },
     { type: "separator" },
-    { label: "New Library…", click: () => void newLibrary() },
+    { label: "New Library…", click: () => showChooser({ screen: "new" }) },
     { label: "Open Library…", accelerator: "CmdOrCtrl+Shift+O", click: () => void chooseLibrary() },
     {
       label: "Open Recent",
@@ -578,7 +616,7 @@ function buildMenu() {
     { label: "Restore a Snapshot…", enabled: Boolean(local?.server), click: () => void restoreSnapshot() },
     { type: "separator" },
     current?.mode === "cloud"
-      ? { label: "Use a Library on This Computer…", click: showChooser }
+      ? { label: "Use a Library on This Computer…", click: () => showChooser() }
       : { label: "Switch to Plotra Cloud", click: () => void switchToCloud() },
   ];
   if (process.platform !== "darwin") file.push({ type: "separator" }, { role: "quit" });

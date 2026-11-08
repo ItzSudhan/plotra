@@ -2,7 +2,7 @@ import { afterAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { hostname, tmpdir } from "node:os";
 import path from "node:path";
-import { createLibrary, isLibrary, LibraryInUseError, lockLibrary, LOCK_STALE_MS, NotALibraryError, openLibrary } from "../src/library";
+import { createLibrary, DEFAULT_LIBRARY_NAME, isLibrary, libraryFolderName, LibraryInUseError, lockLibrary, LOCK_STALE_MS, newLibraryPath, NotALibraryError, openLibrary } from "../src/library";
 import { rememberLibrary } from "../src/settings";
 
 const root = mkdtempSync(path.join(tmpdir(), "plotra-library-"));
@@ -29,6 +29,28 @@ describe("libraries", () => {
   test("making a library where one is opens it instead", () => {
     const first = createLibrary(dir("again"));
     expect(createLibrary(dir("again")).manifest.authSecret).toBe(first.manifest.authSecret);
+  });
+
+  test("a named library goes in a folder of its name, or the next free one", () => {
+    mkdirSync(dir("parent"));
+    expect(newLibraryPath(dir("parent"), "My Novel")).toBe(path.join(dir("parent"), "My Novel"));
+    mkdirSync(path.join(dir("parent"), "Taken"));
+    writeFileSync(path.join(dir("parent"), "Taken", "notes.txt"), "hi");
+    expect(newLibraryPath(dir("parent"), "Taken")).toBe(path.join(dir("parent"), "Taken 2"));
+    // An empty folder of that name is used as it is.
+    mkdirSync(path.join(dir("parent"), "Empty"));
+    expect(newLibraryPath(dir("parent"), "Empty")).toBe(path.join(dir("parent"), "Empty"));
+    // A library of that name is opened, not doubled.
+    const existing = createLibrary(path.join(dir("parent"), "Journal"));
+    expect(newLibraryPath(dir("parent"), "Journal")).toBe(existing.dir);
+  });
+
+  test("library names are made fit for a folder", () => {
+    expect(libraryFolderName("  Book: one / two?  ")).toBe("Book one two");
+    expect(libraryFolderName("...")).toBe(DEFAULT_LIBRARY_NAME);
+    expect(libraryFolderName("")).toBe(DEFAULT_LIBRARY_NAME);
+    expect(libraryFolderName("con")).toBe(DEFAULT_LIBRARY_NAME);
+    expect(libraryFolderName("trailing dot.")).toBe("trailing dot");
   });
 
   test("a folder that isn't a library won't open", () => {

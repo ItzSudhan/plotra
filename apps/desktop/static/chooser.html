@@ -147,6 +147,79 @@
         font-size: 14px;
         color: var(--muted);
       }
+      .screen[hidden] {
+        display: none;
+      }
+      form.setup {
+        display: grid;
+        gap: 16px;
+        max-width: 560px;
+      }
+      .field {
+        display: grid;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      input[type="text"] {
+        font: inherit;
+        font-size: 15px;
+        min-height: 38px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--fg);
+        -webkit-user-select: text;
+        user-select: text;
+      }
+      input[type="text"]:focus-visible {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--ring);
+      }
+      .where {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .where span {
+        flex: 1;
+        min-width: 0;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px dashed var(--line);
+        color: var(--muted);
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+      .will-be {
+        margin: -6px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+        overflow-wrap: anywhere;
+        -webkit-user-select: text;
+        user-select: text;
+      }
+      .inside {
+        margin: 0;
+        padding: 14px 18px 14px 34px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .inside li + li {
+        margin-top: 4px;
+      }
+      .inside strong {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .setup .buttons {
+        margin-top: 4px;
+      }
       @media (prefers-reduced-motion: no-preference) {
         button {
           transition: border-color 120ms, filter 120ms, box-shadow 120ms;
@@ -155,63 +228,156 @@
     </style>
   </head>
   <body>
-    <h1>Where should your work live?</h1>
-    <p class="lede">You can change this later from the File menu, and use both. Projects in the cloud and in a library are kept separately.</p>
+    <section class="screen" id="choose" aria-labelledby="choose-heading">
+      <h1 id="choose-heading">Where should your work live?</h1>
+      <p class="lede">You can change this later from the File menu, and use both. Projects in the cloud and in a library are kept separately.</p>
 
-    <p class="missing" id="missing" role="status" hidden></p>
+      <p class="missing" id="missing" role="status" hidden></p>
 
-    <div class="choices">
-      <section class="choice" aria-labelledby="cloud-heading">
-        <h2 id="cloud-heading">Plotra Cloud</h2>
-        <ul>
-          <li>Sign in to your Plotra account</li>
-          <li>Write with others, share, and sync between devices</li>
-          <li>Backups and hosted AI</li>
-        </ul>
-        <div class="buttons">
-          <button class="primary" data-choice="cloud">Use Plotra Cloud</button>
+      <div class="choices">
+        <section class="choice" aria-labelledby="cloud-heading">
+          <h2 id="cloud-heading">Plotra Cloud</h2>
+          <ul>
+            <li>Your Plotra account, the same projects as on the web</li>
+            <li>Write with others, share, and sync between devices</li>
+            <li>Backups and hosted AI</li>
+          </ul>
+          <div class="buttons">
+            <button class="primary" data-choice="sign-in">Sign in</button>
+            <button data-choice="sign-up">Create an account</button>
+          </div>
+        </section>
+
+        <section class="choice" aria-labelledby="local-heading">
+          <h2 id="local-heading">On this computer</h2>
+          <ul>
+            <li>No account, no internet needed</li>
+            <li>Everything in a folder you choose: a library</li>
+            <li>Only you. Backed up once a day, inside the folder</li>
+          </ul>
+          <div class="buttons">
+            <button class="primary" data-screen="new">New library…</button>
+            <button data-choice="open">Open library…</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="recent" id="recent" hidden>
+        <h3 id="recent-heading">Recent libraries</h3>
+        <div id="recent-list" role="group" aria-labelledby="recent-heading"></div>
+      </div>
+
+      <p class="note">Signing in happens in your browser, where your password manager and Google sign-in work. On this computer, AI works with your own key, or a model that runs on your computer.</p>
+    </section>
+
+    <section class="screen" id="new" aria-labelledby="new-heading" hidden>
+      <h1 id="new-heading">Set up your library</h1>
+      <p class="lede">A library is a folder on this computer that holds your projects. You can make more later, from the File menu.</p>
+
+      <form class="setup" id="setup">
+        <label class="field">
+          Name
+          <input type="text" id="library-name" maxlength="80" autocomplete="off" spellcheck="false" required />
+        </label>
+        <div class="field">
+          <span id="where-label">Where</span>
+          <div class="where">
+            <span id="parent" aria-labelledby="where-label"></span>
+            <button type="button" id="change">Change…</button>
+          </div>
         </div>
-      </section>
+        <p class="will-be" id="will-be" aria-live="polite"></p>
 
-      <section class="choice" aria-labelledby="local-heading">
-        <h2 id="local-heading">On this computer</h2>
-        <ul>
-          <li>No account, no internet needed</li>
-          <li>Everything in a folder you choose: a library</li>
-          <li>Only you. To back up, use File → Back Up Now, or copy the folder</li>
+        <ul class="inside" aria-label="What the library keeps">
+          <li><strong>Your projects</strong>, in a database that Plotra opens</li>
+          <li><strong>A Markdown copy</strong> of every project, readable in any app</li>
+          <li><strong>A snapshot</strong> of everything once a day, and whenever you choose File → Back Up Now</li>
         </ul>
+
         <div class="buttons">
-          <button class="primary" data-choice="new">New library…</button>
-          <button data-choice="open">Open library…</button>
+          <button type="submit" class="primary" id="create">Create library</button>
+          <button type="button" data-screen="choose">Back</button>
         </div>
-      </section>
-    </div>
+      </form>
 
-    <div class="recent" id="recent" hidden>
-      <h3 id="recent-heading">Recent libraries</h3>
-      <div id="recent-list" role="group" aria-labelledby="recent-heading"></div>
-    </div>
-
-    <p class="note">On this computer, AI works with your own key, or an AI that runs on your computer.</p>
+      <p class="note">Back it up like any folder. If it's in iCloud Drive or Dropbox, close Plotra on one computer before you open the library on another.</p>
+    </section>
 
     <script>
       const buttons = () => document.querySelectorAll("button");
-      async function choose(choice, button) {
+      async function run(button, work) {
         const label = button.textContent;
         buttons().forEach((b) => (b.disabled = true));
         button.textContent = "Opening…";
         document.body.setAttribute("aria-busy", "true");
         try {
-          await window.plotra.choose(choice);
+          await work();
         } finally {
           button.textContent = label;
           buttons().forEach((b) => (b.disabled = false));
           document.body.removeAttribute("aria-busy");
         }
       }
+      const choices = {
+        "sign-in": { cloud: "sign-in" },
+        "sign-up": { cloud: "sign-up" },
+        open: "open",
+      };
       document.querySelectorAll("[data-choice]").forEach((button) => {
-        button.addEventListener("click", () => choose(button.dataset.choice, button));
+        button.addEventListener("click", () => run(button, () => window.plotra.choose(choices[button.dataset.choice])));
       });
+
+      // The two screens: the choice, and "Set up your library".
+      function show(screen) {
+        for (const section of document.querySelectorAll(".screen")) section.hidden = section.id !== screen;
+        document.title = screen === "new" ? "Set up your library" : "Welcome to Plotra";
+        if (screen === "new") {
+          const name = document.getElementById("library-name");
+          name.focus();
+          name.select();
+        } else document.querySelector('[data-screen="new"]').focus();
+      }
+      document.querySelectorAll("[data-screen]").forEach((button) => button.addEventListener("click", () => show(button.dataset.screen)));
+      window.plotra.onScreen(show);
+
+      const place = { parent: "", name: "" };
+      const nameField = document.getElementById("library-name");
+      const parentText = document.getElementById("parent");
+      const willBe = document.getElementById("will-be");
+      let asked = 0;
+      async function preview() {
+        const ask = ++asked;
+        const dir = place.parent ? await window.plotra.libraryPath(place.parent, place.name) : null;
+        if (ask !== asked) return;
+        willBe.textContent = dir ? `The library will be the folder ${dir}` : "";
+      }
+      nameField.addEventListener("input", () => {
+        place.name = nameField.value;
+        void preview();
+      });
+      document.getElementById("change").addEventListener("click", async () => {
+        const picked = await window.plotra.pickParent(place.parent);
+        if (!picked) return;
+        place.parent = picked;
+        parentText.textContent = picked;
+        void preview();
+      });
+      document.getElementById("setup").addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!place.parent) return;
+        const button = document.getElementById("create");
+        run(button, () => window.plotra.choose({ create: { parent: place.parent, name: nameField.value } }));
+      });
+      window.plotra.libraryDefaults().then((defaults) => {
+        place.parent = defaults.parent;
+        place.name = defaults.name;
+        nameField.value = defaults.name;
+        parentText.textContent = defaults.parent;
+        void preview();
+      });
+
+      if (new URLSearchParams(location.search).get("screen") === "new") show("new");
+
       window.plotra.missing().then((dir) => {
         if (!dir) return;
         const line = document.getElementById("missing");
@@ -228,7 +394,7 @@
           button.textContent = library.name;
           button.title = library.path;
           button.setAttribute("aria-label", `${library.name}, ${library.path}`);
-          button.addEventListener("click", () => choose({ library: library.path }, button));
+          button.addEventListener("click", () => run(button, () => window.plotra.choose({ library: library.path })));
           list.appendChild(button);
         }
         document.getElementById("recent").hidden = false;

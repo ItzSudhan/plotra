@@ -88,6 +88,41 @@ export function createLibrary(dir: string): Library {
   return { dir: target, manifest };
 }
 
+/** What a new library is called when the person doesn't name it. */
+export const DEFAULT_LIBRARY_NAME = "Plotra Library";
+
+/**
+ * A library name fit to be a folder's name on every platform: no slashes or
+ * other characters Windows refuses, no dots or spaces at the ends.
+ */
+export function libraryFolderName(name: string): string {
+  const cleaned = name
+    .replace(/[\u0000-\u001f<>:"/\\|?*]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^[.\s]+|[.\s]+$/g, "")
+    .slice(0, 80)
+    .trim();
+  // Names Windows keeps for devices.
+  if (!cleaned || /^(con|prn|aux|nul|com\d|lpt\d)$/i.test(cleaned)) return DEFAULT_LIBRARY_NAME;
+  return cleaned;
+}
+
+/**
+ * Where a new library called `name` goes in `parent`: a folder of that name,
+ * or, when one is there already and isn't a library, the first free "name 2",
+ * "name 3"…. A library already there of that name is where it goes (and is
+ * opened rather than made).
+ */
+export function newLibraryPath(parent: string, name: string): string {
+  const base = libraryFolderName(name);
+  let target = path.join(parent, base);
+  for (let n = 2; existsSync(target) && !isLibrary(target) && readdirSync(target).some((entry) => !entry.startsWith(".")); n++) {
+    target = path.join(parent, `${base} ${n}`);
+  }
+  return target;
+}
+
 export class NotALibraryError extends Error {}
 
 export function openLibrary(dir: string): Library {
