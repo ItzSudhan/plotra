@@ -163,8 +163,9 @@ export function PublicShell({
     main.current?.scrollTo(0, 0);
   }, [params.nodeId]);
 
+  // From md up the frame is exactly one screen tall (flex-none, so flex-1 can't stretch it to the note's length): the binder stays put and the note scrolls beside it.
   return (
-    <div className="flex min-h-dvh flex-1 flex-col md:h-dvh">
+    <div className="flex min-h-dvh flex-1 flex-col md:h-dvh md:flex-none md:overflow-hidden">
       {/* Below md: the contents button, the title and one call to action, on one line. The rest waits at the end of the page. */}
       <header className="sticky top-0 z-10 flex items-center gap-x-3 border-b bg-background/95 px-3 py-2 backdrop-blur md:flex-wrap md:gap-x-4 md:gap-y-1 md:px-4 md:py-2.5">
         <button
