@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { isLocalMode } from "@/lib/local-mode";
 import { mayOpenLocalSession, signInLocalPerson } from "@/lib/local-person";
 import { safeCallbackURL } from "@/lib/slug";
+import { localRedirect } from "@/lib/local-redirect";
 
 // GET /api/local/session?next=<path>: signs local mode's one person in and
 // goes on to `next` (local-mode-plan.md, phase 2). Where every page without a
@@ -24,8 +24,7 @@ export async function GET(request: Request) {
       headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
     });
   }
-  const response = NextResponse.redirect(new URL(next, request.url));
+  const response = localRedirect(next);
   for (const cookie of cookies) response.headers.append("set-cookie", cookie);
-  response.headers.set("cache-control", "no-store");
   return response;
 }
