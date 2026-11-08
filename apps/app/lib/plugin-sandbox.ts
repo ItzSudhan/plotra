@@ -27,6 +27,8 @@
 // its own that forbids inline scripts; if it gets one, plugins need it to
 // allow these frames.
 
+import { pluginEvents } from "./plugins";
+
 export type PluginMode = "background" | "panel";
 
 export type PluginContext = {
@@ -45,14 +47,16 @@ export type PluginTheme = { dark: boolean; variables: Record<string, string> };
 export type ToPlugin =
   | { plotra: 1; type: "result"; id: number; ok: true; value: unknown }
   | { plotra: 1; type: "result"; id: number; ok: false; error: string }
-  | { plotra: 1; type: "run"; id: number; what: "command" | "export"; name: string };
+  | { plotra: 1; type: "run"; id: number; what: "command" | "export"; name: string }
+  | { plotra: 1; type: "event"; name: string; data: unknown };
 
 export type FromPlugin =
   | { plotra: 1; type: "call"; id: number; method: string; args: unknown[] }
   | { plotra: 1; type: "register"; what: "command" | "export" | "panel"; name: string; title: string; extension?: string }
   | { plotra: 1; type: "register"; what: "theme"; name: string; title: string; light: unknown; dark: unknown; css?: unknown }
   | { plotra: 1; type: "done"; id: number; ok: boolean; value?: unknown; error?: string }
-  | { plotra: 1; type: "error"; message: string };
+  | { plotra: 1; type: "error"; message: string }
+  | { plotra: 1; type: "subscribe"; name: string };
 
 /**
  * Passes messages between the app and the plugin's frame, and nothing else.
@@ -72,6 +76,8 @@ var describe = function (e) { return String((e && e.message) || e || "Something 
 var pending = new Map();
 var next = 1;
 var handlers = { command: new Map(), export: new Map() };
+var EVENTS = ${JSON.stringify(pluginEvents)};
+var listeners = new Map();
 var call = function (method, args) {
   return new Promise(function (resolve, reject) {
     var id = next++;
@@ -97,6 +103,15 @@ addEventListener("message", function (event) {
         function (value) { send({ type: "done", id: m.id, ok: true, value: value === undefined ? null : value }); },
         function (error) { send({ type: "done", id: m.id, ok: false, error: describe(error) }); }
       );
+  } else if (m.type === "event") {
+    var heard = listeners.get(m.name);
+    if (!heard) return;
+    heard.forEach(function (handler) {
+      try {
+        var out = handler(m.data);
+        if (out && typeof out.then === "function") out.then(null, function (e) { send({ type: "error", message: describe(e) }); });
+      } catch (e) { send({ type: "error", message: describe(e) }); }
+    });
   }
 });
 addEventListener("error", function (event) { send({ type: "error", message: describe(event.error || event.message) }); });
@@ -109,7 +124,7 @@ var spec = function (value, what) {
 };
 var needs = function (value, what) { if (typeof value !== "function") throw new TypeError(what + " must be a function."); };
 var plotra = {
-  version: 1,
+  version: 2,
   project: Object.freeze(C.project),
   user: Object.freeze(C.user),
   panel: C.panel ? Object.freeze({ id: C.panel }) : null,
@@ -152,6 +167,24 @@ var plotra = {
     if (!Object.keys(light).length && !Object.keys(dark).length && !s.css) throw new TypeError("Give the theme colours for light, dark, or both.");
     if (C.mode === "background") send({ type: "register", what: "theme", name: id, title: s.title.trim().slice(0, 40), light: light, dark: dark, css: s.css ? s.css.slice(0, 20000) : "" });
   },
+  on: function (name, handler) {
+    if (EVENTS.indexOf(name) < 0) throw new TypeError("plotra.on listens for one of: " + EVENTS.join(", ") + ".");
+    needs(handler, "An event's handler");
+    var heard = listeners.get(name);
+    if (!heard) {
+      heard = new Set();
+      listeners.set(name, heard);
+      send({ type: "subscribe", name: name });
+    }
+    heard.add(handler);
+    return function () { heard.delete(handler); };
+  },
+  storage: Object.freeze({
+    get: function (key) { return call("storage.get", [key]); },
+    set: function (key, value) { return call("storage.set", [key, value]); },
+    delete: function (key) { return call("storage.delete", [key]); },
+    keys: function () { return call("storage.keys"); }
+  }),
   notes: Object.freeze({
     list: function () { return call("notes.list"); },
     read: function (id) { return call("notes.read", [id]); },

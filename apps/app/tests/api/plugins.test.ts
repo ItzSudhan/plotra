@@ -11,7 +11,7 @@ if (RUN) {
 }
 
 if (!RUN) {
-  const { cleanDownloadName, cleanDownloadType, cleanPartId, cleanPluginCode, MAX_PLUGIN_CODE, pluginName, readPluginHeader } = await import("@/lib/plugins");
+  const { cleanDownloadName, cleanDownloadType, cleanPartId, cleanPluginCode, isBrowserMethod, isServerMethod, MAX_PLUGIN_CODE, pluginName, readPluginHeader } = await import("@/lib/plugins");
   const { bootScript, inlineScript, pluginDocument, policy, RELAY } = await import("@/lib/plugin-sandbox");
 
   const header = `// ==Plotra plugin==
@@ -221,6 +221,125 @@ plotra.registerCommand({ id: "x", title: "X", run() {} });`;
     });
   });
 
+  describe("events and storage, on the plugin's side", () => {
+    type Plotra = {
+      on: (name: string, handler: (data: unknown) => void) => () => void;
+      storage: { get: (k: string) => Promise<unknown>; set: (k: string, v: unknown) => Promise<unknown>; delete: (k: string) => Promise<unknown>; keys: () => Promise<unknown> };
+    };
+    test("plotra.on asks the app once per event, hears it, and stops when told", () => {
+      const { sent, deliver, plotra } = frame("panel", "words");
+      const p = plotra as unknown as Plotra;
+      const heard: unknown[] = [];
+      const stop = p.on("notes.change", (data) => heard.push(["a", data]));
+      p.on("notes.change", (data) => heard.push(["b", data]));
+      p.on("note.open", (data) => heard.push(["open", data]));
+      expect(sent).toEqual([
+        { plotra: 1, type: "subscribe", name: "notes.change" },
+        { plotra: 1, type: "subscribe", name: "note.open" },
+      ]);
+      expect(() => p.on("note.delete", () => {})).toThrow("listens for one of: note.open, notes.change");
+      expect(() => p.on("note.open", "nope" as never)).toThrow("must be a function");
+      deliver({ plotra: 1, type: "event", name: "notes.change", data: { changed: ["n1"], removed: [] } });
+      stop();
+      deliver({ plotra: 1, type: "event", name: "notes.change", data: { changed: ["n2"], removed: [] } });
+      deliver({ plotra: 1, type: "event", name: "note.open", data: { id: "n2" } });
+      expect(heard).toEqual([
+        ["a", { changed: ["n1"], removed: [] }],
+        ["b", { changed: ["n1"], removed: [] }],
+        ["b", { changed: ["n2"], removed: [] }],
+        ["open", { id: "n2" }],
+      ]);
+    });
+
+    test("a handler that throws is reported, and the others still hear it", () => {
+      const { sent, deliver, plotra } = frame("background");
+      const p = plotra as unknown as Plotra;
+      const heard: unknown[] = [];
+      p.on("note.open", () => {
+        throw new Error("boom");
+      });
+      p.on("note.open", (data) => heard.push(data));
+      deliver({ plotra: 1, type: "event", name: "note.open", data: { id: null } });
+      expect(heard).toEqual([{ id: null }]);
+      expect(sent).toContainEqual({ plotra: 1, type: "error", message: "boom" });
+    });
+
+    test("storage calls go to the app", () => {
+      const { sent, plotra } = frame("background");
+      const p = plotra as unknown as Plotra;
+      void p.storage.set("goal", 500);
+      void p.storage.get("goal");
+      void p.storage.delete("goal");
+      void p.storage.keys();
+      expect(sent.map((m) => [m.method, m.args])).toEqual([
+        ["storage.set", ["goal", 500]],
+        ["storage.get", ["goal"]],
+        ["storage.delete", ["goal"]],
+        ["storage.keys", []],
+      ]);
+    });
+
+    test("storage keys and values are checked before they're kept", async () => {
+      const { cleanStorageKey, storageValue, MAX_STORAGE_VALUE } = await import("@/lib/plugins");
+      expect(cleanStorageKey("days:p1")).toBe("days:p1");
+      expect(() => cleanStorageKey("")).toThrow("1 to 200");
+      expect(() => cleanStorageKey(4)).toThrow("1 to 200");
+      expect(() => cleanStorageKey("a\nb")).toThrow("1 to 200");
+      expect(storageValue({ a: [1, "b", null] })).toBe('{"a":[1,"b",null]}');
+      expect(() => storageValue(undefined)).toThrow("storage.delete");
+      expect(() => storageValue(() => 1)).toThrow("storage.delete");
+      const loop: Record<string, unknown> = {};
+      loop.self = loop;
+      expect(() => storageValue(loop)).toThrow("what JSON can hold");
+      expect(() => storageValue("x".repeat(MAX_STORAGE_VALUE))).toThrow("too much");
+    });
+  });
+
+  describe("Plotra's own plugins", async () => {
+    const { officialPlugins, isOfficialSlug } = await import("@/lib/official-plugins");
+    const { cleanSlug, isPluginCategory } = await import("@/lib/plugin-store");
+
+    test("each has a whole header, a store page, and an address of its own", () => {
+      expect(officialPlugins.length).toBeGreaterThanOrEqual(8);
+      expect(new Set(officialPlugins.map((p) => p.slug)).size).toBe(officialPlugins.length);
+      for (const p of officialPlugins) {
+        expect(cleanSlug(p.slug)).toBe(p.slug);
+        expect(isOfficialSlug(p.slug)).toBe(true);
+        expect(isPluginCategory(p.category)).toBe(true);
+        expect(p.name.length).toBeGreaterThan(2);
+        expect(p.version).toMatch(/^\d+\.\d+/);
+        expect(readPluginHeader(p.code).description.length).toBeGreaterThan(10);
+        expect(p.summary.length).toBeLessThanOrEqual(160);
+        expect(p.about.length).toBeGreaterThan(p.summary.length);
+        expect(cleanPluginCode(p.code)).toBe(p.code);
+        expect(Number.isNaN(p.releasedAt.getTime())).toBe(false);
+      }
+    });
+
+    test("each one's store page says the access its header asks for", () => {
+      for (const p of officialPlugins) {
+        const says = p.about.includes("It only reads your notes");
+        expect([p.slug, says]).toEqual([p.slug, p.access === "read"]);
+      }
+    });
+
+    test("each one starts in a background frame and registers what it adds, without errors", async () => {
+      const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor as new (...args: string[]) => (...args: unknown[]) => Promise<unknown>;
+      for (const p of officialPlugins) {
+        const { sent, plotra, body } = frame("background");
+        const started = new AsyncFunction("plotra", "document", p.code)(plotra, { body, createElement: () => ({}) });
+        started.catch((error) => sent.push({ type: "thrown", message: String(error) }));
+        await tick();
+        const registered = sent.filter((m) => m.type === "register");
+        expect([p.slug, registered.length > 0]).toEqual([p.slug, true]);
+        expect([p.slug, sent.filter((m) => m.type === "thrown" || m.type === "error")]).toEqual([p.slug, []]);
+        // It calls only what the API has.
+        const methods = new Set(sent.filter((m) => m.type === "call").map((m) => String(m.method)));
+        for (const method of methods) expect(isServerMethod(method) || isBrowserMethod(method)).toBe(true);
+      }
+    });
+  });
+
   test("the plugin actions, on PGlite in a process of their own", () => {
     const run = Bun.spawnSync([process.execPath, "test", import.meta.path], {
       cwd: `${import.meta.dir}/../..`,
@@ -238,6 +357,7 @@ plotra.registerCommand({ id: "x", title: "X", run() {} });`;
     ana: { user: { id: "ana", name: "Ana", email: "ana@example.com" }, session: { id: "s-ana" } },
     ben: { user: { id: "ben", name: "Ben", email: "ben@example.com" }, session: { id: "s-ben" } },
     cy: { user: { id: "cy", name: "Cy", email: "cy@example.com" }, session: { id: "s-cy" } },
+    dee: { user: { id: "dee", name: "Dee", email: "dee@example.com" }, session: { id: "s-dee" } },
   };
   let session = people.ana;
   const workspaces = [{ id: "org-ana", name: "Ana's", slug: "ws-ana", logo: null, role: "owner" }];
@@ -266,6 +386,7 @@ plotra.registerCommand({ id: "x", title: "X", run() {} });`;
     { id: "ana", name: "Ana", email: "ana@example.com", createdAt: now, updatedAt: now },
     { id: "ben", name: "Ben", email: "ben@example.com", createdAt: now, updatedAt: now },
     { id: "cy", name: "Cy", email: "cy@example.com", createdAt: now, updatedAt: now },
+    { id: "dee", name: "Dee", email: "dee@example.com", createdAt: now, updatedAt: now },
   ]);
   await db.insert(organization).values({ id: "org-ana", name: "Ana's", slug: "ws-ana", createdAt: now });
   await db.insert(member).values({ id: "m-ana", organizationId: "org-ana", userId: "ana", role: "owner", createdAt: now });
@@ -358,6 +479,95 @@ plotra.registerCommand({ id: "count", title: "Count", run() {} });`;
       expect(await actions.pluginCall("p1", anas, "notes.list", [])).toMatchObject({ ok: false, error: expect.stringContaining("removed") });
       session = people.ana;
       await actions.removePlugin(anas);
+    });
+  });
+
+  describe("a plugin's own storage", () => {
+    test("keeps JSON under keys, for that plugin alone, even one that only reads notes", async () => {
+      session = people.ana;
+      const { id: plugin } = await actions.addPlugin({ code: "// ==Plotra plugin==\n// @access read\n// ==/Plotra plugin==\n", fileName: "keeper.js" });
+      const call = (method: string, ...args: unknown[]) => actions.pluginCall("p1", plugin, method, args);
+      expect(await call("storage.get", "goal")).toEqual({ ok: true, value: null });
+      expect(await call("storage.keys")).toEqual({ ok: true, value: [] });
+      expect(await call("storage.set", "goal", 500)).toEqual({ ok: true, value: true });
+      expect(await call("storage.set", "days:p1", { "2026-11-08": { start: 10, written: 20 } })).toEqual({ ok: true, value: true });
+      expect(await call("storage.set", "goal", 750)).toEqual({ ok: true, value: true });
+      expect(await call("storage.get", "goal")).toEqual({ ok: true, value: 750 });
+      expect(await call("storage.get", "days:p1")).toEqual({ ok: true, value: { "2026-11-08": { start: 10, written: 20 } } });
+      expect(await call("storage.keys")).toEqual({ ok: true, value: ["days:p1", "goal"] });
+      expect(await call("storage.set", "nothing")).toMatchObject({ ok: false, error: expect.stringContaining("storage.delete") });
+      expect(await call("storage.delete", "goal")).toEqual({ ok: true, value: true });
+      expect(await call("storage.keys")).toEqual({ ok: true, value: ["days:p1"] });
+
+      // Someone else can't read or write it through their own session.
+      session = people.ben;
+      expect(await actions.pluginCall("p1", plugin, "storage.get", ["days:p1"])).toMatchObject({ ok: false, error: expect.stringContaining("removed") });
+      expect(await actions.pluginCall("p1", plugin, "storage.set", ["x", 1])).toMatchObject({ ok: false });
+      session = people.ana;
+      await actions.removePlugin(plugin);
+    });
+
+    test("is refused once it's full", async () => {
+      session = people.ana;
+      const { MAX_STORAGE, MAX_STORAGE_VALUE } = await import("@/lib/plugins");
+      const { id: plugin } = await actions.addPlugin({ code: "// big", fileName: "big.js" });
+      const chunk = "x".repeat(MAX_STORAGE_VALUE - 10);
+      let refused: unknown = null;
+      for (let i = 0; i < Math.ceil(MAX_STORAGE / chunk.length) + 1; i++) {
+        const result = await actions.pluginCall("p1", plugin, "storage.set", [`k${i}`, chunk]);
+        if (!result.ok) {
+          refused = result;
+          break;
+        }
+      }
+      expect(refused).toMatchObject({ ok: false, error: expect.stringContaining("storage is full") });
+      await actions.removePlugin(plugin);
+    });
+  });
+
+  describe("Plotra's own plugins, installed", () => {
+    test("install as a plugin of the person's, once, and run", async () => {
+      session = people.dee;
+      const { name } = await store.installPlugin("word-count-by-chapter");
+      expect(name).toBe("Word count by chapter");
+      await expect(store.installPlugin("word-count-by-chapter")).rejects.toThrow("already");
+      const mine = (await actions.listPlugins()).find((p) => p.name === name)!;
+      expect(mine.access).toBe("read");
+      expect(mine.store).toMatchObject({ slug: "word-count-by-chapter", own: false, update: false, blocked: false });
+      expect((await actions.loadPlugins()).map((p) => p.name)).toContain(name);
+      // They're not in the database's store: the pages add them (lib/plugin-store-source.ts).
+      expect((await listStore()).some((e) => e.slug === "word-count-by-chapter")).toBe(false);
+    });
+
+    test("an older copy shows an update, which keeps what it stored", async () => {
+      session = people.dee;
+      const mine = (await actions.listPlugins()).find((p) => p.store?.slug === "word-count-by-chapter")!;
+      await db.update(schema.userPlugin).set({ version: "0.9", code: "// old" }).where(eq(schema.userPlugin.id, mine.id));
+      await actions.pluginCall("p1", mine.id, "storage.set", ["kept", true]);
+      const old = (await actions.listPlugins()).find((p) => p.id === mine.id)!;
+      expect(old.store).toMatchObject({ update: true, latest: { version: "1.0" } });
+      expect(await store.updateInstalledPlugin(mine.id)).toEqual({ version: "1.0" });
+      const now = (await actions.listPlugins()).find((p) => p.id === mine.id)!;
+      expect(now.store?.update).toBe(false);
+      expect(await actions.getPluginCode(mine.id)).toContain("Word count by chapter");
+      expect(await actions.pluginCall("p1", mine.id, "storage.get", ["kept"])).toEqual({ ok: true, value: true });
+    });
+
+    test("can't be published by anyone else, as itself or at its address", async () => {
+      session = people.dee;
+      const mine = (await actions.listPlugins()).find((p) => p.store?.slug === "word-count-by-chapter")!;
+      await expect(store.publishPlugin({ pluginId: mine.id, slug: "my-counter", summary: "Mine now" })).rejects.toThrow("came from the store");
+      const { id: own } = await actions.addPlugin({ code: "// ==Plotra plugin==\n// @version 1\n// ==/Plotra plugin==\n", fileName: "own.js" });
+      await expect(store.publishPlugin({ pluginId: own, slug: "daily-word-goal", summary: "Taken?" })).rejects.toThrow("one of Plotra's own");
+      await actions.removePlugin(own);
+    });
+
+    test("editing one makes it the person's own copy", async () => {
+      session = people.dee;
+      const mine = (await actions.listPlugins()).find((p) => p.store?.slug === "word-count-by-chapter")!;
+      await actions.updatePluginCode(mine.id, "// ==Plotra plugin==\n// @name Counter of mine\n// ==/Plotra plugin==\n");
+      expect((await actions.listPlugins()).find((p) => p.id === mine.id)?.store).toBeNull();
+      await actions.removePlugin(mine.id);
     });
   });
 

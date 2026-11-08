@@ -7,7 +7,7 @@ import { accessLabel, categoryLabel, isPluginCategory, pluginCategories } from "
 import { isLocalMode } from "@/lib/local-mode";
 import type { StoreEntry, StoreSort } from "@/lib/plugin-store-read";
 import { StoreUnreachable } from "@/lib/plugin-store-remote";
-import { browseStore } from "@/lib/plugin-store-source";
+import { browseOfficial, browseStore } from "@/lib/plugin-store-source";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 // The plugin store's front page (lib/plugin-store-source.ts): every listing
@@ -30,6 +30,8 @@ export default async function PluginStorePage({ searchParams }: Props) {
   const query = one(params.q).slice(0, 100);
   const category = isPluginCategory(one(params.category)) ? one(params.category) : "";
   const sort: StoreSort = one(params.sort) === "new" ? "new" : "popular";
+  // Plotra's own ship with the app, so they show even when the store can't be reached.
+  const official = await browseOfficial({ query, category, sort });
   let entries: StoreEntry[] = [];
   // What went wrong, in words (lib/plugin-store-remote.ts): offline, or the store busy.
   let unreachable: string | null = null;
@@ -100,44 +102,67 @@ export default async function PluginStorePage({ searchParams }: Props) {
         </span>
       </nav>
 
-      {unreachable ? (
-        <p role="status" className="rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-          {unreachable}{" "}
-          Plugins you have keep working.
-        </p>
-      ) : entries.length === 0 ? (
-        <p className="rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-          {query || category ? "No plugins match that." : isLocalMode ? "No plugins yet." : "No plugins yet. Publish one of yours from Your settings → Plugins."}
-        </p>
-      ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {entries.map((entry) => (
-            <li key={entry.slug}>
-              <Link href={`/plugins/${entry.slug}`} prefetch={false} className="group flex h-full flex-col rounded-xl border bg-card p-4 transition-colors hover:border-foreground/20">
-                <div className="flex items-center gap-2">
-                  <Icon name="plug-circle-linear" className="size-6 shrink-0 text-ember-ink" />
-                  <h2 className="min-w-0 truncate font-medium">{entry.name}</h2>
-                  {entry.version && <span className="ml-auto shrink-0 text-xs text-faint">{entry.version}</span>}
-                </div>
-                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{entry.summary}</p>
-                <p className="mt-auto flex flex-wrap items-center gap-x-2 pt-3 text-xs text-faint">
-                  <span>{entry.author}</span>
-                  <span>· {categoryLabel(entry.category)}</span>
-                  <span className="inline-flex items-center gap-1">
-                    · <Icon name={entry.access === "read" ? "eye-linear" : "pen-linear"} className="size-3.5" />
-                    {accessLabel(entry.access)}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    · <Icon name="download-linear" className="size-3.5" />
-                    {entry.installs}
-                    <span className="sr-only">{entry.installs === 1 ? " install" : " installs"}</span>
-                  </span>
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
+      {official.length > 0 && (
+        <section aria-labelledby="official" className="mb-8">
+          <h2 id="official" className="mb-3 flex items-center gap-1.5 text-sm font-medium">
+            <Icon name="verified-check-linear" className="size-4 text-ember-ink" />
+            Made by Plotra
+          </h2>
+          <Cards entries={official} official />
+        </section>
       )}
+
+      <section aria-labelledby="community">
+        <h2 id="community" className="mb-3 text-sm font-medium">
+          From people who write with Plotra
+        </h2>
+        {unreachable ? (
+          <p role="status" className="rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+            {unreachable}{" "}
+            Plugins you have keep working.
+          </p>
+        ) : entries.length === 0 ? (
+          <p className="rounded-lg border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+            {query || category ? "No plugins from the community match that." : isLocalMode ? "None yet." : "None yet. Made one? Publish it from Your settings → Plugins."}
+          </p>
+        ) : (
+          <Cards entries={entries} />
+        )}
+      </section>
     </main>
+  );
+}
+
+function Cards({ entries, official = false }: { entries: StoreEntry[]; official?: boolean }) {
+  return (
+    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {entries.map((entry) => (
+        <li key={entry.slug}>
+          <Link href={`/plugins/${entry.slug}`} prefetch={false} className="group flex h-full flex-col rounded-xl border bg-card p-4 transition-colors hover:border-foreground/20">
+            <div className="flex items-center gap-2">
+              <Icon name="plug-circle-linear" className="size-6 shrink-0 text-ember-ink" />
+              <h3 className="min-w-0 truncate font-medium">{entry.name}</h3>
+              {entry.version && <span className="ml-auto shrink-0 text-xs text-faint">{entry.version}</span>}
+            </div>
+            <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{entry.summary}</p>
+            <p className="mt-auto flex flex-wrap items-center gap-x-2 pt-3 text-xs text-faint">
+              {!official && <span>{entry.author} ·</span>}
+              <span>{categoryLabel(entry.category)}</span>
+              <span className="inline-flex items-center gap-1">
+                · <Icon name={entry.access === "read" ? "eye-linear" : "pen-linear"} className="size-3.5" />
+                {accessLabel(entry.access)}
+              </span>
+              {!(official && isLocalMode) && (
+                <span className="inline-flex items-center gap-1">
+                  · <Icon name="download-linear" className="size-3.5" />
+                  {entry.installs}
+                  <span className="sr-only">{entry.installs === 1 ? " install" : " installs"}</span>
+                </span>
+              )}
+            </p>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }

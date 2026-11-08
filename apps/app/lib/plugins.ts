@@ -12,14 +12,31 @@ export const MAX_PLUGIN_CODE = 500_000;
 export const MAX_PLUGINS = 30;
 
 /** What the project calls go to: the API's own functions (lib/api/notes.ts), as the person. */
-export const serverMethods = ["notes.list", "notes.read", "notes.search", "notes.create", "notes.update", "notes.write", "kinds.list", "kinds.add"] as const;
+export const serverMethods = [
+  "notes.list",
+  "notes.read",
+  "notes.search",
+  "notes.create",
+  "notes.update",
+  "notes.write",
+  "kinds.list",
+  "kinds.add",
+  "storage.get",
+  "storage.set",
+  "storage.delete",
+  "storage.keys",
+] as const;
 export type ServerMethod = (typeof serverMethods)[number];
 
 /** What the app answers itself, in the browser. */
 export const browserMethods = ["notes.active", "ui.toast", "ui.download", "ui.openNote", "ui.openPanel"] as const;
 export type BrowserMethod = (typeof browserMethods)[number];
 
-/** The calls that change something: refused to a plugin whose header says `@access read`. */
+/**
+ * The calls that change the person's notes: refused to a plugin whose header
+ * says `@access read`. A plugin's own storage isn't the person's notes, so
+ * every plugin may keep things there.
+ */
 export const writeMethods: readonly ServerMethod[] = ["notes.create", "notes.update", "notes.write", "kinds.add"];
 
 export type PluginAccess = "read" | "write";
@@ -102,3 +119,34 @@ export function cleanDownloadType(raw: unknown): string {
 
 /** The most a plugin may hand over to be saved as a file, in characters. */
 export const MAX_DOWNLOAD = 20_000_000;
+
+/** What a plugin hears about through `plotra.on` (components/plugins/plugin-host.tsx). */
+export const pluginEvents = ["note.open", "notes.change"] as const;
+export type PluginEvent = (typeof pluginEvents)[number];
+export const isPluginEvent = (value: unknown): value is PluginEvent => typeof value === "string" && (pluginEvents as readonly string[]).includes(value);
+
+/** The most a plugin may keep through `plotra.storage`, all keys together, as JSON characters. */
+export const MAX_STORAGE = 1_000_000;
+/** The most one value may be, as JSON characters. */
+export const MAX_STORAGE_VALUE = 200_000;
+/** The most keys one plugin may keep. */
+export const MAX_STORAGE_KEYS = 1000;
+
+/** A key in a plugin's storage: 1 to 200 characters, no control characters. Throws a message for the plugin's author. */
+export function cleanStorageKey(raw: unknown): string {
+  if (typeof raw !== "string" || !raw || raw.length > 200 || /[\u0000-\u001f]/.test(raw)) throw new Error("A storage key is a string of 1 to 200 characters.");
+  return raw;
+}
+
+/** A value to keep, as the JSON it's stored as. Throws a message for the plugin's author. */
+export function storageValue(raw: unknown): string {
+  let json: string | undefined;
+  try {
+    json = JSON.stringify(raw);
+  } catch {
+    throw new Error("Storage keeps what JSON can hold: text, numbers, true and false, null, lists and objects.");
+  }
+  if (json === undefined) throw new Error("Storage keeps what JSON can hold: text, numbers, true and false, null, lists and objects. Use storage.delete to remove a key.");
+  if (json.length > MAX_STORAGE_VALUE) throw new Error(`That's too much to keep under one key (${Math.round(MAX_STORAGE_VALUE / 1000)} KB).`);
+  return json;
+}

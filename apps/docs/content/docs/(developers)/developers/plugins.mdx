@@ -48,6 +48,22 @@ A plugin taken down after a report leaves the store, and stops running for every
 
 The desktop app browses and installs from the store on plotra.ink: **Browse plugins** in Your settings opens the same pages. It needs the internet to browse, install and update, but the plugins you've installed keep running offline. When it's online it checks for updates, and for plugins taken down, which then stop running. Publishing needs a Plotra Cloud account: publish from app.plotra.ink.
 
+### Plotra's own plugins
+
+The store opens with **Made by Plotra**: plugins the Plotra team wrote with the same API as anyone's, shipped with the app. They're there on every server and in the desktop app, offline too, and install, update and switch off like any other. Each one's page shows its whole code, so they double as examples to start your own from.
+
+| Plugin | What it does | Access |
+| --- | --- | --- |
+| Word count by chapter | A panel with each chapter's words, scenes included, as bars; keeps up as you write | Reads |
+| Daily word goal | A goal for each day, today's progress, the last 14 days and your streak | Reads |
+| Progress by status | Chapters, scenes and words at each stage of your workflow | Reads |
+| Manuscript as Markdown | Exports chapters and scenes in binder order, with scene breaks, as one `.md` file | Reads |
+| Characters and places (CSV) | Exports characters and locations as a spreadsheet | Reads |
+| Repeated words | The words, phrases and filler words the open note leans on | Reads |
+| Characters in the story | How many chapters and scenes mention each character, and who's never mentioned | Reads |
+| Tags overview | Every tag with its count; pick one to list its notes | Reads |
+| Name generator | Names in a few styles; adds one as a character in a click | Reads and changes |
+
 ### The store's API
 
 The store can be read as JSON, with no sign-in. It's read-only: installing and publishing happen in Plotra. Each address answers `GET`, from any site, and allows 300 requests a minute from one address.
@@ -145,6 +161,45 @@ plotra.registerPanel({
 
 It opens with **Open Tag counts** in **All commands**, or `plotra.ui.openPanel("tags")`. The panel takes Plotra's colours as CSS variables: `--plotra-background`, `--plotra-foreground`, `--plotra-muted-foreground`, `--plotra-border`, `--plotra-primary` and the rest of the theme.
 
+### Listening for changes
+
+`plotra.on(event, handler)` calls `handler` each time something happens in the open project, and returns a function that stops it. It works in the background and in a panel, so a panel can redraw itself when your notes change.
+
+| Event | When | `handler` gets |
+| --- | --- | --- |
+| `note.open` | The note in front of you changes: another tab, another pane, or none | `{ id }`: the note's id, or `null` |
+| `notes.change` | Notes were added, changed, moved or put in the trash, by you or anyone in the project. It comes once things settle, about a second after the last change, with everything since | `{ changed, removed }`: lists of note ids. `changed` includes new notes |
+
+Changes to a note's text arrive once they're saved, with its new `wordCount`. To see the text, `notes.read` it.
+
+```js
+plotra.registerPanel({
+  id: "total",
+  title: "Project total",
+  async render(body) {
+    const draw = async () => {
+      const notes = await plotra.notes.list();
+      body.textContent = notes.reduce((sum, n) => sum + n.wordCount, 0) + " words";
+    };
+    await draw();
+    plotra.on("notes.change", draw);
+  },
+});
+```
+
+### Keeping things
+
+`plotra.storage` keeps what a plugin needs to remember: settings, a count, a cache. It's kept on Plotra's server with the plugin, for the person who has it, so it's the same in every project and on every device. Values are anything JSON can hold.
+
+```js
+const goal = (await plotra.storage.get("goal")) ?? 500;
+await plotra.storage.set("goal", 750);
+await plotra.storage.delete("goal");
+const keys = await plotra.storage.keys();
+```
+
+For what belongs to one project, put its id in the key: `"days:" + plotra.project.id`. Storage isn't your notes, so a plugin that says `@access read` may keep things there too. It stays through updates and switching the plugin off, and goes when the plugin is removed.
+
 ### A theme
 
 A theme is colours for the app, light and dark, and optionally CSS. Once the plugin is on, it's listed under **Customize** → **Look** → **Colours** → **From your plugins**, and in **All commands** as **Use the … theme**. Whoever picks it keeps a copy, so it stays in use on every page, also where plugins don't run, and follows your updates the next time the plugin runs.
@@ -199,6 +254,11 @@ Every call that reaches Plotra returns a promise. A refusal (no access, no such 
 | `ui.download(name, content, type?)` | Saves text or bytes as a file |
 | `ui.openNote(id)` | Opens a note in a new tab |
 | `ui.openPanel(id)` | Opens one of the plugin's panels |
+| `on(event, handler)` | Calls `handler` on `note.open` or `notes.change`; returns a function that stops it. See [Listening for changes](#listening-for-changes) |
+| `storage.get(key)` | What the plugin kept under `key`, or `null` |
+| `storage.set(key, value)` | Keeps `value` (anything JSON can hold) under `key` |
+| `storage.delete(key)` | Forgets `key` |
+| `storage.keys()` | Every key the plugin keeps, in order |
 
 Text is written the way the [API](/docs/developers/api) writes it: through the live document, so anyone with the note open sees the change at once, and `[[Links]]` find notes by title.
 
@@ -211,6 +271,7 @@ Text is written the way the [API](/docs/developers/api) writes it: through the l
 | Code per plugin | 500 KB |
 | Calls on the project | 600 a minute, across all your plugins |
 | Calls waiting at once | 50 per frame |
+| A plugin's storage | 1 MB in all, 1,000 keys, 200 KB under one key; keys up to 200 characters |
 | A command or export | Given up on after 5 minutes |
 | A file to save | 20 MB |
 | Where | Plotra over https, or on localhost: the browser checks plugin frames by hashes it makes only there |

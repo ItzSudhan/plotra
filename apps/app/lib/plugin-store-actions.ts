@@ -6,6 +6,7 @@ import { isApiRequest, requireSession } from "./data";
 import { userDb } from "./db";
 import { isLocalMode } from "./local-mode";
 import { cleanPluginCode, MAX_PLUGINS, readPluginHeader } from "./plugins";
+import { isOfficialSlug, officialPlugin } from "./official-plugins";
 import { remoteListing } from "./plugin-store-remote";
 import { cleanSlug, cleanText, isPluginCategory, MAX_ABOUT, MAX_LISTINGS, MAX_NOTES, MAX_SUMMARY } from "./plugin-store";
 import { rateLimit } from "./rate-limit";
@@ -43,6 +44,7 @@ export async function publishPlugin(input: { pluginId: string; slug: string } & 
     await rateLimit("plugin-publish", user.id, { limit: 20, windowSeconds: 3600 });
     const slug = cleanSlug(input?.slug);
     if (!slug) throw new Error("Its address takes 3 to 50 lowercase letters, digits and dashes, starting and ending with a letter or digit.");
+    if (isOfficialSlug(slug)) throw new Error("That address is one of Plotra's own plugins. Try another.");
     const fields = listingFields(input);
     // Every listing, taken down or not, holds on to its address.
     const [taken] = await db.select({ id: pluginListing.id }).from(pluginListing).where(eq(pluginListing.slug, slug)).limit(1);
@@ -50,12 +52,13 @@ export async function publishPlugin(input: { pluginId: string; slug: string } & 
 
     return userDb(async (tx) => {
       const [plugin] = await tx
-        .select({ name: userPlugin.name, code: userPlugin.code, listingId: userPlugin.listingId })
+        .select({ name: userPlugin.name, code: userPlugin.code, listingId: userPlugin.listingId, officialSlug: userPlugin.officialSlug, remoteSlug: userPlugin.remoteSlug })
         .from(userPlugin)
         .where(and(eq(userPlugin.id, String(input?.pluginId)), eq(userPlugin.userId, user.id)))
         .limit(1);
       if (!plugin) throw new Error("That plugin is gone.");
       if (plugin.listingId) throw new Error("That plugin is already in the store. Publish a new version of it instead.");
+      if (plugin.officialSlug || plugin.remoteSlug) throw new Error("That plugin came from the store. Publish your own plugins; change this one with Edit code first to make it yours.");
       const header = readPluginHeader(plugin.code);
       if (!header.version) throw new Error("Give it a version first: add “// @version 1.0” to its header.");
       const [{ count }] = await tx.select({ count: sql<number>`count(*)::int` }).from(pluginListing).where(eq(pluginListing.authorId, user.id));
@@ -157,6 +160,7 @@ export async function installPlugin(slug: string): Promise<{ id: string; name: s
   return transaction(async () => {
     const { user } = await signedIn({ publishing: false });
     await rateLimit("plugins", user.id, { limit: 60, windowSeconds: 3600 });
+    if (officialPlugin(slug)) return installOfficial(user.id, slug);
     if (isLocalMode) return installRemote(user.id, slug);
     return userDb(async (tx) => {
       // Row-level security hides a listing taken down.
@@ -195,6 +199,14 @@ export async function updateInstalledPlugin(pluginId: string): Promise<{ version
   return transaction(async () => {
     const { user } = await signedIn({ publishing: false });
     await rateLimit("plugins", user.id, { limit: 60, windowSeconds: 3600 });
+    const [mine] = await userDb((tx) =>
+      tx
+        .select({ officialSlug: userPlugin.officialSlug })
+        .from(userPlugin)
+        .where(and(eq(userPlugin.id, String(pluginId)), eq(userPlugin.userId, user.id)))
+        .limit(1),
+    );
+    if (mine?.officialSlug) return updateOfficial(user.id, String(pluginId), mine.officialSlug);
     if (isLocalMode) return updateRemote(user.id, pluginId);
     return userDb(async (tx) => {
       const [row] = await tx
@@ -216,6 +228,35 @@ export async function updateInstalledPlugin(pluginId: string): Promise<{ version
       return { version: release.version };
     });
   });
+}
+
+/** One of Plotra's own plugins (lib/official-plugins), copied into the person's plugins with its slug. */
+async function installOfficial(userId: string, slug: string): Promise<{ id: string; name: string }> {
+  const plugin = officialPlugin(slug);
+  if (!plugin) throw new Error("There's no such plugin in the store.");
+  return userDb(async (tx) => {
+    const mine = await tx.select({ officialSlug: userPlugin.officialSlug }).from(userPlugin).where(eq(userPlugin.userId, userId));
+    if (mine.some((p) => p.officialSlug === plugin.slug)) throw new Error("You have this plugin already. Find it in Your settings → Plugins.");
+    if (mine.length >= MAX_PLUGINS) throw new Error(`That's ${MAX_PLUGINS} plugins. Remove one first.`);
+    const [row] = await tx
+      .insert(userPlugin)
+      .values({ userId, name: plugin.name, description: plugin.summary, version: plugin.version, access: plugin.access, code: cleanPluginCode(plugin.code), officialSlug: plugin.slug })
+      .returning({ id: userPlugin.id, name: userPlugin.name });
+    return row;
+  });
+}
+
+/** Brings one of Plotra's own plugins up to the version this app ships, keeping whether it's on and what it stored. */
+async function updateOfficial(userId: string, pluginId: string, slug: string): Promise<{ version: string }> {
+  const plugin = officialPlugin(slug);
+  if (!plugin) throw new Error("This plugin isn't in the store any more, so it has no updates.");
+  await userDb((tx) =>
+    tx
+      .update(userPlugin)
+      .set({ code: cleanPluginCode(plugin.code), version: plugin.version, access: plugin.access, name: plugin.name, description: plugin.summary, updatedAt: new Date() })
+      .where(and(eq(userPlugin.id, pluginId), eq(userPlugin.userId, userId))),
+  );
+  return { version: plugin.version };
 }
 
 /** The desktop app's install: plotra.ink's latest release, copied into the library with its slug and release there. */

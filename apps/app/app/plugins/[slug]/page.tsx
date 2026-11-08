@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { StoreActions } from "@/components/plugins/store-actions";
 import { PublicNotice } from "@/components/public/public-notice";
 import { getSession } from "@/lib/data";
+import { isOfficialSlug } from "@/lib/official-plugins";
 import { accessLabel, categoryLabel } from "@/lib/plugin-store";
 import { isLocalMode } from "@/lib/local-mode";
 import { storeUrl, StoreUnreachable } from "@/lib/plugin-store-remote";
@@ -49,6 +50,8 @@ export default async function PluginPage({ params }: Props) {
   }
   if (!listing) notFound();
   const latest = listing.releases[0];
+  // Plotra's own (lib/official-plugins): shipped with the app.
+  const official = isOfficialSlug(listing.slug);
   const reportEmail = process.env.REPORT_EMAIL;
 
   return (
@@ -63,12 +66,17 @@ export default async function PluginPage({ params }: Props) {
           <h1 className="font-display text-3xl tracking-tight">{listing.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{listing.summary}</p>
           <p className="mt-2 flex flex-wrap gap-x-2 text-xs text-faint">
-            <span>By {listing.author}</span>
+            <span className="inline-flex items-center gap-1">
+              {official && <Icon name="verified-check-linear" className="size-3.5 text-ember-ink" />}
+              By {listing.author}
+            </span>
             {latest && <span>· Version {latest.version}</span>}
             <span>· {categoryLabel(listing.category)}</span>
-            <span>
-              · {listing.installs} {plural(listing.installs, "install")}
-            </span>
+            {!(official && isLocalMode) && (
+              <span>
+                · {listing.installs} {plural(listing.installs, "install")}
+              </span>
+            )}
             <span>· Updated {day.format(listing.updatedAt)}</span>
           </p>
         </div>

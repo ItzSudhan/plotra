@@ -6,10 +6,11 @@ import { ApiError } from "./api/handler";
 import { createApiNote, listApiNotes, readApiNote, searchApiNotes, updateApiNote, writeApiNoteText, type NewNote, type NotePatch, type TextChange } from "./api/notes";
 import { isApiRequest, requireSession } from "./data";
 import { isLocalMode } from "./local-mode";
+import { officialPlugin } from "./official-plugins";
 import { remoteStatus } from "./plugin-store-remote";
 import { userDb } from "./db";
 import { publicMessage } from "./errors";
-import { cleanPluginCode, isServerMethod, MAX_PLUGINS, pluginName, readPluginHeader, writeMethods, type PluginAccess } from "./plugins";
+import { cleanPluginCode, cleanStorageKey, isServerMethod, MAX_PLUGINS, MAX_STORAGE, MAX_STORAGE_KEYS, pluginName, readPluginHeader, storageValue, writeMethods, type PluginAccess } from "./plugins";
 import { checkRateLimit, rateLimit } from "./rate-limit";
 import { readOnly, transaction } from "./request-cache";
 import { createEntityType, getWorld } from "./world-actions";
@@ -75,6 +76,7 @@ export async function listPlugins(): Promise<PluginRow[]> {
           releaseId: userPlugin.releaseId,
           remoteSlug: userPlugin.remoteSlug,
           remoteReleaseId: userPlugin.remoteReleaseId,
+          officialSlug: userPlugin.officialSlug,
           // Row-level security hides a listing taken down from all but its author.
           seen: pluginListing.id,
           slug: pluginListing.slug,
@@ -95,7 +97,21 @@ export async function listPlugins(): Promise<PluginRow[]> {
     );
     // The desktop app's plugins from plotra.ink: where each stands there, when it can be asked.
     const remote = isLocalMode ? await remoteStatus(rows.flatMap((r) => (r.remoteSlug ? [r.remoteSlug] : [])), { fresh: true }) : new Map();
-    return rows.map(({ listingId, releaseId, remoteSlug, remoteReleaseId, seen, slug, authorId, withdrawnAt, blockedAt, summary, about, category, latest, changed, ...row }) => {
+    return rows.map(({ listingId, releaseId, remoteSlug, remoteReleaseId, officialSlug, seen, slug, authorId, withdrawnAt, blockedAt, summary, about, category, latest, changed, ...row }) => {
+      if (officialSlug) {
+        // One of Plotra's own (lib/official-plugins): an update is the version this app ships.
+        const official = officialPlugin(officialSlug);
+        return toRow(row, {
+          slug: officialSlug,
+          own: false,
+          withdrawn: !official,
+          blocked: false,
+          latest: official ? { id: official.releaseId, version: official.version, access: official.access } : null,
+          update: !!official && official.version !== row.version,
+          changed: false,
+          page: null,
+        });
+      }
       if (remoteSlug) {
         const there = remote.get(remoteSlug);
         return toRow(row, {
@@ -207,6 +223,8 @@ export async function updatePluginCode(id: string, rawCode: string): Promise<Plu
           // From plotra.ink's store, in the desktop app: the person's own copy now, too.
           remoteSlug: null,
           remoteReleaseId: null,
+          // One of Plotra's own: the person's copy now, too.
+          officialSlug: null,
           updatedAt: new Date(),
         })
         .where(and(eq(userPlugin.id, String(id)), eq(userPlugin.userId, user.id)))
@@ -239,6 +257,51 @@ export async function removePlugin(id: string): Promise<void> {
     assertSignedIn();
     const { user } = await requireSession();
     await userDb((tx) => tx.delete(userPlugin).where(and(eq(userPlugin.id, String(id)), eq(userPlugin.userId, user.id))));
+  });
+}
+
+/**
+ * A plugin's own storage (`plotra.storage`): a few keys of JSON kept on its
+ * row, for it alone, the same in every project and on every device. Not the
+ * person's notes, so a plugin that only reads may still keep things here.
+ */
+async function pluginStorage(userId: string, pluginId: string, method: "storage.get" | "storage.set" | "storage.delete" | "storage.keys", args: unknown[]): Promise<unknown> {
+  const mine = and(eq(userPlugin.id, pluginId), eq(userPlugin.userId, userId));
+  if (method === "storage.get" || method === "storage.keys") {
+    const key = method === "storage.get" ? cleanStorageKey(args[0]) : null;
+    return readOnly(async () => {
+      const [row] = await userDb((tx) =>
+        tx
+          .select({ value: key === null ? sql<unknown>`(select coalesce(json_agg(k order by k), '[]'::json) from jsonb_object_keys(${userPlugin.storage}) k)` : sql<unknown>`${userPlugin.storage} -> ${key}::text` })
+          .from(userPlugin)
+          .where(mine)
+          .limit(1),
+      );
+      if (!row) throw new ApiError(404, "This plugin was removed. Reload the page to stop it.");
+      return row.value ?? (key === null ? [] : null);
+    });
+  }
+  const key = cleanStorageKey(args[0]);
+  return transaction(async () => {
+    await rateLimit("plugin-storage", userId, { limit: 300, windowSeconds: 60 });
+    if (method === "storage.delete") {
+      const done = await userDb((tx) => tx.update(userPlugin).set({ storage: sql`${userPlugin.storage} - ${key}` }).where(mine).returning({ id: userPlugin.id }));
+      if (!done.length) throw new ApiError(404, "This plugin was removed. Reload the page to stop it.");
+      return true;
+    }
+    const json = storageValue(args[1]);
+    const next = sql`${userPlugin.storage} || jsonb_build_object(${key}::text, ${json}::jsonb)`;
+    const [row] = await userDb((tx) =>
+      tx
+        .update(userPlugin)
+        .set({ storage: next })
+        .where(and(mine, sql`(length((${next})::text) <= ${MAX_STORAGE})`, sql`((${userPlugin.storage} -> ${key}::text) is not null or (select count(*) from jsonb_object_keys(${userPlugin.storage})) < ${MAX_STORAGE_KEYS})`))
+        .returning({ id: userPlugin.id }),
+    );
+    if (row) return true;
+    const [exists] = await userDb((tx) => tx.select({ id: userPlugin.id }).from(userPlugin).where(mine).limit(1));
+    if (!exists) throw new ApiError(404, "This plugin was removed. Reload the page to stop it.");
+    throw new ApiError(413, `This plugin's storage is full (${Math.round(MAX_STORAGE / 1000)} KB, or ${MAX_STORAGE_KEYS} keys). Delete some keys first.`);
   });
 }
 
@@ -292,6 +355,11 @@ export async function pluginCall(projectId: string, pluginId: string, method: st
         return { ok: true, value: plain(await updateApiNote(projectId, id(list[0]), object<NotePatch>(list[1]))) };
       case "notes.write":
         return { ok: true, value: plain(await writeApiNoteText(projectId, id(list[0]), object<TextChange>(list[1]))) };
+      case "storage.get":
+      case "storage.set":
+      case "storage.delete":
+      case "storage.keys":
+        return { ok: true, value: plain(await pluginStorage(user.id, pluginId, method, list)) };
       case "kinds.list": {
         const world = await getWorld(projectId);
         return { ok: true, value: plain(world.entityTypes.map(({ id, name, plural, icon, color, schema }) => ({ id, name, plural, icon, color, fields: schema }))) };

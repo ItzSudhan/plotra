@@ -7,7 +7,8 @@ import { useWorkspace } from "@/components/workspace/workspace-provider";
 import { useStore } from "@/components/workspace/stores";
 import { errorText } from "@/lib/errors";
 import { loadPlugins, pluginCall, type PluginCode } from "@/lib/plugin-actions";
-import { cleanPartId, isBrowserMethod, isServerMethod } from "@/lib/plugins";
+import type { BinderNode } from "@/lib/binder";
+import { cleanPartId, isBrowserMethod, isPluginEvent, isServerMethod, type PluginEvent } from "@/lib/plugins";
 import { pluginDocument, readTheme, type FromPlugin, type PluginContext, type PluginMode, type ToPlugin } from "@/lib/plugin-sandbox";
 import { cleanPluginTheme } from "@/lib/themes";
 import { isTrashed } from "@/lib/tree";
@@ -23,6 +24,18 @@ import { panelKey, savePluginFile, type PluginPart } from "./plugin-registry";
 const MAX_IN_FLIGHT = 50;
 /** How long a command or an export may take before it's given up on. */
 const RUN_TIMEOUT_MS = 5 * 60_000;
+/** How long the binder stays still before plugins hear `notes.change`: one event for a burst of saves. */
+const CHANGE_SETTLE_MS = 1000;
+
+/** What a plugin's `notes.change` compares: the details `notes.list` gives, and where the note sits. */
+const noteSignature = (n: BinderNode) => [n.title, String(n.updatedAt), n.wordCount, n.parentId, n.position, n.status, n.synopsis, (n.tags ?? []).join("\u0001"), (n.aliases ?? []).join("\u0001")].join("\u0000");
+
+/** Each note that isn't in the trash, by id, with its signature. */
+function noteSignatures(nodes: BinderNode[]): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const n of nodes) if (!n.deletedAt) out.set(n.id, noteSignature(n));
+  return out;
+}
 
 export function PluginHost() {
   const { plugins: registry } = useWorkspace();
@@ -90,6 +103,11 @@ export function PluginFrame({ plugin, mode, panel, className }: { plugin: Plugin
     let nextRun = 1;
     let inFlight = 0;
     const toasts: number[] = [];
+    // The events this frame asked for with plotra.on.
+    const heard = new Set<PluginEvent>();
+    const emit = (name: PluginEvent, data: unknown) => {
+      if (heard.has(name)) post({ plotra: 1, type: "event", name, data });
+    };
 
     const browserCall = (method: string, args: unknown[]): unknown => {
       switch (method) {
@@ -174,6 +192,8 @@ export function PluginFrame({ plugin, mode, panel, className }: { plugin: Plugin
         runs.delete(message.id);
         if (message.ok) run.resolve(message.value);
         else run.reject(new Error(String(message.error ?? "That didn't work.")));
+      } else if (message.type === "subscribe") {
+        if (isPluginEvent(message.name)) heard.add(message.name);
       } else if (message.type === "error") console.warn(`[plugin: ${plugin.name}]`, String(message.message).slice(0, 300));
     };
     window.addEventListener("message", onMessage);
@@ -204,8 +224,35 @@ export function PluginFrame({ plugin, mode, panel, className }: { plugin: Plugin
           )
         : undefined;
 
+    // note.open: the note in front of the person changed.
+    let lastActive = activeNodeId.get();
+    const stopActive = activeNodeId.subscribe(() => {
+      const now = activeNodeId.get();
+      if (now === lastActive) return;
+      lastActive = now;
+      emit("note.open", { id: now });
+    });
+    // notes.change: notes added, changed, moved or put in the trash, once the binder settles.
+    let seen = noteSignatures(binder.get().nodes);
+    let settle: ReturnType<typeof setTimeout> | undefined;
+    const stopBinder = binder.subscribe(() => {
+      clearTimeout(settle);
+      settle = setTimeout(() => {
+        const now = noteSignatures(binder.get().nodes);
+        const changed: string[] = [];
+        const removed: string[] = [];
+        for (const [id, signature] of now) if (seen.get(id) !== signature) changed.push(id);
+        for (const id of seen.keys()) if (!now.has(id)) removed.push(id);
+        seen = now;
+        if (changed.length || removed.length) emit("notes.change", { changed, removed });
+      }, CHANGE_SETTLE_MS);
+    });
+
     return () => {
       window.removeEventListener("message", onMessage);
+      stopActive();
+      stopBinder();
+      clearTimeout(settle);
       detach?.();
       for (const run of runs.values()) run.reject(new Error("The plugin stopped."));
       runs.clear();

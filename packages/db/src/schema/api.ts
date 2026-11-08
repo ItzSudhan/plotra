@@ -191,6 +191,13 @@ export const userPlugin = pgTable(
      */
     remoteSlug: text("remote_slug"),
     remoteReleaseId: text("remote_release_id"),
+    /**
+     * One of Plotra's own plugins, shipped with the app (apps/app/lib/official-plugins):
+     * its slug. Cleared when the person edits it, as for a store plugin.
+     */
+    officialSlug: text("official_slug"),
+    /** What the plugin keeps for itself through `plotra.storage` (apps/app/lib/plugin-actions.ts). */
+    storage: jsonb("storage").$type<Record<string, unknown>>().default({}).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
