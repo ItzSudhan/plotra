@@ -55,6 +55,18 @@ function personName(): string {
   }
 }
 
+/**
+ * The program the server runs on. On a Mac, the app's helper: it's the same
+ * Electron, but it has no Dock icon, so the server doesn't show up as a second
+ * app. Elsewhere, the app's own program (no window or console of its own).
+ */
+function nodeBinary(): string {
+  if (process.platform !== "darwin") return process.execPath;
+  const name = path.basename(process.execPath);
+  const helper = path.join(path.dirname(process.execPath), "..", "Frameworks", `${name} Helper.app`, "Contents", "MacOS", `${name} Helper`);
+  return existsSync(helper) ? helper : process.execPath;
+}
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function startLocalServer(library: Library, paths: ServerPaths, port: number, extraEnv: Record<string, string> = {}): Promise<LocalServer> {
@@ -72,7 +84,7 @@ export async function startLocalServer(library: Library, paths: ServerPaths, por
   const log = createWriteStream(logFile, { flags: "a" });
   log.write(`\n--- ${new Date().toISOString()} ${library.dir}\n`);
 
-  const child: ChildProcess = spawn(process.execPath, [script], {
+  const child: ChildProcess = spawn(nodeBinary(), [script], {
     cwd: path.dirname(script),
     env: {
       ...process.env,
@@ -94,6 +106,7 @@ export async function startLocalServer(library: Library, paths: ServerPaths, por
       ...extraEnv,
     },
     stdio: ["ignore", "pipe", "pipe"],
+    windowsHide: true,
   });
   child.stdout?.pipe(log, { end: false });
   child.stderr?.pipe(log, { end: false });
