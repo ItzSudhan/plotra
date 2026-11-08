@@ -13,9 +13,9 @@ const publicPaths = ["/sign-in", "/sign-up", "/forgot-password", "/reset-passwor
 
 // Pages for other people, which local mode has none of: the public reader and
 // copying from it, accepting an invitation or a share, and what's shared with
-// you; and signing the desktop app in to the cloud. (The plugin store is
+// you; and signing the desktop and phone apps in to the cloud. (The plugin store is
 // there: plotra.ink's, lib/plugin-store-remote.ts.)
-const cloudOnlyPaths = ["/p", "/copy", "/worlds", "/invite", "/share", "/shared", "/desktop"];
+const cloudOnlyPaths = ["/p", "/copy", "/worlds", "/invite", "/share", "/shared", "/desktop", "/mobile"];
 
 const matches = (pathname: string, paths: string[]) => paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 

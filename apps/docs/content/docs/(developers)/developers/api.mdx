@@ -38,13 +38,17 @@ curl -H "Authorization: Bearer plt_…" https://app.plotra.ink/api/v1/projects
 
 | Request | What it does |
 | --- | --- |
+| `GET /api/v1/me` | `{ user: { id, name, email, image }, workspaces: [{ id, name, slug, role }] }` |
 | `GET /api/v1/projects` | `{ projects: [{ id, title, type, workspaceId, updatedAt }] }` |
 | `GET /api/v1/projects/{project}/notes` | `{ notes: [{ id, parentId, kind, title, synopsis, tags, aliases, status, wordCount, updatedAt, canEdit }] }`, in binder order, without the trash |
 | `GET /api/v1/projects/{project}/notes/{note}` | `{ note }`, with `markdown`: its text. `null` for a canvas, timeline or dialogue |
 | `GET /api/v1/projects/{project}/search?q=…&limit=20` | `{ hits: [{ id, title, kind, snippet }] }` |
 | `POST /api/v1/projects/{project}/notes` | Makes a note. Body: `{ title, kind?, parentId?, markdown?, tags?, synopsis? }`. `201` with `{ note }` |
 | `PATCH /api/v1/projects/{project}/notes/{note}` | Body: any of `{ title, synopsis, tags, aliases, status }`. `{ note }` |
+| `DELETE /api/v1/projects/{project}/notes/{note}` | Moves the note, and what's inside it, to the trash. `{ note }` |
 | `POST /api/v1/projects/{project}/notes/{note}/text` | Body: `{ mode: "append" \| "replace", markdown, suggest? }`. `{ markdown }`: the note's text after |
+| `GET /api/v1/notifications` | `{ items: [{ id, type, projectId, nodeId, payload, readAt, createdAt, actorName, projectTitle }], unread }`: your latest 40 |
+| `POST /api/v1/notifications` | Body: `{ id }` marks one read, `{ id: null }` all of them. `{ ok: true }` |
 
 `kind` is one of `folder`, `chapter`, `scene`, `note`, `character` or `location` (default `note`). Bodies are JSON, sent with `Content-Type: application/json`.
 

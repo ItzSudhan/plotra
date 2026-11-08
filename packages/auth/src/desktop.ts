@@ -25,6 +25,25 @@ export const isDesktopKey = (value: unknown): value is string => typeof value ==
 
 const challengeOf = (verifier: string) => createHash("sha256").update(verifier).digest("base64url");
 
+const expiredError = () => new APIError("UNAUTHORIZED", { message: "That sign-in has expired. Sign in again from the app." });
+
+type Verifications = { consumeVerificationValue(identifier: string): Promise<{ value: string } | null> };
+
+/** Uses up a code, if it's still good and the verifier matches: whose it was. */
+async function redeem(adapter: Verifications, { code, verifier }: { code: string; verifier: string }): Promise<string> {
+  if (!isDesktopKey(code) || !isDesktopKey(verifier)) throw expiredError();
+  const row = await adapter.consumeVerificationValue(identifier(code));
+  if (!row) throw expiredError();
+  let stored: { userId?: string; challenge?: string };
+  try {
+    stored = JSON.parse(row.value);
+  } catch {
+    throw expiredError();
+  }
+  if (!stored.userId || stored.challenge !== challengeOf(verifier)) throw expiredError();
+  return stored.userId;
+}
+
 export const desktopSignIn = () =>
   ({
     id: "desktop-sign-in",
@@ -45,25 +64,25 @@ export const desktopSignIn = () =>
           return ctx.json({ code });
         },
       ),
+      /**
+       * The phone app's half (apps/mobile): swaps a code and its verifier for
+       * whose it is, once. The app gets an API token for them, not a cookie
+       * (apps/app/app/api/mobile/token).
+       */
+      redeemAppCode: createAuthEndpoint(
+        "/desktop/redeem",
+        { method: "POST", body: z.object({ code: z.string(), verifier: z.string() }), metadata: { SERVER_ONLY: true } },
+        async (ctx) => {
+          return ctx.json({ userId: await redeem(ctx.context.internalAdapter, ctx.body) });
+        },
+      ),
       /** Swaps a code (once, while it lasts) and its verifier for a session, set as the usual cookie. */
       exchangeDesktopCode: createAuthEndpoint(
         "/desktop/exchange",
         { method: "POST", body: z.object({ code: z.string(), verifier: z.string() }), metadata: { SERVER_ONLY: true } },
         async (ctx) => {
-          const { code, verifier } = ctx.body;
-          const expired = new APIError("UNAUTHORIZED", { message: "That sign-in has expired. Sign in again from the app." });
-          if (!isDesktopKey(code) || !isDesktopKey(verifier)) throw expired;
-          const row = await ctx.context.internalAdapter.consumeVerificationValue(identifier(code));
-          if (!row) throw expired;
-          let stored: { userId?: string; challenge?: string };
-          try {
-            stored = JSON.parse(row.value);
-          } catch {
-            throw expired;
-          }
-          if (!stored.userId || stored.challenge !== challengeOf(verifier)) throw expired;
-          const user = await ctx.context.internalAdapter.findUserById(stored.userId);
-          if (!user) throw expired;
+          const user = await ctx.context.internalAdapter.findUserById(await redeem(ctx.context.internalAdapter, ctx.body));
+          if (!user) throw expiredError();
           const session = await ctx.context.internalAdapter.createSession(user.id);
           await setSessionCookie(ctx, { session, user });
           return ctx.json({ ok: true });

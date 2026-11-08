@@ -9,7 +9,7 @@ import { loadDocument } from "../agent/documents";
 import { applyEdits, ensureBlockIds, replaceAll, type EditOptions } from "../agent/edits";
 import { searchNodes, plainSnippet } from "../agent/search";
 import { listNodes } from "../binder";
-import { updateNode } from "../binder-actions";
+import { trashNode, updateNode } from "../binder-actions";
 import { roomName } from "../collab/rooms";
 import { syncRoomState } from "../collab/sync";
 import { ydocToValue } from "../collab/ydoc";
@@ -165,6 +165,11 @@ export async function updateApiNote(projectId: string, nodeId: string, patch: No
   if (patch.aliases !== undefined) clean.aliases = Array.isArray(patch.aliases) ? patch.aliases.filter((t): t is string => typeof t === "string") : [];
   if (patch.status !== undefined) clean.status = String(patch.status) as NodeStatus;
   return toNote(await updateNode(projectId, nodeId, clean));
+}
+
+/** Moves a note to the trash, where it can be restored from in the app. */
+export async function trashApiNote(projectId: string, nodeId: string): Promise<ApiNote> {
+  return toNote(await trashNode(projectId, nodeId));
 }
 
 export type TextChange = { mode: "append" | "replace"; markdown: string; suggest?: boolean };
