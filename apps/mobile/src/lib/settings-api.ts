@@ -54,6 +54,17 @@ export type Invitation = { id: string; email: string; role: string; expiresAt: s
 export const getMembers = (client: Client, workspaceSlug: string) =>
   client.request<{ members: Member[]; invitations: Invitation[] | null }>(`/api/mobile/settings/workspace${q({ workspace: workspaceSlug })}`);
 
+/** The web's member changes (apps/app/lib/settings-actions.ts): owners and admins, except leaving. */
+const memberAction = (client: Client, workspaceSlug: string, body: Record<string, string>) =>
+  client.request<{ ok: true }>(`/api/mobile/settings/workspace${q({ workspace: workspaceSlug })}`, { method: "POST", body });
+
+/** Invites someone, or sends their invitation again. */
+export const inviteMember = (client: Client, workspaceSlug: string, email: string, role: "member" | "admin") => memberAction(client, workspaceSlug, { action: "invite", email, role });
+export const changeMemberRole = (client: Client, workspaceSlug: string, memberId: string, role: WorkspaceRole) => memberAction(client, workspaceSlug, { action: "role", memberId, role });
+export const removeMember = (client: Client, workspaceSlug: string, memberId: string) => memberAction(client, workspaceSlug, { action: "remove", memberId });
+export const cancelInvitation = (client: Client, workspaceSlug: string, invitationId: string) => memberAction(client, workspaceSlug, { action: "cancel", invitationId });
+export const leaveWorkspace = (client: Client, workspaceSlug: string) => memberAction(client, workspaceSlug, { action: "leave" });
+
 // ── Project settings ────────────────────────────────────────────────────────
 
 export type ProjectSettingsView = {

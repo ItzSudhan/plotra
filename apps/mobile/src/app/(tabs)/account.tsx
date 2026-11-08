@@ -106,6 +106,26 @@ export default function Account() {
         <Row icon="plugin" title="Plugins" subtitle="They run on the web, in every project you open" onPress={() => router.push("/settings/plugins")} right={<Icon name="chevronRight" size={14} color={c.mutedForeground} />} />
       </Card>
 
+      {(me.data?.workspaces.length ?? 0) > 0 && (
+        <>
+          <SectionLabel>Your workspaces</SectionLabel>
+          <Card style={{ marginHorizontal: space.lg }}>
+            {me.data!.workspaces.map((w, i) => (
+              <View key={w.id}>
+                {i > 0 && <Separator inset={52} />}
+                <Row
+                  icon="people"
+                  title={w.name}
+                  subtitle={w.role === "member" ? "Members" : "Members and invitations"}
+                  onPress={() => router.push({ pathname: "/settings/members", params: { workspace: w.slug, name: w.name } })}
+                  right={<Icon name="chevronRight" size={14} color={c.mutedForeground} />}
+                />
+              </View>
+            ))}
+          </Card>
+        </>
+      )}
+
       <SectionLabel>Appearance</SectionLabel>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space.sm, paddingHorizontal: space.lg }}>
         {appearances.map((a) => (

@@ -13,6 +13,7 @@ import { and, asc, desc, eq, gt, inArray, isNotNull, ne } from "drizzle-orm";
 import { headers } from "next/headers";
 import { parseWorkspaceRole, type WorkspaceRole } from "./access";
 import { requireAdmin } from "./workspace";
+import { withAuthHeaders } from "./api/auth-session";
 import { authErrorText } from "./auth-errors";
 import { getSubscription } from "./billing/subscription";
 import { requireSession, requireWorkspace } from "./data";
@@ -27,10 +28,10 @@ import { cloudOnly } from "./local-mode";
 
 const { attachment, invitation, member, project, projectMember, user, version } = schema;
 
-/** Calls Better Auth, rethrowing its errors as plain messages. */
+/** Calls Better Auth, rethrowing its errors as plain messages. From the phone app, with a brief session of its own (lib/api/auth-session.ts). */
 async function betterAuth<T>(fn: (h: Headers) => Promise<T>): Promise<T> {
   try {
-    return await fn(await headers());
+    return await withAuthHeaders(await headers(), fn);
   } catch (error) {
     const e = error as { body?: { code?: string; message?: string }; status?: number; message?: string };
     throw new Error(authErrorText({ ...e.body, message: e.body?.message ?? e.message }));
