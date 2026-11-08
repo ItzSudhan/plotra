@@ -11,6 +11,7 @@ import { frontPages } from "./front-matter";
 import { buildDocx } from "./docx";
 import { buildFdx } from "./fdx";
 import { buildRtf } from "./rtf-export";
+import { buildPrintHtml } from "./print-html";
 import { htmlToValue } from "./html";
 import { ao3Chapters, ao3Page, type Ao3Chapter } from "./ao3";
 import { outlineToOpml, type OutlineItem } from "./opml";
@@ -18,8 +19,8 @@ import { fileName, layoutManuscript, manuscriptToText, sectionsToFiles, sections
 import { filterBlocks, rejectSuggestions, toBlocks, type Block, type ExportContext } from "./model";
 import { blocksToText } from "./text";
 
-// A writer's own text out of Plotra (plan.md 2.7): Markdown, DOCX and plain
-// text, from what `collect` gathered (what the person can read, under the
+// A writer's own text out of Plotra (plan.md 2.7): Markdown, DOCX, plain
+// text and a printable page (the phone's PDF), from what `collect` gathered (what the person can read, under the
 // spoiler horizon they chose). Nothing here checks a quota: export always
 // works (plan.md 8.1 "Never hold work hostage").
 //
@@ -34,6 +35,8 @@ export const exportFormats = {
   rtf: { extension: "rtf", type: "application/rtf" },
   txt: { extension: "txt", type: "text/plain; charset=utf-8" },
   fdx: { extension: "fdx", type: "application/xml; charset=utf-8" },
+  /** The manuscript laid out for print, which the phone app turns into a PDF (./print-html.ts). */
+  print: { extension: "html", type: "text/html; charset=utf-8" },
 } as const;
 
 export type ExportFormat = keyof typeof exportFormats;
@@ -165,5 +168,6 @@ export async function buildExport(c: Collected, format: ExportFormat, layout: "s
   const words = picked.reduce((sum, s) => sum + countWords(blocksToText(s.blocks)), 0);
   const input = { ...front, email: contact, words, pieces, references: references(c), options };
   if (format === "rtf") return { name, type, data: buildRtf(input) };
+  if (format === "print") return { name, type, data: buildPrintHtml(input) };
   return { name, type, data: await buildDocx(input) };
 }

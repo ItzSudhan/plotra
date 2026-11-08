@@ -15,11 +15,11 @@ import { readOnly } from "@/lib/request-cache";
 
 // What GET /api/export (and the phone's /api/mobile/export) answers:
 //
-// GET /api/export?project=<id>&format=epub|wiki|bible|markdown|docx|rtf|txt|fdx|ao3|opml|plotra[&root=<nodeId>][&horizon=<releaseId>][&canon=1][&layout=single|files][&compile=<json>][&cover=<fileId>][&as=json]
+// GET /api/export?project=<id>&format=epub|wiki|bible|markdown|docx|rtf|txt|fdx|print|ao3|opml|plotra[&root=<nodeId>][&horizon=<releaseId>][&canon=1][&layout=single|files][&compile=<json>][&cover=<fileId>][&as=json]
 // `ao3` is the manuscript in chapters for Archive of Our Own (lib/io/ao3.ts): a
 // zip, or with `as=json` the chapters themselves, for the export dialog's list.
-// `compile` is the compile settings (lib/io/compile.ts) for Word, RTF and plain
-// text; `cover` an image attached in the project, for an EPUB's cover.
+// `compile` is the compile settings (lib/io/compile.ts) for Word, RTF, plain
+// text and print (HTML laid out for a PDF); `cover` an image attached in the project, for an EPUB's cover.
 // Builds a publishing output (plan.md 2.8) or a plain export of the text
 // (plan.md 2.7: Markdown, DOCX, plain text) from what the signed-in user can
 // read and sends it as a download. `layout=files` makes Markdown a zip of files

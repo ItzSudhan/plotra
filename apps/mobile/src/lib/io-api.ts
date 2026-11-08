@@ -1,5 +1,6 @@
 import { fetch as expoFetch } from "expo/fetch";
 import { Directory, File, Paths } from "expo-file-system";
+import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
 import { ApiError, type Client } from "./api";
@@ -13,11 +14,12 @@ import type { IconName } from "@/components/icon";
 
 // ---------------------------------------------------------------- Export
 
-export type ExportChoice = "docx" | "rtf" | "fdx" | "markdown" | "markdown-files" | "txt" | "epub" | "opml" | "ao3" | "plotra";
+export type ExportChoice = "docx" | "pdf" | "rtf" | "fdx" | "markdown" | "markdown-files" | "txt" | "epub" | "opml" | "ao3" | "plotra";
 
-/** The web's export choices, in its order and words. PDF is the web's print dialog, so it isn't here. */
+/** The web's export choices, in its order and words, and a PDF made on the phone. */
 export const exportChoices: { id: ExportChoice; icon: IconName; title: string; detail: string; script?: boolean }[] = [
-  { id: "docx", icon: "scene", title: "Word (.docx)", detail: "In standard manuscript format." },
+  { id: "docx", icon: "scene", title: "Word (.docx)", detail: "Laid out as you choose below: standard manuscript format to start with." },
+  { id: "pdf", icon: "book", title: "PDF", detail: "The same layout, as pages ready to print or send." },
   { id: "rtf", icon: "scene", title: "Rich text (.rtf)", detail: "The same layout, for Scrivener, Pages, LibreOffice and older word processors." },
   { id: "fdx", icon: "dialogue", title: "Final Draft (.fdx)", detail: "The script, element by element, for Final Draft, Fade In, Highland or WriterDuet.", script: true },
   { id: "markdown", icon: "note", title: "Markdown (.md)", detail: "One file, with a heading for each chapter and scene." },
@@ -44,31 +46,58 @@ export type ExportRequest = {
   rootId?: string | null;
   /** Only what's revealed by this release ("as of"). */
   horizonId?: string | null;
+  /** How Word, RTF, plain text and PDF are laid out (apps/app/lib/io/compile.ts CompileOptions). */
+  compile?: CompileOptions | null;
 };
+
+/** Laid out with the compile settings. */
+export const laidOutChoices = new Set<ExportChoice>(["docx", "pdf", "rtf", "txt"]);
+
+/** Compile settings, as the server takes them (apps/app/lib/io/compile.ts). Passed through as they are. */
+export type CompileOptions = Record<string, unknown> & { paper?: "letter" | "a4" };
+
+export type Layouts = { presets: { id: string; title: string; description: string; options: CompileOptions }[]; papers: { id: "letter" | "a4"; label: string }[] };
+
+/** The layouts to choose from: the web's presets and paper sizes. */
+export const layouts = (client: Client) => client.request<Layouts>("/api/mobile/export/layouts");
+
+/** A page in points (72 to the inch). */
+const pagePoints = (paper: CompileOptions["paper"]) => (paper === "a4" ? { width: 595, height: 842 } : { width: 612, height: 792 });
 
 export type ExportedFile = { file: File; name: string; type: string };
 
 const exportsDir = () => new Directory(Paths.cache, "exports");
 
 /** Builds the export on the server and keeps it in the phone's cache, ready to share. */
-export async function exportProject(client: Client, { projectId, choice, rootId, horizonId }: ExportRequest): Promise<ExportedFile> {
-  const params = new URLSearchParams({ project: projectId, format: choice === "markdown-files" ? "markdown" : choice });
+export async function exportProject(client: Client, { projectId, choice, rootId, horizonId, compile }: ExportRequest): Promise<ExportedFile> {
+  // A PDF is the manuscript laid out for print by the server, turned into pages here.
+  const params = new URLSearchParams({ project: projectId, format: choice === "markdown-files" ? "markdown" : choice === "pdf" ? "print" : choice });
   if (choice === "markdown-files") params.set("layout", "files");
   // A Plotra project file is always the whole project, as it is now.
   if (choice !== "plotra") {
     if (rootId) params.set("root", rootId);
     if (horizonId) params.set("horizon", horizonId);
   }
+  if (laidOutChoices.has(choice) && compile) params.set("compile", JSON.stringify(compile));
   const response = await client.raw(`/api/mobile/export?${params}`, { timeoutMs: 300_000 }, expoFetch);
-  const name = /filename="([^"]+)"/.exec(response.headers.get("content-disposition") ?? "")?.[1] ?? "export";
-  const type = (response.headers.get("content-type") ?? "application/octet-stream").split(";")[0].trim();
-  const bytes = await response.bytes();
+  let name = /filename="([^"]+)"/.exec(response.headers.get("content-disposition") ?? "")?.[1] ?? "export";
+  let type = (response.headers.get("content-type") ?? "application/octet-stream").split(";")[0].trim();
   // Only the latest export is kept: the cache isn't a place to pile them up.
   const dir = exportsDir();
   if (dir.exists) dir.delete();
   dir.create({ intermediates: true, idempotent: true });
+  if (choice === "pdf") {
+    const html = await response.text();
+    // Android's renderer takes the page's margins from the HTML; iOS's needs them given (an inch all round).
+    const printed = await Print.printToFileAsync({ html, ...pagePoints(compile?.paper), ...(Platform.OS === "ios" && { margins: { top: 72, bottom: 72, left: 72, right: 72 } }) });
+    name = name.replace(/\.html?$/i, "") + ".pdf";
+    type = "application/pdf";
+    const file = new File(dir, name);
+    new File(printed.uri).move(file);
+    return { file, name, type };
+  }
   const file = new File(dir, name);
-  await file.write(bytes);
+  await file.write(await response.bytes());
   return { file, name, type };
 }
 
