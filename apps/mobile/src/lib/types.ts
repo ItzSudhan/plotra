@@ -16,6 +16,8 @@ export type Note = {
   wordCount: number;
   updatedAt: string;
   canEdit: boolean;
+  /** May move it to the trash and back, or delete it for good (absent from older servers: go by canEdit). */
+  canDelete?: boolean;
   /** The release that reveals it, when tagged itself (lib/horizon.ts works out the rest). */
   revealReleaseId: string | null;
 };
@@ -40,7 +42,7 @@ export type Notification = {
   type: string;
   projectId: string | null;
   nodeId: string | null;
-  payload: { title?: string; decision?: string; stage?: string; role?: string; workspace?: string; chat?: boolean };
+  payload: { title?: string; decision?: string; stage?: string; role?: string; workspace?: string; chat?: boolean; /** On a mention or reply: the comment thread. */ threadId?: string };
   readAt: string | null;
   createdAt: string;
   actorName: string | null;
@@ -53,5 +55,6 @@ export type Notifications = { items: Notification[]; unread: number };
 export const creatableKinds = ["scene", "chapter", "note", "character", "location", "folder"] as const;
 export type CreatableKind = (typeof creatableKinds)[number];
 
-export type NewNote = { title: string; kind?: CreatableKind; parentId?: string | null; markdown?: string; tags?: string[]; synopsis?: string };
-export type NotePatch = { title?: string; synopsis?: string | null; tags?: string[]; status?: string };
+/** Any kind: text kinds can start with markdown; a world page can have its type (lib/binder-api.ts). */
+export type NewNote = { title: string; kind?: NodeKind; parentId?: string | null; markdown?: string; tags?: string[]; synopsis?: string; entityTypeId?: string | null };
+export type NotePatch = { title?: string; synopsis?: string | null; tags?: string[]; aliases?: string[]; status?: string };

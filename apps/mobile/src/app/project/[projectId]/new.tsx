@@ -4,17 +4,22 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, Vie
 import { Field } from "@/components/field";
 import { Chip } from "@/components/ui";
 import { isOffline } from "@/lib/api";
-import { invalidate, keys } from "@/lib/cache";
-import { hasText, kindLabel } from "@/lib/kinds";
+import { binderKeys, binderOptions } from "@/lib/binder-api";
+import { invalidate, keys, useResource } from "@/lib/cache";
+import { hasText, kindLabel, newKinds } from "@/lib/kinds";
 import { useOutbox } from "@/lib/outbox";
 import { useProject } from "@/lib/project";
 import { useClient } from "@/lib/session";
 import { space, useColors } from "@/lib/theme";
 import { containers, pathOf } from "@/lib/tree";
-import { creatableKinds, type CreatableKind } from "@/lib/types";
+import type { NodeKind } from "@/lib/types";
 
-// A new scene, chapter, note, character, place or folder, at the top of the
-// binder or inside a folder or chapter. Text notes open to write in at once.
+// A new note of any kind the project makes (in its own words: a campaign's
+// "Session"), a world page of one of its types, a board or a timeline, at the
+// top of the binder or inside a folder or chapter. The server makes it as the
+// web's "+ New" does. Text notes open to write in at once.
+
+type Pick = { kind: NodeKind; entityTypeId?: string; label: string };
 
 export default function NewNoteScreen() {
   const { projectId, parentId: initialParent } = useLocalSearchParams<{ projectId: string; parentId?: string }>();
@@ -22,7 +27,13 @@ export default function NewNoteScreen() {
   const client = useClient();
   const { enqueue } = useOutbox();
   const { notes } = useProject(projectId);
-  const [kind, setKind] = useState<CreatableKind>("scene");
+  const options = useResource(binderKeys.options(projectId), () => binderOptions(client, projectId));
+  const picks: Pick[] = [
+    ...(options.data?.kinds ?? newKinds.map((k) => ({ kind: k, label: kindLabel[k] }))),
+    ...(options.data?.entityTypes ?? []).map((t) => ({ kind: "entity" as const, entityTypeId: t.id, label: t.name })),
+  ];
+  const [pick, setPick] = useState<Pick>({ kind: "scene", label: kindLabel.scene });
+  const kind = pick.kind;
   const [title, setTitle] = useState("");
   const [parentId, setParentId] = useState<string | null>(initialParent ?? null);
   const [saving, setSaving] = useState(false);
@@ -31,10 +42,11 @@ export default function NewNoteScreen() {
   const list = notes.data ?? [];
 
   const create = async () => {
-    const name = title.trim() || `New ${kindLabel[kind].toLowerCase()}`;
+    const name = title.trim() || `New ${pick.label.toLowerCase()}`;
     setSaving(true);
     try {
-      const note = await client.createNote(projectId, { title: name, kind, parentId });
+      const input = { title: name, kind, parentId, ...(pick.entityTypeId && { entityTypeId: pick.entityTypeId }) };
+      const note = await client.createNote(projectId, input);
       notes.mutate((current) => (current ? insertAfterSiblings(current, note) : current));
       invalidate(keys.notes(projectId));
       if (hasText(kind)) router.replace({ pathname: "/project/[projectId]/edit/[noteId]", params: { projectId, noteId: note.id } });
@@ -42,7 +54,7 @@ export default function NewNoteScreen() {
     } catch (e) {
       setSaving(false);
       if (isOffline(e)) {
-        enqueue({ type: "create", projectId, title: name, input: { title: name, kind, parentId } });
+        enqueue({ type: "create", projectId, title: name, input: { title: name, kind, parentId, ...(pick.entityTypeId && { entityTypeId: pick.entityTypeId }) } });
         Alert.alert("Saved on your phone", "You're offline. The note is made when you're back online.", [{ text: "OK", onPress: () => router.back() }]);
       } else Alert.alert("Couldn't make the note", (e as Error).message);
     }
@@ -70,12 +82,12 @@ export default function NewNoteScreen() {
           <View style={{ gap: 6 }}>
             <Text style={{ color: c.mutedForeground, fontSize: 13, fontWeight: "600" }}>What is it?</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space.sm }}>
-              {creatableKinds.map((k) => (
-                <Chip key={k} label={kindLabel[k]} selected={kind === k} onPress={() => setKind(k)} />
+              {picks.map((p) => (
+                <Chip key={p.entityTypeId ?? p.kind} label={p.label} selected={kind === p.kind && pick.entityTypeId === p.entityTypeId} onPress={() => setPick(p)} />
               ))}
             </View>
           </View>
-          <Field label="Title" value={title} onChangeText={setTitle} placeholder={`New ${kindLabel[kind].toLowerCase()}`} autoFocus returnKeyType="done" onSubmitEditing={create} />
+          <Field label="Title" value={title} onChangeText={setTitle} placeholder={`New ${pick.label.toLowerCase()}`} autoFocus returnKeyType="done" onSubmitEditing={create} />
           {places.length > 0 && (
             <View style={{ gap: 6 }}>
               <Text style={{ color: c.mutedForeground, fontSize: 13, fontWeight: "600" }}>Where?</Text>

@@ -26,6 +26,15 @@ export async function writeCache(key: string, value: unknown): Promise<void> {
 /** Asks every screen showing a key that starts with `prefix` to fetch again. */
 export function invalidate(prefix: string) {
   for (const [key, set] of listeners) if (key.startsWith(prefix)) for (const fn of set) fn();
+  for (const fn of watchers) fn(prefix);
+}
+
+const watchers = new Set<(prefix: string) => void>();
+
+/** Hears every `invalidate`, whether or not a screen shows the key: lib/search-freshness.ts keeps offline search up to date with it. */
+export function onInvalidate(fn: (prefix: string) => void): () => void {
+  watchers.add(fn);
+  return () => void watchers.delete(fn);
 }
 
 export type Resource<T> = {

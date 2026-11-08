@@ -76,3 +76,105 @@ export function resolveLink(notes: Note[], title: string): Note | undefined {
 
 /** Folders and chapters: where a new note can go. */
 export const containers = (notes: Note[]) => notes.filter((n) => n.kind === "folder" || n.kind === "chapter");
+
+/** A note and everything under it. */
+export function subtreeOf(notes: Note[], id: string): Set<string> {
+  const children = childrenOf(notes);
+  const out = new Set<string>([id]);
+  const walk = (parent: string) => {
+    for (const n of children.get(parent) ?? []) {
+      out.add(n.id);
+      walk(n.id);
+    }
+  };
+  walk(id);
+  return out;
+}
+
+/** Where "Move to…" can send a note: folders, chapters and notes holding others, outside it, in binder order. */
+export function moveTargets(notes: Note[], id: string): { note: Note; depth: number }[] {
+  const children = childrenOf(notes);
+  const out: { note: Note; depth: number }[] = [];
+  const walk = (parent: string | null, depth: number) => {
+    for (const n of children.get(parent) ?? []) {
+      if (n.id === id) continue;
+      if (n.kind === "folder" || n.kind === "chapter" || (children.get(n.id)?.length ?? 0) > 0) out.push({ note: n, depth });
+      walk(n.id, depth + 1);
+    }
+  };
+  walk(null, 0);
+  return out;
+}
+
+/** The notes beside it, itself included, in order. */
+export function siblingsOf(notes: Note[], id: string): Note[] {
+  const note = notes.find((n) => n.id === id);
+  if (!note) return [];
+  const parent = note.parentId && notes.some((n) => n.id === note.parentId) ? note.parentId : null;
+  return childrenOf(notes).get(parent) ?? [];
+}
+
+export type Step = "up" | "down" | "in" | "out";
+export type Placement = { step: Step } | { parentId: string | null } | { before: string } | { after: string };
+
+/** Whether a step can be taken: not up from the top, into nothing, or out of the top level. */
+export function canStep(notes: Note[], id: string, step: Step): boolean {
+  const siblings = siblingsOf(notes, id);
+  const at = siblings.findIndex((n) => n.id === id);
+  if (at < 0) return false;
+  if (step === "up" || step === "in") return at > 0;
+  if (step === "down") return at < siblings.length - 1;
+  const parent = siblings[at].parentId;
+  return !!parent && notes.some((n) => n.id === parent);
+}
+
+/**
+ * The binder as it will be once a move is done, to show at once while the
+ * server does it (the server's order then replaces it). Null when the move
+ * can't be made. Pure.
+ */
+export function applyMove(notes: Note[], id: string, to: Placement): Note[] | null {
+  const note = notes.find((n) => n.id === id);
+  if (!note) return null;
+  const moving = subtreeOf(notes, id);
+  // Turn a step into a placement next to a sibling or at the end of a folder.
+  let place: Exclude<Placement, { step: Step }>;
+  if (!("step" in to)) place = to;
+  else {
+    if (!canStep(notes, id, to.step)) return null;
+    const siblings = siblingsOf(notes, id);
+    const at = siblings.findIndex((n) => n.id === id);
+    if (to.step === "up") place = { before: siblings[at - 1].id };
+    else if (to.step === "down") place = { after: siblings[at + 1].id };
+    else if (to.step === "in") place = { parentId: siblings[at - 1].id };
+    else place = { after: note.parentId! };
+  }
+  const target = "before" in place ? place.before : "after" in place ? place.after : place.parentId;
+  if (target && moving.has(target)) return null;
+  const block = notes.filter((n) => moving.has(n.id));
+  const rest = notes.filter((n) => !moving.has(n.id));
+  let parentId: string | null;
+  let at: number;
+  if ("before" in place) {
+    const t = rest.find((n) => n.id === place.before);
+    if (!t) return null;
+    parentId = t.parentId;
+    at = rest.indexOf(t);
+  } else {
+    const anchor = "after" in place ? place.after : place.parentId;
+    if (anchor === null) {
+      parentId = null;
+      at = rest.length;
+    } else {
+      const t = rest.find((n) => n.id === anchor);
+      if (!t) return null;
+      parentId = "after" in place ? t.parentId : t.id;
+      // After the anchor and everything under it.
+      const under = subtreeOf(rest, t.id);
+      at = rest.indexOf(t) + 1;
+      while (at < rest.length && under.has(rest[at].id)) at++;
+    }
+  }
+  block[0] = { ...block[0], parentId };
+  return [...rest.slice(0, at), ...block, ...rest.slice(at)];
+}

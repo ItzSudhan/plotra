@@ -3,6 +3,7 @@ import * as SecureStore from "expo-secure-store";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createClient, type Client } from "./api";
 import { clearFiles } from "./files";
+import { unregisterPush } from "./push";
 import { DEFAULT_SERVER, signInWithBrowser } from "./sign-in";
 
 // Who's signed in on this phone. The token lives in the keychain (iOS) or the
@@ -70,6 +71,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (signingOut.current) return;
     signingOut.current = true;
     // Revoke the token on the server too; if that can't happen now, it expires on its own.
+    // This phone stops getting notifications first, while the token still works.
+    if (client) await unregisterPush(client);
     await client?.signOut().catch(() => {});
     await forget();
   }, [client, forget]);

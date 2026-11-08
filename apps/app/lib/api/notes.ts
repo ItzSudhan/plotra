@@ -56,11 +56,13 @@ export type ApiNote = {
   wordCount: number;
   updatedAt: Date;
   canEdit: boolean;
+  /** May move it to the trash, put it back from there, or delete it for good. */
+  canDelete: boolean;
   /** The release that reveals it, when it's tagged itself (lib/horizon.ts works out the rest). */
   revealReleaseId: string | null;
 };
 
-const toNote = (n: BinderNode): ApiNote => ({
+export const toNote = (n: BinderNode): ApiNote => ({
   id: n.id,
   parentId: n.parentId,
   kind: n.kind,
@@ -72,6 +74,7 @@ const toNote = (n: BinderNode): ApiNote => ({
   wordCount: n.wordCount,
   updatedAt: n.updatedAt,
   canEdit: n.actions.includes("edit"),
+  canDelete: n.actions.includes("delete"),
   revealReleaseId: n.revealReleaseId,
 });
 
@@ -171,7 +174,7 @@ export async function readApiNote(projectId: string, nodeId: string, asOf?: stri
 }
 
 /** Passages tagged for a later release, or never, are left out wherever they're nested (as lib/workflow-actions.ts does). */
-function knownBlocks(list: DocNode[], horizon: Horizon): DocNode[] {
+export function knownBlocks(list: DocNode[], horizon: Horizon): DocNode[] {
   return list.flatMap((b) => {
     if (!horizon.knowsBlock(blockTags(b)?.reveal)) return [];
     return Array.isArray(b.children) && b.children.some((c) => typeof c.text !== "string") ? [{ ...b, children: knownBlocks(b.children, horizon) }] : [b];

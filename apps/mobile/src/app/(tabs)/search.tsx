@@ -9,6 +9,7 @@ import { keys, useResource } from "@/lib/cache";
 import { kindIcon } from "@/lib/kinds";
 import { useClient } from "@/lib/session";
 import { radius, space, useColors } from "@/lib/theme";
+import { refreshAll } from "@/lib/search-freshness";
 import { searchOffline } from "@/lib/text-index";
 import type { Hit, Project } from "@/lib/types";
 
@@ -27,6 +28,13 @@ export default function Search() {
   const [busy, setBusy] = useState(false);
   const [offline, setOffline] = useState(false);
   const run = useRef(0);
+  // Pull to refresh fetches every project's text again, for searching offline.
+  const [pulling, setPulling] = useState(false);
+  const pull = async () => {
+    setPulling(true);
+    await refreshAll(client, true);
+    setPulling(false);
+  };
 
   useEffect(() => {
     const q = query.trim();
@@ -74,7 +82,7 @@ export default function Search() {
   const shown = query.trim() ? groups : null;
 
   return (
-    <TabScreen title="Search">
+    <TabScreen title="Search" refreshing={pulling} onRefresh={() => void pull()}>
       <View style={{ marginHorizontal: space.lg, marginTop: space.sm, flexDirection: "row", alignItems: "center", gap: space.sm, height: 44, borderRadius: radius.md, backgroundColor: c.muted, paddingHorizontal: space.md }}>
         <Icon name="search" size={18} color={c.mutedForeground} />
         <TextInput

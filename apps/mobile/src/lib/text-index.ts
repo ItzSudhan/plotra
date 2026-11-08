@@ -12,10 +12,15 @@ type Index = { at: number; notes: Entry[] };
 const EVERY_MS = 30 * 60 * 1000;
 const fileName = (projectId: string) => `text-${projectId}.json`;
 const busy = new Set<string>();
+// Asked to refresh by force while a refresh was running: what it fetched may be from before the change.
+const again = new Set<string>();
 
 /** Fetches the project's text again if what's kept is older than half an hour (or `force`). */
 export async function refreshTextIndex(client: Client, projectId: string, force = false): Promise<void> {
-  if (busy.has(projectId)) return;
+  if (busy.has(projectId)) {
+    if (force) again.add(projectId);
+    return;
+  }
   busy.add(projectId);
   try {
     if (!force) {
@@ -31,6 +36,7 @@ export async function refreshTextIndex(client: Client, projectId: string, force 
     // Offline or not allowed: keep what's there.
   } finally {
     busy.delete(projectId);
+    if (again.delete(projectId)) void refreshTextIndex(client, projectId, true);
   }
 }
 
@@ -38,4 +44,9 @@ export async function refreshTextIndex(client: Client, projectId: string, force 
 export async function searchOffline(projectId: string, query: string, limit = 30): Promise<Hit[]> {
   const index = await readJson<Index>(fileName(projectId));
   return index ? matchIndex(index.notes, query, limit) : [];
+}
+
+/** When the project's text was last kept on the phone, or null if it never was. */
+export async function keptAt(projectId: string): Promise<number | null> {
+  return (await readJson<Index>(fileName(projectId)))?.at ?? null;
 }

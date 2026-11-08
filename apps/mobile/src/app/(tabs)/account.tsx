@@ -1,7 +1,9 @@
 import Constants from "expo-constants";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import { Alert, Share, Text, View } from "react-native";
 import { Icon } from "@/components/icon";
+import { PhoneSettings } from "@/components/phone-settings";
 import { TabScreen } from "@/components/screen";
 import { Banner, Card, Chip, Row, SectionLabel, Separator, T } from "@/components/ui";
 import { useAppearance, type Appearance, type TextSize } from "@/lib/appearance";
@@ -48,8 +50,8 @@ export default function Account() {
   const showFailed = (item: Queued) =>
     Alert.alert(`Couldn't send a change to “${item.title}”`, item.error, [
       { text: "Keep it", style: "cancel" },
-      item.type === "text" || item.type === "create"
-        ? { text: "Share the text", onPress: () => void Share.share({ message: item.type === "text" ? item.markdown : (item.input.markdown ?? item.input.title) }) }
+      item.type === "text" || item.type === "create" || item.type === "reply"
+        ? { text: "Share the text", onPress: () => void Share.share({ message: item.type === "text" ? item.markdown : item.type === "reply" ? item.body : (item.input.markdown ?? item.input.title) }) }
         : { text: "Try again", onPress: () => void flush() },
       { text: "Let it go", style: "destructive", onPress: () => discard(item.id) },
     ]);
@@ -83,7 +85,7 @@ export default function Account() {
                   icon={item.error ? "info" : "sync"}
                   iconColor={item.error ? c.destructive : c.mutedForeground}
                   title={item.title || "Untitled"}
-                  subtitle={item.error ? `Couldn't send: ${item.error}` : `${{ create: "New note", text: "Text", doc: "Writing", patch: "Details" }[item.type]} · saved ${ago(item.queuedAt)}`}
+                  subtitle={item.error ? `Couldn't send: ${item.error}` : `${{ create: "New note", text: "Text", doc: "Writing", patch: "Details", reply: "Reply to a comment" }[item.type]} · saved ${ago(item.queuedAt)}`}
                   onPress={item.error ? () => showFailed(item) : () => void flush()}
                 />
               </View>
@@ -94,6 +96,15 @@ export default function Account() {
           </T>
         </>
       )}
+
+      <SectionLabel>On this phone</SectionLabel>
+      <PhoneSettings />
+
+      <Card style={{ marginHorizontal: space.lg, marginTop: space.lg }}>
+        <Row icon="settings" title="Your settings" subtitle="Name, photo and notification emails" onPress={() => router.push("/settings")} right={<Icon name="chevronRight" size={14} color={c.mutedForeground} />} />
+        <Separator inset={52} />
+        <Row icon="plugin" title="Plugins" subtitle="They run on the web, in every project you open" onPress={() => router.push("/settings/plugins")} right={<Icon name="chevronRight" size={14} color={c.mutedForeground} />} />
+      </Card>
 
       <SectionLabel>Appearance</SectionLabel>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space.sm, paddingHorizontal: space.lg }}>
@@ -113,7 +124,7 @@ export default function Account() {
       <Card style={{ marginHorizontal: space.lg }}>
         <Row icon="web" title="Open Plotra" subtitle="Boards, timelines, the graph and everything else" onPress={() => openWeb(server)} right={<Icon name="chevronRight" size={14} color={c.mutedForeground} />} />
         <Separator inset={52} />
-        <Row icon="details" title="Settings" subtitle="Your profile, notifications, and the apps signed in to your account" onPress={() => openWeb(`${server}/settings`)} right={<Icon name="chevronRight" size={14} color={c.mutedForeground} />} />
+        <Row icon="details" title="Password, security and API tokens" subtitle="On the web: how you sign in, and the apps signed in to your account" onPress={() => openWeb(`${server}/settings`)} right={<Icon name="chevronRight" size={14} color={c.mutedForeground} />} />
         <Separator inset={52} />
         <Row icon="info" title="Help" subtitle="Guides for every part of Plotra" onPress={() => openWeb("https://docs.plotra.ink")} right={<Icon name="chevronRight" size={14} color={c.mutedForeground} />} />
       </Card>

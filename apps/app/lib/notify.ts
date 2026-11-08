@@ -7,6 +7,7 @@ import { requireSession } from "./data";
 import { userDb, type Tx } from "./db";
 import { appLink, escapeHtml, sendEmail } from "./email";
 import { describe } from "./notify-text";
+import { pushLater } from "./push";
 import { checkRateLimit } from "./rate-limit";
 import { gitSyncSoon } from "./git-sync";
 import { emitWebhook, verbEvents } from "./webhooks";
@@ -99,6 +100,8 @@ export async function notify(
   }));
   const written = await quietly(`notification ${type}`, (tx) => tx.insert(notification).values(rows));
   if (written && !input.emailed) deliverLater(rows.map((r) => r.id));
+  // Phones are told even when the caller emails for itself (sharing): a push isn't an email.
+  if (written) pushLater(rows.map((r) => r.id));
 }
 
 /**
@@ -114,6 +117,7 @@ export async function notifyOutsideProject(actorId: string, recipients: string[]
   try {
     await db.insert(notification).values(rows);
     deliverLater(rows.map((r) => r.id));
+    pushLater(rows.map((r) => r.id));
   } catch (error) {
     console.error(`[plotra] couldn't record notification ${type}`, error);
   }

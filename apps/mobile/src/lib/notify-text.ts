@@ -29,5 +29,9 @@ export function describe(n: Pick<Notification, "type" | "payload" | "actorName" 
   }
 }
 
-/** Comments and chat live on the web: the phone opens the note, and says so. */
-export const happensOnWeb = (type: string) => type === "mention" || type === "reply" || type === "chat_mention";
+/** Notices whose conversation only happens on the web. None now: comments (app/project/[projectId]/comments) and chat (…/chat) are on the phone too. */
+const ON_WEB = new Set<string>();
+export const happensOnWeb = (type: string) => ON_WEB.has(type);
+
+/** A mention or reply in a comment thread, which opens the comments screen at that thread. */
+export const isCommentNotice = (n: Pick<Notification, "type" | "payload">) => (n.type === "mention" || n.type === "reply") && !!n.payload.threadId;

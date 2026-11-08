@@ -40,19 +40,28 @@ curl -H "Authorization: Bearer plt_…" https://app.plotra.ink/api/v1/projects
 | --- | --- |
 | `GET /api/v1/me` | `{ user: { id, name, email, image }, workspaces: [{ id, name, slug, role }] }` |
 | `GET /api/v1/projects` | `{ projects: [{ id, slug, title, type, workspaceId, workspaceName, workspaceSlug, updatedAt }] }` |
-| `GET /api/v1/projects/{project}/notes` | `{ notes: [{ id, parentId, kind, title, synopsis, tags, aliases, status, wordCount, updatedAt, canEdit, revealReleaseId }] }`, in binder order, without the trash. `?text=1` adds each note's plain `text` |
+| `GET /api/v1/projects/{project}/notes` | `{ notes: [{ id, parentId, kind, title, synopsis, tags, aliases, status, wordCount, updatedAt, canEdit, canDelete, revealReleaseId }] }`, in binder order, without the trash. `?text=1` adds each note's plain `text` |
 | `GET /api/v1/projects/{project}/notes/{note}` | `{ note }`, with `markdown`: its text. `null` for a canvas, timeline or dialogue. `?asOf={release}` leaves out passages not revealed by that release and adds `revealed`: whether the note itself is |
 | `GET /api/v1/projects/{project}/releases` | `{ releases: [{ id, title, kind, date, position, nodeId }] }`, in shipping order |
 | `GET /api/v1/search?q=…&limit=40` | `{ hits: [{ id, title, kind, snippet, projectId, projectTitle }] }`: every project you can open, best first |
 | `GET /api/v1/projects/{project}/search?q=…&limit=20` | `{ hits: [{ id, title, kind, snippet }] }` |
-| `POST /api/v1/projects/{project}/notes` | Makes a note. Body: `{ title, kind?, parentId?, markdown?, tags?, synopsis? }`. `201` with `{ note }` |
+| `POST /api/v1/projects/{project}/notes` | Makes a note. Body: `{ title, kind?, parentId?, markdown?, tags?, synopsis?, entityTypeId?, board? }`. `201` with `{ note }` |
 | `PATCH /api/v1/projects/{project}/notes/{note}` | Body: any of `{ title, synopsis, tags, aliases, status }`. `{ note }` |
 | `DELETE /api/v1/projects/{project}/notes/{note}` | Moves the note, and what's inside it, to the trash. `{ note }` |
+| `POST /api/v1/projects/{project}/notes/{note}/move` | Body: `{ step: "up" \| "down" \| "in" \| "out" }`, `{ parentId }` (`null` for the top level) to go at the end of a folder, or `{ before }` / `{ after }` with a note's id to go next to it. `{ note }` |
+| `POST /api/v1/projects/{project}/notes/{note}/duplicate` | Copies the note and what's inside it, just after it. `201` with `{ notes }`, the copy first |
+| `GET /api/v1/projects/{project}/notes/{note}/details` | `{ details: { note, fields, values, stages, canon, reveal, label, labels, entityTypeId, entityTypes } }`: its custom fields (`{ key, label, type, choices?, nodeKinds?, multiple? }`) and their values, its canon status and reveal (`null` when the project doesn't use them), and the choices for each |
+| `PATCH /api/v1/projects/{project}/notes/{note}/details` | Body: any of `{ properties, canon, canonReason, canonReleaseId, reveal: { releaseId, channel, layer }, label, entityTypeId }`. A value of `null` in `properties` clears that field; `retconned` needs a `canonReason`. `{ details }` |
+| `GET /api/v1/projects/{project}/binder` | `{ kinds: [{ kind, label }], entityTypes: [{ id, name, color }], stages, labels }`: what the project can make, in its own words |
+| `GET /api/v1/projects/{project}/trash` | `{ notes: [{ …note, trashedAt, trashedBy, inside }], canEmpty }`: what's in the trash, the latest first |
+| `POST /api/v1/projects/{project}/trash/{note}` | Puts it back; if its folder is still in the trash, at the end of the top level. `{ note }` |
+| `DELETE /api/v1/projects/{project}/trash/{note}` | Deletes a note in the trash, and what's inside it, for good. `{ ok: true }` |
+| `DELETE /api/v1/projects/{project}/trash` | Empties the trash, for good. `{ deleted }`: how many notes went |
 | `POST /api/v1/projects/{project}/notes/{note}/text` | Body: `{ mode: "append" \| "replace" \| "update", markdown, suggest? }`. `{ markdown }`: the note's text after |
 | `GET /api/v1/notifications` | `{ items: [{ id, type, projectId, nodeId, payload, readAt, createdAt, actorName, projectTitle }], unread }`: your latest 40 |
 | `POST /api/v1/notifications` | Body: `{ id }` marks one read, `{ id: null }` all of them. `{ ok: true }` |
 
-`kind` is one of `folder`, `chapter`, `scene`, `note`, `character` or `location` (default `note`). Bodies are JSON, sent with `Content-Type: application/json`.
+`kind` is one of `folder`, `chapter`, `scene`, `note`, `character`, `location`, `research`, `canvas` (a board; `board: "map"` makes a map), `timeline`, `entity` (a world page, of the type `entityTypeId`) or `dialogue` (in interactive projects), default `note`. With `markdown`, `tags` or a `synopsis`, a `folder`, `chapter`, `scene`, `note`, `character` or `location` is made from them; anything else is made as the app's **+ New** makes it, from the project's template for that kind. Positions in the binder are worked out for you, as in the app. Bodies are JSON, sent with `Content-Type: application/json`.
 
 ### Writing text
 
@@ -64,6 +73,125 @@ Text is written through the live document, the way a collaborator's typing is: a
 - With `suggest: true` the change arrives as [suggestions](/docs/collaboration/comments-and-suggestions), to accept or reject, and the text is unchanged until then.
 
 `[[Title]]` in the Markdown links to the note of that title or alias. A note that is locked by its stage can't be written.
+
+### Comments
+
+Comment threads are under `/api/mobile/comments`, made for the phone app, with the same token. They follow the same rules as the web: commenting needs a role that can comment, you can edit only your own comments, and delete your own or, if you can manage the note, anyone's. A reply reopens a resolved thread, and people named with `@Their Name` are told.
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/mobile/comments?project={project}&note={note}` | `{ threads: [{ id, anchor, quote, resolved, createdAt, comments: [{ id, body, authorId, authorName, authorImage, createdAt, editedAt, mine }] }], people: [{ id, name, image, guest }], canComment, canManage }`, oldest first. `people` are who can be mentioned |
+| `GET /api/mobile/comments?project={project}` | `{ counts: { [noteId]: number } }`: open threads per note |
+| `POST /api/mobile/comments?project={project}&note={note}` | Body `{ action, … }`, one of: `create` with `{ body, anchor?, quote? }` → `{ id }` (no `anchor` is a comment on the whole note); `reply` with `{ threadId, body }`; `resolve` with `{ threadId, resolved }`; `edit` with `{ commentId, body }`; `delete` with `{ commentId }` → `{ ok, undo }`; `restore` with `{ undo }` puts a deleted comment back, for ten minutes |
+
+An `anchor` is a passage in the note's live document, `{ start, end }`, as the editor makes them; comments are up to 5,000 characters.
+
+### Chat
+
+The project's chat and each note's, under `/api/mobile/chat`, made for the phone app, with the same token. The same rules as the web: anyone who can read the project (or, for a note's chat, the note) can read along, commenters and editors can write, people named with `@Their Name` are told, and you delete your own messages or, if you manage the project, anyone's. Leave out `note` for the project's chat. Messages are up to 4,000 characters.
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/mobile/chat?project={project}&note={note}&before={time}` | `{ messages: [{ id, authorId, body, createdAt, mine }], people: [{ id, name, image, guest }], canTalk, canManage }`: the latest 100, oldest first. `before` (an ISO time) pages further back |
+| `POST /api/mobile/chat?project={project}&note={note}` | Body `{ action, … }`: `send` with `{ body }` → `{ message }`; `delete` with `{ messageId }` → `{ ok }` |
+
+### The AI agent
+
+The web's AI agent, for the phone app, under `/api/mobile/agent`, with the same token and the same rules: AI is off until a workspace owner turns it on, each project has its own switch, only people who can edit may use it, and it runs on that person's own model. A model on their own computer, which only their browser can reach, can't be used from here.
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/mobile/agent?project={project}` | `{ ai, threads: [{ id, title, updatedAt }] }`. `ai` is `{ on: true, modelSource }`, or `{ on: false, reason, message }` with `reason` one of `server`, `promise`, `workspace`, `project`, `edit`, `own-machine`, `no-model` and a sentence saying what to do |
+| `GET /api/mobile/agent?project={project}&thread={thread}` | `{ messages }`: a chat with the agent. Each message is `{ id, role, items, mentions, used, approvals, approvalReason, runId, mode, tokens }`; `items` are `{ type: "text", text }` and `{ type: "step", id, text, nodeId, state, error }` |
+| `GET /api/mobile/agent?project={project}&run={run}` | `{ changes: [{ id, nodeId, summary }], undone }`: what a run changed |
+| `POST /api/mobile/agent?project={project}` | Body `{ action: "delete", threadId }` → `{ ok }`, or `{ action: "undo", runId }` → `{ failed }` |
+| `POST /api/mobile/agent/turn` | Body `{ threadId, projectId, mode, text, mentions, approvals, trigger, messageId }`, as the web panel sends (a new `threadId` starts a chat; `mode` is `ask`, `suggest` or `auto`). The answer streams back as one JSON object per line: `{ message }` (the whole answer so far) a few times a second, then `{ done: true }` or `{ error }` |
+
+### The graph, relationships, boards and dialogues
+
+For the phone app's maps, under `/api/mobile/maps`, with the same token and the web's own rules: you see the links, relationships and boards you can read, and change a relationship only if you can edit its first note. Boards and dialogues are read from their live documents, as they are right now; a board change goes into the live document, so anyone with the board open sees it arrive.
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/mobile/maps/links?project={project}` | `{ links: [{ source, target, kind }] }`: every link between notes you can see. `kind` is `wiki`, `embed` or `property` |
+| `GET /api/mobile/maps/relationships?project={project}` | `{ relationships: [{ id, fromNodeId, toNodeId, type, label, directed }] }` |
+| `POST /api/mobile/maps/relationships` | Body `{ project, action, … }`: `create` with `{ fromNodeId, toNodeId, type, label? }` → `201` `{ relationship }`; `update` with `{ id, type?, label?, reverse? }` → `{ relationship }`; `delete` with `{ id }` → `{ ok }` |
+| `GET /api/mobile/maps/board?project={project}&note={note}` | `{ board: { map, cards, edges, marks } }`: a board's cards and arrows by id. `map` is true for a board made as a map |
+| `POST /api/mobile/maps/board` | Body `{ project, note, action, … }`: `move` with `{ id, x, y }`, `add-text` with `{ text, x, y }`, `set-text` with `{ id, text }` (text cards and sticky notes). `{ id }`: the card's. Not for maps, or a board locked by its stage |
+| `GET /api/mobile/maps/dialogue?project={project}&note={note}` | `{ dialogue: { nodes, edges, variables } }`: a branching dialogue's cards, jumps and variables by id |
+
+### Pictures and suggestions in the phone's editor
+
+Also made for the phone app. A picture needs edit access to the note and counts against the workspace's storage, as on the web; accepting or rejecting a suggestion is an edit to the live document, so this only tells the people who made them.
+
+| Request | What it does |
+| --- | --- |
+| `POST /api/mobile/upload?project={project}&node={note}&name={file name}` | The picture itself as the body (PNG, JPEG, GIF, WebP or AVIF, its type in `content-type`) → `{ id, url }`, 201. Put `url` in the note as a picture |
+| `GET /api/mobile/upload?file={id}` | A picture in a note, for anyone who can read the note |
+| `POST /api/mobile/suggestions` | Body `{ projectId, noteId, authorIds, accepted }`: tells the people who made suggestions you accepted or rejected → `{ ok }` |
+
+### Push notifications
+
+The phone app registers itself under `/api/mobile/push` to have notifications pushed to it through Expo's push service. A phone belongs to the token it registered with: revoking that token, or signing out of the app, removes the phone. Plotra Cloud and self-hosted servers only.
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/mobile/push` | `{ enabled }`: whether you want notifications on your phones at all |
+| `POST /api/mobile/push` | Body `{ expoToken, platform }` (`"ios"` or `"android"`): this phone gets notifications → `{ ok, enabled }` |
+| `PATCH /api/mobile/push` | Body `{ enabled }`: phone notifications on or off, for every phone of yours |
+| `DELETE /api/mobile/push` | Body `{ expoToken }`, optional: this phone stops getting them (without a body, every phone registered with this token) → 204 |
+
+A push says what the bell says, under the project's title, with `data: { notificationId, projectId, nodeId, threadId?, chat? }` to open the right place, and the number of unread notifications as the app icon's badge. A self-hosted server can set `EXPO_ACCESS_TOKEN` if its Expo account requires one for sending.
+
+### Story views
+
+The phone's timeline, corkboard, plot grid and codex use `/api/mobile/views/{project}`, with the same token. They run the web app's own story functions as you, so the same access rules apply. Story dates are minutes in the timeline's calendar, as on the web.
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/mobile/views/{project}` | `{ nodes, threads, cells, calendars, propertyDefs, entityTypes, canEditProject }`: every note in binder order with its fields (`properties`), board `settings`, `position`, `canon` and colour `label`; plot threads and grid cells; calendars; field definitions; world-bible types |
+| `GET /api/mobile/views/{project}/timeline/{timeline}` | `{ events: [{ id, nodeId, title, description, start, end, lane, color }] }`: the timeline's own events |
+| `POST /api/mobile/views/{project}/timeline/{timeline}` | Body `{ title, start, end?, lane?, color?, description?, nodeId? }` → `{ event }`, 201 |
+| `PATCH /api/mobile/views/{project}/timeline/{timeline}/{event}` | Any of the same → `{ event }` |
+| `DELETE /api/mobile/views/{project}/timeline/{timeline}/{event}` | Deletes it → `{ ok }` |
+| `POST /api/mobile/views/{project}/threads` | Body `{ name?, color? }`: a new plot thread at the end → `{ thread }`, 201 |
+| `PATCH /api/mobile/views/{project}/threads/{thread}` | Body `{ name?, color?, closedNodeId? }` (`null` reopens it) → `{ thread }` |
+| `DELETE /api/mobile/views/{project}/threads/{thread}` | Deletes it and its cells → `{ ok }` |
+| `PUT /api/mobile/views/{project}/cells` | Body `{ nodeId, threadId, note }`: a plot grid cell. An empty `note` keeps the scene in the thread; `null` takes it out → `{ ok }` |
+| `PATCH /api/mobile/views/{project}/notes/{note}/properties` | Body `{ key: value }` (`null` clears one): sets a note's fields, like Story date → `{ node }` |
+| `POST /api/mobile/views/{project}/notes/{note}/move` | Body `{ afterId }`: moves the note among its siblings, right after `afterId`, or first when it's `null` → `{ node }` |
+| `GET /api/mobile/views/{project}/notes/{note}/links` | `{ backlinks: [{ id, context }] }`: the notes that link to it |
+
+### Sharing and settings
+
+The phone app's Share, Project settings, Your settings and New project screens, with the same token. They run the web's own actions as you, so the same rules apply: sharing a project and changing its settings need a workspace owner or admin (or `manage` on the project), and deleting it needs its title typed back. Inviting people to a workspace, changing their roles and removing them, your email and password, and API tokens can't be changed with a token: do those in Plotra.
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/mobile/share?project={project}` | `{ sharing: { workspace, members, shared }, links }`: who can open the project, and its read-only links, each with its `path` (`/p/…`) |
+| `POST /api/mobile/share` | Body `{ project, action, … }`, one of: `share` with `{ email, role }` → `{ ok, pending }` (`role` is `viewer`, `commenter` or `editor`; sharing again changes it); `role` with `{ memberId, role }`; `remove` with `{ memberId }`; `link-create` with `{ name? }`, `link-update` with `{ linkId, enabled?, horizonReleaseId?, name? }` and `link-reset` with `{ linkId }` → `{ ok, link }`; `link-delete` with `{ linkId }` |
+| `GET /api/mobile/settings/workspace?workspace={slug}` | `{ members, invitations }`. `invitations` is `null` unless you're an owner or admin |
+| `GET /api/mobile/settings/project?project={project}` | `{ title, description, type, worldId, format, autoVersionMinutes, template, canManage, modules: [{ id, label, description, on, byDefault }], types, formats, worlds }` |
+| `PATCH /api/mobile/settings/project` | Body `{ project, title?, description?, type?, worldId?, format?, autoVersionMinutes?, template?, modules? }`. In `modules`, `null` puts a tool back to the type's default → `{ ok }` |
+| `DELETE /api/mobile/settings/project` | Body `{ project, title }`: deletes the project and everything in it, for everyone → `{ ok }` |
+| `GET /api/mobile/settings/account` | `{ name, email, image, photoUploads, ownPhoto, emailNotifications }` |
+| `PATCH /api/mobile/settings/account` | Body `{ name?, emailNotifications? }` (`off`, `each` or `daily`) → the same as `GET` |
+| `POST /api/mobile/settings/account/photo` | Body `{ photo }`: a square PNG, JPEG, WebP or GIF as base64, up to 512 KB → `{ image }` |
+| `DELETE /api/mobile/settings/account/photo` | Takes your photo away → `{ ok }` |
+| `GET /api/mobile/settings/new-project` | `{ types, audiences, starters }`: what a new project can be |
+| `POST /api/mobile/settings/new-project` | Body `{ workspace, title, type, starter? }` (`workspace` is its slug; with a `starter`, `title` may be empty) → `{ projectId, noteId }` |
+
+### Export, import and plugins
+
+Export and import run the web's own code, with the same formats, limits and options.
+
+| Request | What it does |
+| --- | --- |
+| `GET /api/mobile/export?project={project}&format={format}` | The file, as a download. `format` is one of `epub`, `wiki`, `bible`, `markdown`, `docx`, `rtf`, `txt`, `fdx`, `ao3`, `opml`, `plotra`; also `root`, `horizon` (a release), `canon=1`, `layout=files`. Errors come back as plain text |
+| `POST /api/mobile/import?project={project}&parent={note}` | `file` fields in a multipart body, with `split=file\|headings`, `breaks=1`, `kind=scene\|note`, `lines=keep`. `preview=1` answers what it would make; otherwise `{ nodes, pictures }`, 201. Up to 10 MB at once |
+| `POST /api/mobile/import?format=plotra&workspace={slug}` | A `.plotra` file as the body, or `{ token }` after a direct upload → `{ href, notes, projectId }`, 201 |
+| `POST /api/mobile/import/direct` | Body `{ workspace, size }` → `{ url, token, contentType }`, for a large `.plotra` sent straight to storage; 501 when the server has none |
+| `GET /api/mobile/plugins/store?q=&category=&sort=popular\|new` | `{ official, community, unreachable }`: the plugin store. With `?slug={plugin}`, `{ listing }` with its releases. Installing, switching and removing plugins can't be done with a token |
 
 ### Errors
 

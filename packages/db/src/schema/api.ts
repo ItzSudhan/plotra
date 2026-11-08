@@ -43,6 +43,38 @@ export const apiToken = pgTable(
   (t) => [index("api_token_user_idx").on(t.userId)],
 );
 
+export const pushPlatforms = ["ios", "android"] as const;
+export type PushPlatform = (typeof pushPlatforms)[number];
+
+/**
+ * A phone that asked to be told about notifications (apps/app/lib/push.ts):
+ * its Expo push token, and the phone app's API token it was registered with.
+ * Signing out, or revoking that token in Settings, deletes the token and so the
+ * phone with it. Each person sees only their own; sending goes through the
+ * server's own connection, since the one who notifies is someone else.
+ */
+export const pushDevice = pgTable(
+  "push_device",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    tokenId: text("token_id")
+      .notNull()
+      .references(() => apiToken.id, { onDelete: "cascade" }),
+    /** "ExponentPushToken[…]": one phone, one row, whoever is signed in on it now. */
+    expoToken: text("expo_token").notNull().unique(),
+    platform: text("platform").$type<PushPlatform>().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    // Updated each time the app registers again (it does on every launch), so stale phones can be told apart.
+    lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+  },
+  (t) => [index("push_device_user_idx").on(t.userId), index("push_device_token_idx").on(t.tokenId)],
+);
+
 /**
  * An app that registered itself to ask people for access through OAuth
  * (apps/app/lib/api/oauth-server.ts): Claude's connectors, Claude Code, and

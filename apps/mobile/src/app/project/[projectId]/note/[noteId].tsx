@@ -2,23 +2,31 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { Alert, Pressable, RefreshControl, ScrollView, Share, Text, View } from "react-native";
 import { Icon } from "@/components/icon";
-import { MarkdownView } from "@/components/markdown-view";
 import { useMenu } from "@/components/menu";
+import { NoteText } from "@/components/note-text";
 import { Banner, Button, Card, Empty, IconButton, Loading, Row, Separator, Tag } from "@/components/ui";
 import { isOffline } from "@/lib/api";
 import { invalidate, keys, useResource } from "@/lib/cache";
 import { hasText, kindIcon, kindLabel, statusLabel } from "@/lib/kinds";
 import { ago, openWeb, webUrl, words } from "@/lib/links";
 import type { Wiki } from "@/lib/markdown";
+import { hasOwnScreen, noteRoute } from "@/lib/maps-api";
 import { useProject } from "@/lib/project";
+import { noteValue, noteValueKey } from "@/lib/reader-api";
 import { forgetRecent, rememberRecent } from "@/lib/recent";
 import { useClient, useSession } from "@/lib/session";
 import { fonts, space, useColors } from "@/lib/theme";
 import { childrenOf, pathOf, resolveLink } from "@/lib/tree";
 import { useHorizon } from "@/lib/use-horizon";
+import { commentsRoute } from "@/lib/comments-api";
+import { useOfferAi } from "@/lib/agent-api";
+import { chatRoute } from "@/lib/chat-api";
+import { useOpenCommentCount } from "@/lib/use-comment-count";
 
-// Reading a note. Its text is drawn from Markdown; [[links]] open the note
-// they name; Previous and Next walk the binder, to read straight through.
+// Reading a note. Its text is drawn with all its formatting from the note's
+// own document (components/note-text.tsx), or from Markdown when that isn't
+// here; [[links]] open the note they name; Previous and Next walk the binder,
+// to read straight through.
 
 export default function NoteScreen() {
   const { projectId, noteId } = useLocalSearchParams<{ projectId: string; noteId: string }>();
@@ -26,12 +34,20 @@ export default function NoteScreen() {
   const client = useClient();
   const { server } = useSession();
   const showMenu = useMenu();
+  const offerAi = useOfferAi(projectId);
+  const openComments = useOpenCommentCount(projectId, noteId);
   const { project, notes } = useProject(projectId);
   const { release, setAsOf } = useHorizon(projectId, notes.data);
   const asOf = release?.id ?? null;
   const note = useResource(keys.note(projectId, noteId, asOf), () => client.note(projectId, noteId, asOf));
   const data = note.data;
   const list = useMemo(() => notes.data ?? [], [notes.data]);
+  // The document itself, for the rich reader; asked for once the note says it has text.
+  const textual = !!data && hasText(data.kind) && data.markdown !== null;
+  const value = useResource(textual ? noteValueKey(projectId, noteId, asOf) : null, () => noteValue(client, projectId, noteId, asOf));
+  const refresh = async () => {
+    await Promise.all([note.refresh(), value.refresh()]);
+  };
 
   useEffect(() => {
     if (data && project) void rememberRecent({ projectId, projectTitle: project.title, noteId, title: data.title, kind: data.kind });
@@ -79,6 +95,7 @@ export default function NoteScreen() {
       },
     ]);
 
+  // The "more" menu: one line per entry, `...(when ? [entry] : [])` for those that depend on something.
   const menu = () =>
     showMenu({
       title: data?.title || "Untitled",
@@ -86,6 +103,11 @@ export default function NoteScreen() {
         ...(canEdit ? [{ label: "Details", icon: "details" as const, onPress: () => router.push({ pathname: "/project/[projectId]/details/[noteId]", params: { projectId, noteId } }) }] : []),
         ...(canEdit && readable ? [{ label: "Add to the end", icon: "capture" as const, onPress: () => router.push({ pathname: "/capture", params: { projectId, noteId } }) }] : []),
         ...(readable && data?.markdown ? [{ label: "Share the text", icon: "share" as const, onPress: () => void Share.share({ title: data.title, message: data.markdown ?? "" }) }] : []),
+        { label: openComments ? `Comments (${openComments} open)` : "Comments", icon: "comment" as const, onPress: () => router.push(commentsRoute(projectId, noteId)) },
+        ...(readable ? [{ label: "History", icon: "history" as const, onPress: () => router.push({ pathname: "/project/[projectId]/history/[noteId]", params: { projectId, noteId } }) }] : []),
+        { label: "Graph around this note", icon: "graph" as const, onPress: () => router.push({ pathname: "/project/[projectId]/maps/graph", params: { projectId, noteId } }) },
+        { label: "Chat about this note", icon: "chat" as const, onPress: () => router.push(chatRoute(projectId, noteId, data?.title || "Untitled")) },
+        ...(offerAi ? [{ label: "Ask AI about this note", icon: "sparkles" as const, onPress: () => router.push({ pathname: "/project/[projectId]/ask", params: { projectId, note: noteId, title: data?.title || "Untitled" } }) }] : []),
         { label: "Open on the web", icon: "web" as const, onPress: () => openWeb(webUrl(server, project, noteId)) },
         ...(canEdit ? [{ label: "Move to trash", icon: "trash" as const, destructive: true, onPress: trash }] : []),
       ],
@@ -111,7 +133,7 @@ export default function NoteScreen() {
         style={{ flex: 1, backgroundColor: c.background }}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{ paddingBottom: 64 }}
-        refreshControl={<RefreshControl refreshing={note.refreshing} onRefresh={note.refresh} tintColor={c.mutedForeground} />}
+        refreshControl={<RefreshControl refreshing={note.refreshing} onRefresh={refresh} tintColor={c.mutedForeground} />}
       >
         <Banner offline={note.offline} error={note.offline ? null : note.error} onRetry={note.refresh} />
         {!data ? (
@@ -157,12 +179,19 @@ export default function NoteScreen() {
 
             {readable ? (
               data.markdown?.trim() ? (
-                <MarkdownView markdown={data.markdown} onWiki={onWiki} />
+                <NoteText value={value.data} markdown={data.markdown} notes={list} onOpenNote={push} onWiki={onWiki} />
               ) : data.revealed === false ? null : (
                 <Pressable accessibilityRole="button" disabled={!canEdit} onPress={edit} style={{ paddingVertical: space.xl }}>
                   <Text style={{ color: c.mutedForeground, fontFamily: fonts.serif, fontSize: 18, fontStyle: "italic" }}>{canEdit ? "Nothing written yet. Tap to start." : "Nothing written yet."}</Text>
                 </Pressable>
               )
+            ) : hasOwnScreen(data.kind) ? (
+              <Empty
+                icon={kindIcon[data.kind]}
+                title={data.title || "Untitled"}
+                body={data.kind === "canvas" ? "A board: cards and arrows to pan about." : "A branching dialogue, to play through."}
+                action={<Button label={data.kind === "canvas" ? "Open the board" : "Open the dialogue"} icon={kindIcon[data.kind]} variant="secondary" onPress={() => router.replace(noteRoute(projectId, data))} />}
+              />
             ) : data.kind !== "folder" ? (
               <Empty
                 icon={kindIcon[data.kind]}

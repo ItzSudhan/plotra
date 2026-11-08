@@ -5,7 +5,10 @@ import { TabScreen } from "@/components/screen";
 import { Banner, Empty, Loading, Separator } from "@/components/ui";
 import { invalidate, keys, useResource } from "@/lib/cache";
 import { ago } from "@/lib/links";
-import { describe, happensOnWeb } from "@/lib/notify-text";
+import { chatRoute } from "@/lib/chat-api";
+import { commentsRoute } from "@/lib/comments-api";
+import { describe, happensOnWeb, isCommentNotice } from "@/lib/notify-text";
+import { PushPromptCard } from "@/components/phone-settings";
 import { useClient } from "@/lib/session";
 import { space, useColors } from "@/lib/theme";
 import type { Notification } from "@/lib/types";
@@ -40,7 +43,10 @@ export default function Inbox() {
 
   const open = (n: Notification) => {
     if (!n.readAt) markRead(n.id);
-    if (n.projectId && n.nodeId) router.push({ pathname: "/project/[projectId]/note/[noteId]", params: { projectId: n.projectId, noteId: n.nodeId } });
+    // A chat mention opens that chat: the note's, or the project's.
+    if (n.projectId && (n.payload.chat || n.type === "chat_mention")) router.push(chatRoute(n.projectId, n.nodeId, n.payload.title ?? n.projectTitle ?? undefined));
+    else if (n.projectId && n.nodeId && isCommentNotice(n)) router.push(commentsRoute(n.projectId, n.nodeId, n.payload.threadId));
+    else if (n.projectId && n.nodeId) router.push({ pathname: "/project/[projectId]/note/[noteId]", params: { projectId: n.projectId, noteId: n.nodeId } });
     else if (n.projectId) router.push({ pathname: "/project/[projectId]", params: { projectId: n.projectId, title: n.projectTitle ?? "" } });
   };
 
@@ -60,6 +66,7 @@ export default function Inbox() {
       }
     >
       <Banner offline={list.offline} error={list.offline ? null : list.error} onRetry={list.refresh} />
+      <PushPromptCard />
       {list.loading && !list.data ? (
         <Loading />
       ) : !list.data?.items.length ? (

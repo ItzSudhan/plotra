@@ -40,7 +40,28 @@ export type EditorStatus = {
   script: boolean;
   /** Changes made here that the server hasn't confirmed yet. */
   unsent: boolean;
+  /** Edits are kept as suggestions for someone to accept or reject. */
+  suggesting: boolean;
+  /** Some text is selected: offer "Comment". */
+  selection: boolean;
+  /** The link to a note at the cursor (tapped while writing): offer to open it. */
+  link: { nodeId: string; title: string } | null;
+  /** The open comment thread at the cursor: offer to open it. */
+  thread: string | null;
+  /** The suggestion at the cursor: offer to accept or reject it. */
+  suggestion: SuggestionInfo | null;
+  /** Suggestions waiting in the note. */
+  suggestions: number;
 };
+
+/** A pending suggestion, as the phone describes it. */
+export type SuggestionInfo = { id: string; type: "insert" | "remove" | "replace" | "update"; text: string; newText: string };
+
+/** An open comment thread on the note, with where it points (base64 Yjs relative positions). */
+export type EditorThread = { id: string; anchor: { start: string; end: string } };
+
+/** What "Comment" on a selection hands the phone: where the comment points, and the passage. */
+export type CommentDraft = { anchor: { start: string; end: string } | null; quote: string | null };
 
 /** Which release the editor shows as of: passages tagged for a later one are dimmed. */
 export type EditorHorizon = { limit: number; order: Record<string, number> } | null;
@@ -53,7 +74,13 @@ export type EditorCommand =
   | { type: "wikilink"; nodeId: string }
   | { type: "undo" }
   | { type: "redo" }
-  | { type: "blur" };
+  | { type: "blur" }
+  /** Start a comment on the selection: the editor answers through `startComment`. */
+  | { type: "comment" }
+  /** Accept or reject one suggestion, or every one (id null). */
+  | { type: "suggestion"; id: string | null; accept: boolean }
+  /** A picture, uploaded already, where the cursor is. */
+  | { type: "image"; url: string; alt: string };
 
 /** Script elements (apps/app/lib/script.ts), with what the phone calls them. */
 export const scriptElements: { type: string; label: string }[] = [

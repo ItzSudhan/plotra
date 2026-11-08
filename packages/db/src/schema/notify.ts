@@ -1,4 +1,4 @@
-import { index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { node } from "./node";
 import { project } from "./project";
@@ -205,6 +205,8 @@ export const userPref = pgTable("user_pref", {
   gettingStarted: jsonb("getting_started").$type<GettingStarted>().default({}).notNull(),
   ribbon: jsonb("ribbon").$type<RibbonPrefs>().default({}).notNull(),
   shell: jsonb("shell").$type<ShellPrefs>().default({}).notNull(),
+  // Pushes to the person's phones (apps/app/lib/push.ts). On unless they turn it off in the phone app.
+  pushNotifications: boolean("push_notifications").default(true).notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())

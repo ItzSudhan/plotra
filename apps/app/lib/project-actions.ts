@@ -18,7 +18,7 @@ import { and, asc, eq, isNotNull, ne } from "drizzle-orm";
 import { refresh } from "next/cache";
 import { getProjectActions, requireProjectAccess } from "./access";
 import { track } from "./analytics";
-import { requireSession } from "./data";
+import { isApiRequest, requireSession } from "./data";
 import { userDb } from "./db";
 import { r2Delete } from "./r2";
 import { readOnly, transaction } from "./request-cache";
@@ -170,7 +170,8 @@ export async function updateProjectSettings(projectId: string, patch: SettingsPa
     return next;
   });
   // The page comes back re-rendered in this same response: one round trip, not a second one for `router.refresh()`.
-  refresh();
+  // Not for the phone app's API calls: there's no page, and refresh() throws outside a server action.
+  if (!isApiRequest()) refresh();
   return saved;
 }
 
@@ -209,7 +210,7 @@ export async function updateProject(
     }
     if (Object.keys(values).length) await userDb((tx) => tx.update(project).set(values).where(eq(project.id, projectId)));
   });
-  refresh();
+  if (!isApiRequest()) refresh();
 }
 
 /**

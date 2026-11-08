@@ -12,7 +12,7 @@ import { headers } from "next/headers";
 import { parseWorkspaceRole } from "./access";
 import { authErrorText } from "./auth-errors";
 import { getSubscription } from "./billing/subscription";
-import { requireSession } from "./data";
+import { isApiRequest, requireSession } from "./data";
 import { isLocalMode } from "./local-mode";
 import { MAX_PHOTO_BYTES, ownPhotoKey, photoFileName, photoKey, photoUrl, sniffPhoto } from "./profile-photo";
 import { r2Delete, r2Enabled, r2Put } from "./r2";
@@ -63,13 +63,26 @@ async function betterAuth<T>(fn: (h: Headers) => Promise<T>): Promise<T> {
   }
 }
 
+/**
+ * Sets your name or photo. The phone app calls with an API token, which has no
+ * Better Auth session to send, so for it the same change goes through Better
+ * Auth's own adapter; requireSession has already said whose account it is.
+ */
+async function setProfile(userId: string, data: { name?: string; image?: string | null }): Promise<void> {
+  if (isApiRequest()) {
+    await (await auth.$context).internalAdapter.updateUser(userId, { ...data, updatedAt: new Date() });
+    return;
+  }
+  await betterAuth((h) => auth.api.updateUser({ body: data, headers: h }));
+}
+
 /** Your name: your byline on comments, history and the people list. */
 export async function updateName(name: string): Promise<void> {
-  await requireSession();
+  const { user } = await requireSession();
   const trimmed = name.trim();
   if (!trimmed) throw new Error("Enter your name.");
   if (trimmed.length > 80) throw new Error("Keep your name under 80 characters.");
-  await betterAuth((h) => auth.api.updateUser({ body: { name: trimmed }, headers: h }));
+  await setProfile(user.id, { name: trimmed });
 }
 
 /**
@@ -96,7 +109,7 @@ export async function uploadProfilePhoto(form: FormData): Promise<{ image: strin
   await r2Put(key, bytes, type);
   const image = photoUrl(user.id, name);
   try {
-    await betterAuth((h) => auth.api.updateUser({ body: { image }, headers: h }));
+    await setProfile(user.id, { image });
   } catch (error) {
     await r2Delete([key]);
     throw error;
@@ -109,7 +122,7 @@ export async function uploadProfilePhoto(form: FormData): Promise<{ image: strin
 /** Takes your photo away: your initials show instead. An uploaded one is deleted; Google's is only unset. */
 export async function removeProfilePhoto(): Promise<void> {
   const { user } = await requireSession();
-  await betterAuth((h) => auth.api.updateUser({ body: { image: null }, headers: h }));
+  await setProfile(user.id, { image: null });
   const previous = ownPhotoKey(user.id, user.image);
   if (previous) await r2Delete([previous]);
 }

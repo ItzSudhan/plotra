@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { AppState } from "react-native";
 import { ApiError, isOffline, type Client } from "./api";
 import { invalidate, keys } from "./cache";
+import { commentKeys, replyToThread } from "./comments-api";
 import { readDocState } from "./doc-store";
 import { useSession } from "./session";
 import type { NewNote, NotePatch } from "./types";
@@ -19,7 +20,9 @@ export type Change =
   /** The editor wrote in a note offline: its document, kept on the phone (lib/doc-store.ts), goes when it can. */
   | { type: "doc"; projectId: string; noteId: string; title: string }
   | { type: "create"; projectId: string; title: string; input: NewNote }
-  | { type: "patch"; projectId: string; noteId: string; title: string; patch: NotePatch };
+  | { type: "patch"; projectId: string; noteId: string; title: string; patch: NotePatch }
+  /** A reply written offline in a comment thread (app/project/[projectId]/comments). */
+  | { type: "reply"; projectId: string; noteId: string; title: string; threadId: string; body: string };
 
 export type Queued = Change & { id: string; queuedAt: number; error?: string };
 
@@ -38,6 +41,11 @@ type Value = {
 const Context = createContext<Value>({ pending: [], failed: [], enqueue: () => {}, flush: async () => {}, discard: () => {}, settleDoc: () => {} });
 
 async function send(client: Client, change: Change) {
+  if (change.type === "reply") {
+    await replyToThread(client, change.projectId, change.noteId, change.threadId, change.body);
+    invalidate(commentKeys.project(change.projectId));
+    return;
+  }
   if (change.type === "doc") {
     const state = await readDocState(change.noteId);
     if (state) await client.pushDoc(change.projectId, change.noteId, state);

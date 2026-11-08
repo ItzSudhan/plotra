@@ -34,6 +34,12 @@ export const kindIcon: Record<NodeKind, IconName> = {
 /** Kinds whose text the phone can read and write. Boards, timelines and dialogues open on the web. */
 export const hasText = (kind: NodeKind) => kind !== "canvas" && kind !== "timeline" && kind !== "dialogue" && kind !== "folder";
 
+/** What "New note" offers when the project's own list (lib/binder-api.ts binderOptions) hasn't come yet. */
+export const newKinds: NodeKind[] = ["scene", "chapter", "folder", "note", "character", "location", "research", "canvas", "timeline"];
+
+/** Kinds that hold others in the binder. */
+export const isContainer = (kind: NodeKind) => kind === "folder" || kind === "chapter";
+
 export const statusLabel = (status: string | null) => (status ? status.charAt(0).toUpperCase() + status.slice(1).replace(/[-_]/g, " ") : null);
 
 /** The default editorial stages (packages/db nodeStatuses). A project can have its own; those show as they are. */

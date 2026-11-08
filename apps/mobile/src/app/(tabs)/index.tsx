@@ -2,11 +2,12 @@ import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Icon } from "@/components/icon";
+import { useMenu } from "@/components/menu";
 import { TabScreen } from "@/components/screen";
 import { Banner, Button, Card, Empty, IconButton, Loading, Row, SectionLabel, Separator } from "@/components/ui";
 import { keys, useResource } from "@/lib/cache";
 import { kindIcon, projectTypeLabel } from "@/lib/kinds";
-import { ago, openWeb } from "@/lib/links";
+import { ago } from "@/lib/links";
 import { useOutbox } from "@/lib/outbox";
 import { listRecent, type Recent } from "@/lib/recent";
 import { useClient } from "@/lib/session";
@@ -19,6 +20,7 @@ import type { Project } from "@/lib/types";
 export default function Library() {
   const c = useColors();
   const client = useClient();
+  const showMenu = useMenu();
   const projects = useResource(keys.projects, client.projects);
   const { pending, failed } = useOutbox();
   const [recent, setRecent] = useState<Recent[]>([]);
@@ -51,7 +53,23 @@ export default function Library() {
       title="Library"
       refreshing={projects.refreshing}
       onRefresh={projects.refresh}
-      actions={<IconButton name="capture" label="Quick note" onPress={() => router.push("/capture")} color={c.emberInk} />}
+      actions={
+        <>
+          <IconButton
+            name="add"
+            label="New project or import"
+            onPress={() =>
+              showMenu({
+                items: [
+                  { label: "New project", icon: "book", onPress: () => router.push("/new-project") },
+                  { label: "Import a file", icon: "importFile", onPress: () => router.push("/import") },
+                ],
+              })
+            }
+          />
+          <IconButton name="capture" label="Quick note" onPress={() => router.push("/capture")} color={c.emberInk} />
+        </>
+      }
     >
       <Banner offline={projects.offline} error={projects.offline ? null : projects.error} onRetry={projects.refresh} />
 
@@ -95,8 +113,8 @@ export default function Library() {
         <Empty
           icon="book"
           title="No projects yet"
-          body="Start your first project on Plotra's website. It shows up here as soon as it's made."
-          action={<Button label="Start a project" icon="web" variant="secondary" onPress={() => openWeb(client.server)} />}
+          body="Start your first project here, or on Plotra's website. It shows up here as soon as it's made."
+          action={<Button label="Start a project" icon="add" variant="secondary" onPress={() => router.push("/new-project")} />}
         />
       ) : (
         groups.map((group) => (
