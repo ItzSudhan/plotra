@@ -26,11 +26,11 @@ const matches = (pathname: string, paths: string[]) => paths.some((path) => path
  */
 function localProxy(request: NextRequest) {
   const { pathname, search, searchParams } = request.nextUrl;
-  if (matches(pathname, cloudOnlyPaths)) return localRedirect("/");
+  if (matches(pathname, cloudOnlyPaths)) return localRedirect(request, "/");
   const signInPage = pathname === "/sign-in" || pathname === "/sign-up";
   if (!signInPage && getSessionCookie(request)) return NextResponse.next();
   const next = new URLSearchParams({ next: signInPage ? (searchParams.get("callbackURL") ?? "/") : pathname + search });
-  return localRedirect(`/api/local/session?${next}`);
+  return localRedirect(request, `/api/local/session?${next}`);
 }
 
 // Optimistic check only: it looks for the session cookie without hitting the

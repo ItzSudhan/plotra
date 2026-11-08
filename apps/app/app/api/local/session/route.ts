@@ -24,7 +24,7 @@ export async function GET(request: Request) {
       headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
     });
   }
-  const response = localRedirect(next);
+  const response = localRedirect(request, next);
   for (const cookie of cookies) response.headers.append("set-cookie", cookie);
   return response;
 }
