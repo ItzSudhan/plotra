@@ -53,7 +53,7 @@ A useful report has:
 
 ## Testing rules
 
-- Test against your own instance where you can. It takes a few minutes to run locally; see the [README](./README.md#run-it-locally).
+- Test against your own instance where you can. It takes a few minutes to run locally; see [CONTRIBUTING.md](./CONTRIBUTING.md#setup).
 - On the hosted version, use your own accounts and projects only. Do not read, change or delete other people's work, and stop as soon as you have shown the problem.
 - No automated scanning of the hosted version. It lives on free tiers that other writers share.
 
