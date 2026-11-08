@@ -128,7 +128,14 @@ export type EmailPreference = (typeof emailPreferences)[number];
  * the steps they have done, by id (apps/app/lib/onboarding/steps.ts), and
  * whether they closed it for good.
  */
-export type GettingStarted = { done?: string[]; dismissed?: boolean; /** A sample's try-out is closed on its own. */ dismissedTryout?: boolean };
+export type GettingStarted = {
+  done?: string[];
+  dismissed?: boolean;
+  /** A sample's try-out is closed on its own. */
+  dismissedTryout?: boolean;
+  /** The desktop app's "Plotra on your desktop" card, for a cloud account (desktop-onboarding-plan.md, step 3). */
+  dismissedDesktop?: boolean;
+};
 
 /**
  * How someone has arranged the ribbon (onboarding-plan.md 3): views they

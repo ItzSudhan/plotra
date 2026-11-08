@@ -1,12 +1,15 @@
 import { Icon } from "@plotra/icons";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DesktopWelcome } from "@/components/onboarding/desktop-welcome";
 import { Welcome } from "@/components/onboarding/welcome";
 import { NewProjectDialog } from "@/components/workspace/new-project-dialog";
 import { NoAiBanner } from "@/components/workspace/no-ai-banner";
 import { getNoAiPromise } from "@/lib/agent-actions";
 import { nav } from "@/components/transitions";
-import { listProjects, listSharedProjects, requireWorkspace } from "@/lib/data";
+import { listProjects, listSharedProjects, requireSession, requireWorkspace } from "@/lib/data";
+import { inDesktopApp } from "@/lib/desktop";
+import { getUserPrefs } from "@/lib/notify-actions";
 import { projectTypeMeta } from "@/lib/project-types";
 import { isLocalMode } from "@/lib/local-mode";
 import { ProjectList } from "./project-list";
@@ -22,6 +25,8 @@ const updatedFormat = new Intl.DateTimeFormat("en", { month: "short", day: "nume
 export default async function WorkspacePage({ params }: PageProps<"/w/[workspace]">) {
   const workspace = await requireWorkspace((await params).workspace);
   const [projects, shared, noAi] = await Promise.all([listProjects(workspace.id), listSharedProjects(), getNoAiPromise(workspace.slug)]);
+  // A cloud account in the desktop app sees "Plotra on your desktop" once (desktop-onboarding-plan.md, step 3).
+  const desktopEmail = !isLocalMode && (await inDesktopApp()) ? await desktopWelcomeFor() : null;
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6">
@@ -57,6 +62,8 @@ export default async function WorkspacePage({ params }: PageProps<"/w/[workspace
         </div>
       </div>
 
+      {desktopEmail && <DesktopWelcome email={desktopEmail} />}
+
       <NoAiBanner promise={noAi.promise} removed={noAi.removed} />
 
       {projects.length === 0 ? (
@@ -73,4 +80,10 @@ export default async function WorkspacePage({ params }: PageProps<"/w/[workspace
       )}
     </main>
   );
+}
+
+/** The email to show on "Plotra on your desktop", or null once it has been closed. */
+async function desktopWelcomeFor(): Promise<string | null> {
+  const [{ user }, prefs] = await Promise.all([requireSession(), getUserPrefs()]);
+  return prefs.gettingStarted.dismissedDesktop ? null : user.email;
 }

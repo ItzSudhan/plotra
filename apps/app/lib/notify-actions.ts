@@ -199,7 +199,7 @@ export async function updateUserPrefs(patch: Partial<OwnPrefs>): Promise<UserPre
  * (onboarding-plan.md 2.3). Steps are only ever added: one that was done stays
  * done. Returns the state after the change.
  */
-export async function updateGettingStarted(patch: { done?: string[]; dismissed?: boolean; dismissedTryout?: boolean }): Promise<GettingStarted> {
+export async function updateGettingStarted(patch: { done?: string[]; dismissed?: boolean; dismissedTryout?: boolean; dismissedDesktop?: boolean }): Promise<GettingStarted> {
   const result = await transaction(async () => {
     const { user: me } = await requireSession();
     // Anyone can call a server action with anything: only known step ids are kept.
@@ -214,6 +214,7 @@ export async function updateGettingStarted(patch: { done?: string[]; dismissed?:
         done: [...had, ...added],
         dismissed: flag(patch.dismissed, before.dismissed),
         dismissedTryout: flag(patch.dismissedTryout, before.dismissedTryout),
+        dismissedDesktop: flag(patch.dismissedDesktop, before.dismissedDesktop),
       };
       // A step that is about a view puts that view in the ribbon: the ribbon fills with what the person has used.
       const views = added.map((id) => stepView[id]).filter((view) => view !== undefined);

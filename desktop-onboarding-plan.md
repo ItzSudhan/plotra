@@ -8,7 +8,7 @@ Written 8 November 2026.
 | --- | --- | --- |
 | 1 | The desktop app's first-run window: sign in or sign up for the cloud; set up a library in the window | Done, untried |
 | 2 | A local library's first screens in the app: "Welcome to your library", then AI (Ollama found and set up in one click) | Done, untried |
-| 3 | A cloud account in the desktop app: a one-time "Plotra on your desktop" card on the projects page | Not started |
+| 3 | A cloud account in the desktop app: a one-time "Plotra on your desktop" card on the projects page | Done, untried |
 
 **Done:**
 
@@ -16,9 +16,10 @@ Written 8 November 2026.
 
 - Step 2 (8 November 2026): in local mode the Cold Open's first screen is "Welcome to your library." (`components/onboarding/cold-open.tsx`): the library's folder (from `PLOTRA_LIBRARY`), daily snapshots and File → Back Up Now, the Markdown copy, and its name, prefilled with the folder's name. Then, once, when AI isn't set up and wasn't taken out of the build, "Would you like AI to help?" (`components/onboarding/local-ai-step.tsx`): the server looks for Ollama at 127.0.0.1:11434 (`lib/local-setup-actions.ts`, local mode only); its models are offered with one that calls tools first (`lib/onboarding/ollama.ts`, tested), and "Use <model>" saves it as the person's AI and switches AI on for the library. Without Ollama: where to get it, a link to Settings for a provider's key, and "Check again". "Not now" always. Typecheck, lint and the onboarding tests pass.
 
+- Step 3 (8 November 2026): on the projects page, someone signed in to Plotra Cloud in the desktop app (its user agent, `lib/desktop.ts`) sees "Plotra on your desktop" (`components/onboarding/desktop-welcome.tsx`): who they're signed in as, the same projects as on the web, another window with ⌘⇧N (Ctrl+Shift+N), links opening in the browser, and File → New Library… for something private. Closing it is saved as `gettingStarted.dismissedDesktop` (a JSON field: no migration). Typecheck, lint and all 1,060 app tests pass.
+
 **Not done:**
 
-- Step 3.
 - **For you, by hand:** step 1 hasn't been run in the app (no Electron run here). Steps 1 and 2 haven't been tried in a running app. Worth a look: the window's height with the recent-libraries list, and that "Create an account" doesn't flash the cloud's sign-up page in the window before the browser opens; the AI step with Ollama running, stopped, and running with no models.
 
 ## The problem
