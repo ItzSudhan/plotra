@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { ColdOpen } from "@/components/onboarding/cold-open";
+import path from "node:path";
+import { ColdOpen, type LocalLibrary } from "@/components/onboarding/cold-open";
+import { aiRemoved } from "@/lib/agent/no-ai";
+import { modelSource } from "@/lib/agent/settings";
 import { listProjects, listWorkspaces, requireSession } from "@/lib/data";
+import { isLocalMode } from "@/lib/local-mode";
 
 export const metadata: Metadata = { title: "Start a project" };
 
@@ -14,5 +18,12 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
   // Projects of the workspace marked as templates: a new one can start in their shape (lib/template-actions.ts).
   const templates = workspace ? (await listProjects(workspace.id)).filter((p) => p.settings?.template).map((p) => ({ id: p.id, title: p.title, type: p.type })) : [];
 
-  return <ColdOpen workspace={workspace && { name: workspace.name, slug: workspace.slug }} userName={user.name} templates={templates} />;
+  // In local mode, the library this is (the desktop app passes its folder as PLOTRA_LIBRARY): its first screens are about it.
+  let library: LocalLibrary | null = null;
+  if (isLocalMode) {
+    const dir = process.env.PLOTRA_LIBRARY || null;
+    library = { name: dir ? path.basename(dir) : "My library", dir, askAi: !workspace && !aiRemoved() && !(await modelSource()) };
+  }
+
+  return <ColdOpen workspace={workspace && { name: workspace.name, slug: workspace.slug }} userName={user.name} templates={templates} library={library} />;
 }

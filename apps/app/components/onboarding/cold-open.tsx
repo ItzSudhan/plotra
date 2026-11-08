@@ -21,9 +21,17 @@ import { SampleCards } from "./sample-cards";
 import { StarterPicker } from "./starter-picker";
 import { StoryGraph } from "./story-graph";
 import { isLocalMode } from "@/lib/local-mode";
+import { LocalAiStep } from "./local-ai-step";
 
 /** A project of the workspace that is offered as a model for new ones. */
 type Template = { id: string; title: string; type: ProjectType };
+
+/**
+ * The library this is, in local mode (desktop-onboarding-plan.md, step 2): its
+ * name and folder, and whether to ask about AI after naming it (not when AI
+ * is set up already, or was taken out of this build).
+ */
+export type LocalLibrary = { name: string; dir: string | null; askAi: boolean };
 
 /**
  * The Cold Open (onboarding-plan.md 2.1): a project started by answering a few
@@ -33,7 +41,17 @@ type Template = { id: string; title: string; type: ProjectType };
  * non-fiction), then the track's own one or two. Every question can be
  * skipped, and so can all of them.
  */
-export function ColdOpen({ workspace, userName, templates = [] }: { workspace: { name: string; slug: string } | null; userName: string; templates?: Template[] }) {
+export function ColdOpen({
+  workspace,
+  userName,
+  templates = [],
+  library = null,
+}: {
+  workspace: { name: string; slug: string } | null;
+  userName: string;
+  templates?: Template[];
+  library?: LocalLibrary | null;
+}) {
   const router = useRouter();
   const [slug, setSlug] = useState(workspace?.slug ?? null);
   const [answers, setAnswers] = useState<Answers>({ driveKind: "secret" });
@@ -41,10 +59,12 @@ export function ColdOpen({ workspace, userName, templates = [] }: { workspace: {
   // Stays set while the new project loads, so nothing can be submitted twice.
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A new library asks about AI once, right after it's named.
+  const [aiPending, setAiPending] = useState(Boolean(library?.askAi) && !workspace);
 
-  const steps = [...(slug ? [] : ["workspace"]), ...questionSteps(answers)];
+  const steps = [...(slug ? [] : ["workspace"]), ...(aiPending ? ["ai"] : []), ...questionSteps(answers)];
   const index = Math.max(0, steps.indexOf(stepId));
-  const questions = steps.filter((id) => id !== "workspace");
+  const questions = steps.filter((id) => id !== "workspace" && id !== "ai");
 
   const create = async (from: Answers, workspaceSlug = slug) => {
     if (!workspaceSlug) return;
@@ -123,7 +143,7 @@ export function ColdOpen({ workspace, userName, templates = [] }: { workspace: {
             // Keyed by step, so each question rises in and its field takes the focus.
             <div key={stepId} className="animate-rise motion-reduce:animate-none">
               {/* The count is only known once the type is: until then, just "Question 1". */}
-              {stepId !== "workspace" && (
+              {stepId !== "workspace" && stepId !== "ai" && (
                 <p className="mb-4 text-ui-sm font-medium text-muted-foreground">
                   {answers.type ? `Question ${questions.indexOf(stepId) + 1} of ${questions.length}` : "Question 1"}
                 </p>
@@ -132,8 +152,19 @@ export function ColdOpen({ workspace, userName, templates = [] }: { workspace: {
               {stepId === "workspace" && (
                 <WorkspaceStep
                   userName={userName}
+                  library={library}
                   onCreated={(created) => {
                     setSlug(created);
+                    setStepId(aiPending ? "ai" : "type");
+                  }}
+                />
+              )}
+
+              {stepId === "ai" && slug && (
+                <LocalAiStep
+                  workspaceSlug={slug}
+                  onDone={() => {
+                    setAiPending(false);
                     setStepId("type");
                   }}
                 />
@@ -254,7 +285,7 @@ export function ColdOpen({ workspace, userName, templates = [] }: { workspace: {
           )}
         </div>
 
-        {slug && !creating && (
+        {slug && !creating && stepId !== "ai" && (
           <footer className="text-sm text-muted-foreground">
             <button type="button" onClick={() => void create({ type: answers.type })} className="underline decoration-border underline-offset-4 hover:text-foreground">
               Skip, just give me a blank page
@@ -534,16 +565,16 @@ function TypeStep({
  * The first screen for someone with no workspace yet. The name is already
  * filled in, so Enter accepts it; the address is made from the name.
  */
-function WorkspaceStep({ userName, onCreated }: { userName: string; onCreated: (slug: string) => void }) {
+function WorkspaceStep({ userName, library, onCreated }: { userName: string; library: LocalLibrary | null; onCreated: (slug: string) => void }) {
   const first = userName.trim().split(/\s+/)[0];
-  // Local mode's person may have no name of their own ("You"), and their workspace is a library on this computer.
-  const [name, setName] = useState(isLocalMode ? "My library" : first ? `${first}'s workspace` : "My workspace");
+  // Local mode's person may have no name of their own ("You"), and their workspace is a library on this computer, named as its folder is.
+  const [name, setName] = useState(isLocalMode ? library?.name || "My library" : first ? `${first}'s workspace` : "My workspace");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const submit = async () => {
     const trimmed = name.trim();
-    if (!trimmed) return setError("Give your workspace a name.");
+    if (!trimmed) return setError(isLocalMode ? "Give your library a name." : "Give your workspace a name.");
     // A name with no Latin letters or digits ("物語の部屋") keeps its name; only its address falls back.
     const latin = slugify(trimmed.replace(/['’]/g, ""));
     const base = latin || "workspace";
@@ -573,10 +604,21 @@ function WorkspaceStep({ userName, onCreated }: { userName: string; onCreated: (
         void submit();
       }}
     >
-      <label htmlFor="cold-open-workspace">
-        <h1 className="font-display text-4xl leading-[1.05] tracking-tight text-balance sm:text-5xl">First, name your workspace.</h1>
-        <p className="mt-3 text-muted-foreground">It holds your projects and the people you write with. You can rename it later in Workspace settings.</p>
-      </label>
+      {isLocalMode ? (
+        <>
+          <h1 className="font-display text-4xl leading-[1.05] tracking-tight text-balance sm:text-5xl">Welcome to your library.</h1>
+          <p className="mt-3 text-muted-foreground">Everything you write here stays in one folder on this computer. No account, no internet needed, and only you can open it.</p>
+          <LibraryFacts dir={library?.dir ?? null} />
+          <label htmlFor="cold-open-workspace" className="mt-8 block text-ui-sm font-medium text-muted-foreground">
+            What should it be called in Plotra? You can rename it later in Workspace settings.
+          </label>
+        </>
+      ) : (
+        <label htmlFor="cold-open-workspace">
+          <h1 className="font-display text-4xl leading-[1.05] tracking-tight text-balance sm:text-5xl">First, name your workspace.</h1>
+          <p className="mt-3 text-muted-foreground">It holds your projects and the people you write with. You can rename it later in Workspace settings.</p>
+        </label>
+      )}
       <input
         id="cold-open-workspace"
         value={name}
@@ -586,7 +628,7 @@ function WorkspaceStep({ userName, onCreated }: { userName: string; onCreated: (
         required
         autoFocus
         autoComplete="off"
-        className={cn(fieldClass, "mt-8")}
+        className={cn(fieldClass, isLocalMode ? "mt-2" : "mt-8")}
       />
       {error && (
         <p role="alert" className="mt-4 text-sm text-destructive">
@@ -600,5 +642,24 @@ function WorkspaceStep({ userName, onCreated }: { userName: string; onCreated: (
         </Button>
       </div>
     </form>
+  );
+}
+
+/** What keeping work in a library means, in three lines: where it is, how it's backed up, and the readable copy. */
+function LibraryFacts({ dir }: { dir: string | null }) {
+  const facts = [
+    { icon: "folder-open-linear", text: dir ? <>In <span className="break-all text-foreground">{dir}</span></> : "In the library folder you chose" },
+    { icon: "history-linear", text: "A snapshot of everything once a day, in its Snapshots folder. File → Back Up Now makes one whenever you like." },
+    { icon: "document-text-linear", text: "A Markdown copy of every project, in its Markdown folder, readable in any app." },
+  ] as const;
+  return (
+    <ul className="mt-6 grid gap-2.5 text-sm text-muted-foreground">
+      {facts.map((fact) => (
+        <li key={fact.icon} className="flex items-start gap-2.5">
+          <Icon name={fact.icon} className="mt-0.5 size-4 shrink-0 text-ember-ink" />
+          <span className="min-w-0">{fact.text}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
