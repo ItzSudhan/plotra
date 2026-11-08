@@ -19,6 +19,8 @@ import {
   DropdownMenuTrigger,
 } from "@plotra/ui/components/dropdown-menu";
 import { useTheme } from "next-themes";
+import { useThemeSync } from "./shell-prefs";
+import { useThemes } from "./use-themes";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { forget, identify } from "@/lib/posthog";
@@ -51,7 +53,11 @@ export function UserMenu({
   gettingStartedLabel?: string;
 }) {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  // The app's themes and the person's own; a plugin's shows here once it's the one in use (./use-themes.ts).
+  const themes = useThemes();
+  // Picked here, it shows at once on every page that has this menu, not only in a project.
+  useThemeSync();
   // Every signed-in page shows this menu, so it is where analytics learns who is signed in.
   useEffect(() => {
     identify(user.id);
@@ -104,6 +110,29 @@ export function UserMenu({
             System
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Icon name="palette-linear" />
+            Colours
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="max-h-80 w-52 overflow-y-auto">
+            <DropdownMenuRadioGroup value={themes.chosen} onValueChange={themes.choose}>
+              {themes.choices.map((choice) => {
+                const [background, card, text, accent] = choice.swatch[resolvedTheme === "dark" ? "dark" : "light"];
+                return (
+                  <DropdownMenuRadioItem key={choice.key} value={choice.key}>
+                    <span aria-hidden className="flex h-4 w-6 shrink-0 overflow-hidden rounded-sm border" style={{ backgroundColor: background }}>
+                      <span className="m-0.5 flex-1 rounded-[2px]" style={{ backgroundColor: card }} />
+                      <span className="my-1 w-1 rounded-[1px]" style={{ backgroundColor: text }} />
+                      <span className="my-1 mr-0.5 ml-px w-1 rounded-[1px]" style={{ backgroundColor: accent }} />
+                    </span>
+                    <span className="truncate">{choice.label}</span>
+                  </DropdownMenuRadioItem>
+                );
+              })}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => {

@@ -15,12 +15,14 @@ import { slugify } from "@/lib/slug";
 export type PluginPart = {
   pluginId: string;
   pluginName: string;
-  what: "command" | "export" | "panel";
+  what: "command" | "export" | "panel" | "theme";
   /** The plugin's own id for it. */
   name: string;
   title: string;
   /** An export's file extension. */
   extension?: string;
+  /** A theme's colours and CSS, as the app may use them (lib/themes.ts `cleanPluginTheme`). */
+  theme?: { light: Record<string, string>; dark: Record<string, string>; css?: string };
 };
 
 /** Runs a plugin's command or export in its frame; resolves to what it returned. */
@@ -90,7 +92,7 @@ export function savePluginFile(name: string, content: unknown, type: string) {
  * file's text, or `{ content, name, type }`. Says so when it fails.
  */
 export async function runPluginPart(registry: PluginRegistry, part: PluginPart, projectTitle: string) {
-  if (part.what === "panel") return;
+  if (part.what === "panel" || part.what === "theme") return;
   try {
     const value = await registry.run(part.pluginId, part.what, part.name);
     if (part.what !== "export") return;

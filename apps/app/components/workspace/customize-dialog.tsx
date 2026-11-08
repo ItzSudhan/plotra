@@ -15,11 +15,40 @@ import { Tooltip } from "@plotra/ui/components/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@plotra/ui/components/dialog";
 import { cn } from "@plotra/ui/lib/utils";
 import Link from "next/link";
-import { createContext, useContext, useId, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
 import { useGettingStarted } from "@/components/onboarding/getting-started";
 import { formatShortcuts } from "@/lib/editor-shortcuts";
 import { applyPreset, getPreset, missingViews, presets, type Preset } from "@/lib/presets";
-import { accents, cleanCss, MAX_CSS, palettes } from "@/lib/themes";
+import {
+  accents,
+  addOwnTheme,
+  baseColours,
+  cleanColour,
+  cleanCss,
+  cleanTheme,
+  contrast,
+  defaultBase,
+  expandColours,
+  MAX_CSS,
+  MAX_OWN_THEMES,
+  ownPalette,
+  paletteOf,
+  palettes,
+  removeOwnTheme,
+  themeCss,
+  themePlugin,
+  updateOwnTheme,
+  type BaseColour,
+  type Mode,
+  type OwnTheme,
+  chooseTheme,
+  type Theme,
+  type ThemeChoice,
+} from "@/lib/themes";
+import { useTheme } from "next-themes";
+import { addPlugin } from "@/lib/plugin-actions";
+import { savePluginFile } from "@/components/plugins/plugin-registry";
+import { usePluginThemes, useThemes } from "./use-themes";
 import { moved } from "@/lib/ribbon";
 import {
   arranged,
@@ -51,7 +80,7 @@ import {
 import { Segmented } from "@/components/views/view-ui";
 import { formatHotkey } from "./hotkeys";
 import { useRibbon } from "./ribbon";
-import { useEffectiveShell, useHotkeys, useShell } from "./shell-prefs";
+import { applyThemeCss, useEffectiveShell, useHotkeys, useShell } from "./shell-prefs";
 import { useUi, useWorkspace } from "./workspace-provider";
 import { SelectField } from "@plotra/ui/components/select-field";
 import { uiSizes, type UiSize } from "@/lib/ui-size";
@@ -104,8 +133,8 @@ const sections: Array<{ id: string; tab: TabId; title: string; hint: string; wor
     id: "theme",
     tab: "look",
     title: "Colours",
-    hint: "The app's colours, in light and dark.",
-    words: `theme colour color palette accent dark light ${Object.values(palettes).map((p) => p.label).join(" ")} ${Object.values(accents).map((a) => a.label).join(" ")}`,
+    hint: "The app's colours, in light and dark: one of Plotra's themes, one from a plugin, or one you make.",
+    words: `theme themes colour color palette accent dark light custom make own new plugin share ${Object.values(palettes).map((p) => p.label).join(" ")} ${Object.values(accents).map((a) => a.label).join(" ")}`,
     Body: ThemeSection,
   },
   {
@@ -187,7 +216,7 @@ const sections: Array<{ id: string; tab: TabId; title: string; hint: string; wor
     id: "start-over",
     tab: "advanced",
     title: "Start over",
-    hint: "Put everything on this screen back to how a new project starts. Your interface size and animations stay as they are.",
+    hint: "Put everything on this screen back to how a new project starts. Your interface size, animations and the themes you made stay as they are.",
     words: "reset everything start over defaults clear restore",
     Body: StartOverSection,
   },
@@ -577,7 +606,8 @@ function StartOverSection() {
     const before = { shell, ribbon: ribbon.prefs, ownRibbon: ribbon.changed };
     ribbon.reset();
     // Animations and interface size aren't part of how a project starts: they're about the person, not the layout.
-    save(withUiSize(shell.motion === false ? { motion: false } : {}, uiSizeOf(shell)));
+    // Neither are the themes they made: only which theme is in use goes back.
+    save(withUiSize({ ...(shell.motion === false && { motion: false }), ...(shell.theme?.own && { theme: { own: shell.theme.own } }) }, uiSizeOf(shell)));
     undoToast("Customize is back to how it starts", () => {
       if (before.ownRibbon) ribbon.replace(before.ribbon);
       save(before.shell);
@@ -985,49 +1015,291 @@ function FileSection() {
 }
 
 function ThemeSection() {
-  const { shell, save } = useShell();
+  const { plugins } = useWorkspace();
+  const parts = usePluginThemes(plugins.parts);
+  const { theme: savedTheme, choices, chosen, setTheme: saveTheme } = useThemes(parts);
+  // Colour changes in the editor show at once and are saved once they settle
+  // (a colour picker sends one with every move). Until then, whatever else is
+  // changed here is changed on top of them.
+  const latest = useRef({ theme: savedTheme, saveTheme });
+  useEffect(() => {
+    latest.current = { theme: savedTheme, saveTheme };
+  });
+  const pending = useRef<{ timer: ReturnType<typeof setTimeout>; own: OwnTheme } | null>(null);
+  const current = () => (pending.current ? updateOwnTheme(latest.current.theme, pending.current.own.id, pending.current.own) : latest.current.theme);
+  // The edit waiting to be saved, for drawing: the tiles show it at once too.
+  const [unsaved, setUnsaved] = useState<OwnTheme | null>(null);
+  const setTheme = (next: Theme | undefined) => {
+    if (pending.current) clearTimeout(pending.current.timer);
+    pending.current = null;
+    setUnsaved(null);
+    latest.current.saveTheme(next);
+  };
+  const flush = () => {
+    if (pending.current) setTheme(current());
+  };
+  // Whatever's still waiting is saved when Customize closes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => flush, []);
+  const editOwn = (own: OwnTheme) => {
+    if (pending.current) clearTimeout(pending.current.timer);
+    pending.current = { own, timer: setTimeout(flush, THEME_SAVE_MS) };
+    setUnsaved(own);
+    applyThemeCss(themeCss(current()));
+  };
+  const theme = unsaved ? updateOwnTheme(savedTheme, unsaved.id, unsaved) : savedTheme;
+  const choose = (key: string) => setTheme(chooseTheme(current(), key, parts));
+  const { resolvedTheme } = useTheme();
+  const mode: Mode = resolvedTheme === "dark" ? "dark" : "light";
   const { title, hint } = sectionInfo("theme");
-  const theme = shell.theme ?? {};
-  const palette = theme.palette ?? "paper";
-  const accent = theme.accent ?? "ember";
-  const set = (next: typeof theme) => save({ ...shell, theme: { ...theme, ...next } });
-  const changed = Boolean(theme.palette || theme.accent);
-  // Your own CSS is reset under Advanced, on its own.
+  const palette = paletteOf(theme);
+  // Some themes bring their own accent; the choices below still change it.
+  const ownAccent = palette[mode].ember;
+  const accent = theme?.accent ?? (ownAccent ? "" : "ember");
+  const editing = theme?.own?.find((t) => ownPalette(t.id) === chosen);
+  const full = (theme?.own?.length ?? 0) >= MAX_OWN_THEMES;
+  const changed = Boolean(theme?.palette || theme?.accent);
+  const groups = [
+    { source: "app", label: "Plotra's" },
+    { source: "plugin", label: "From your plugins" },
+    { source: "own", label: "Yours" },
+  ] as const;
+  const make = () => setTheme(addOwnTheme(current()).theme);
+  // Your own CSS is reset under Advanced, on its own; themes you made stay.
   return (
-    <Section title={title} hint={hint} onReset={changed ? () => save({ ...shell, theme: theme.css ? { css: theme.css } : undefined }) : undefined}>
-      <div className="grid grid-cols-3 gap-2">
-        {Object.entries(palettes).map(([id, p]) => (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={palette === id}
-            onClick={() => set({ palette: id === "paper" ? undefined : id })}
-            className={cn("grid gap-1.5 rounded-md border p-2 text-left text-xs hover:bg-accent/60", palette === id && "border-ember")}
-          >
-            <span className="flex h-7 overflow-hidden rounded border" style={{ backgroundColor: p.swatch[0] }}>
-              <span className="m-1 flex-1 rounded-sm" style={{ backgroundColor: p.swatch[1] }} />
-              <span className="my-2 mr-2 w-6 rounded-sm" style={{ backgroundColor: p.swatch[2] }} />
-            </span>
-            {p.label}
-          </button>
-        ))}
+    <Section title={title} hint={hint} onReset={changed ? () => setTheme(cleanTheme({ css: current()?.css, own: current()?.own })) : undefined}>
+      <div className="grid gap-3">
+        {groups.map((group) => {
+          const shown = choices.filter((choice) => choice.source === group.source);
+          return (
+            <div key={group.source}>
+              <p className="mb-1.5 text-xs text-muted-foreground">{group.label}</p>
+              {shown.length > 0 && (
+                <div role="group" aria-label={`${group.label} themes`} className="grid grid-cols-3 gap-2">
+                  {shown.map((choice) => (
+                    <ThemeTile key={choice.key} choice={choice} mode={mode} selected={chosen === choice.key} onSelect={() => choose(choice.key)} />
+                  ))}
+                </div>
+              )}
+              {group.source === "plugin" && !shown.length && (
+                <p className="text-xs text-faint">
+                  Plugins can add themes, and any theme you make can become a plugin to share.{" "}
+                  <Link href="/plugins?category=themes" className="text-ember-ink underline-offset-4 hover:underline">
+                    Find themes in the store
+                  </Link>
+                </p>
+              )}
+              {group.source === "own" && (
+                <Button type="button" size="sm" variant="outline" className={cn(shown.length > 0 && "mt-2")} disabled={full} onClick={make}>
+                  <Icon name="add-linear" />
+                  {theme?.palette ? `New theme from ${palette.label}` : "New theme"}
+                </Button>
+              )}
+              {group.source === "own" && full && <p className="mt-1 text-xs text-faint">That&apos;s {MAX_OWN_THEMES} themes. Delete one to make another.</p>}
+            </div>
+          );
+        })}
       </div>
-      <p className="mt-3 mb-1.5 text-xs text-muted-foreground">Accent</p>
+      {editing && (
+        <ThemeEditor
+          key={editing.id}
+          own={editing}
+          mode={mode}
+          onChange={editOwn}
+          onRemove={() => {
+            const before = current();
+            setTheme(removeOwnTheme(before, editing.id));
+            undoToast(`${editing.label} deleted`, () => latest.current.saveTheme(before));
+          }}
+        />
+      )}
+      <p className="mt-4 mb-1.5 text-xs text-muted-foreground">Accent</p>
       <div role="group" aria-label="Accent colour" className="flex flex-wrap gap-1.5">
+        {ownAccent && (
+          <AccentButton label={`${palette.label}'s own`} colour={ownAccent} selected={accent === ""} onSelect={() => setTheme(cleanTheme({ ...current(), accent: undefined }))} />
+        )}
         {Object.entries(accents).map(([id, a]) => (
-          <Tooltip key={id} content={a.label}>
-            <button
-              type="button"
-              aria-label={a.label}
-              aria-pressed={accent === id}
-              onClick={() => set({ accent: id === "ember" ? undefined : id })}
-              className={cn("size-8 rounded-full ring-offset-2 ring-offset-background outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50", accent === id && "ring-2 ring-foreground/60")}
-              style={{ backgroundColor: a.light }}
-            />
-          </Tooltip>
+          <AccentButton
+            key={id}
+            label={a.label}
+            colour={a[mode]}
+            selected={accent === id}
+            onSelect={() => setTheme(cleanTheme({ ...current(), accent: id === "ember" && !ownAccent ? undefined : id }))}
+          />
         ))}
       </div>
     </Section>
+  );
+}
+
+function AccentButton({ label, colour, selected, onSelect }: { label: string; colour: string; selected: boolean; onSelect: () => void }) {
+  return (
+    <Tooltip content={label}>
+      <button
+        type="button"
+        aria-label={label}
+        aria-pressed={selected}
+        onClick={onSelect}
+        className={cn("size-8 rounded-full ring-offset-2 ring-offset-background outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50", selected && "ring-2 ring-foreground/60")}
+        style={{ backgroundColor: colour }}
+      />
+    </Tooltip>
+  );
+}
+
+function ThemeTile({ choice, mode, selected, onSelect }: { choice: ThemeChoice; mode: Mode; selected: boolean; onSelect: () => void }) {
+  const [background, card, text, accent] = choice.swatch[mode];
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onSelect}
+      title={choice.from ? `${choice.label}, from ${choice.from}` : choice.label}
+      className={cn("grid min-w-0 gap-1.5 rounded-md border p-2 text-left text-xs hover:bg-accent/60", selected && "border-ember")}
+    >
+      <span aria-hidden className="flex h-7 overflow-hidden rounded border" style={{ backgroundColor: background }}>
+        <span className="m-1 flex-1 rounded-sm" style={{ backgroundColor: card }} />
+        <span className="my-2 mr-1 w-5 rounded-sm" style={{ backgroundColor: text }} />
+        <span className="my-2 mr-2 w-2 rounded-sm" style={{ backgroundColor: accent }} />
+      </span>
+      <span className="truncate">{choice.label}</span>
+      {choice.from && <span className="-mt-1 truncate text-faint">{choice.from}</span>}
+    </button>
+  );
+}
+
+/** How long colour changes wait before they're saved: a colour picker sends one with every move. */
+const THEME_SAVE_MS = 500;
+
+/** Changing a theme of the person's own: its name and base colours, light and dark. */
+function ThemeEditor({ own, mode: shownMode, onChange, onRemove }: { own: OwnTheme; mode: Mode; onChange: (own: OwnTheme) => void; onRemove: () => void }) {
+  const [draft, setDraft] = useState(own);
+  const [mode, setMode] = useState<Mode>(shownMode);
+  const nameId = useId();
+  const change = (patch: Partial<Omit<OwnTheme, "id">>) => {
+    const next = { ...draft, ...patch };
+    setDraft(next);
+    onChange(next);
+  };
+  const colours = { ...defaultBase[mode], ...draft[mode] };
+  const setColour = (id: BaseColour, value: string) => {
+    const colour = cleanColour(value);
+    if (colour) change({ [mode]: { ...draft[mode], [id]: colour } });
+  };
+
+  const full = expandColours(colours, mode);
+  const low = (a: string | undefined, b: string | undefined, min: number) => {
+    const ratio = contrast(a, b);
+    return ratio !== null && ratio < min;
+  };
+  const warnings = [
+    low(full.foreground, full.background, 4.5) && "Text is hard to read on the background.",
+    (low(full["muted-foreground"], full.background, 4.5) || low(full["muted-foreground"], full.card, 4.5)) && "Quieter text is hard to read.",
+    low(full.ember, full.background, 3) && "The accent is hard to see on the background: focus rings and the active tab will be too.",
+  ].filter(Boolean) as string[];
+
+  const remove = async () => {
+    const ok = await confirm({ title: `Delete ${draft.label}?`, description: "The theme goes from every device. You can undo this straight after.", confirmLabel: "Delete theme" });
+    if (ok) onRemove();
+  };
+  const asPlugin = () => themePlugin(draft);
+  const addAsPlugin = async () => {
+    try {
+      await addPlugin({ code: asPlugin() });
+      toast.success(`${draft.label} is one of your plugins now`, {
+        description: "Share it as a file, or publish it to the store from Your settings → Plugins.",
+      });
+    } catch (error) {
+      toast.error(errorText(error, "That theme couldn't be added as a plugin."));
+    }
+  };
+  const slug = draft.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "theme";
+
+  return (
+    <div className="mt-3 grid gap-3 rounded-md border bg-card p-3">
+      <div className="flex items-end gap-2">
+        <div className="grid min-w-0 flex-1 gap-1">
+          <label htmlFor={nameId} className="text-xs text-muted-foreground">
+            Name
+          </label>
+          <input
+            id={nameId}
+            value={draft.label}
+            maxLength={40}
+            onChange={(event) => change({ label: event.target.value })}
+            onBlur={() => !draft.label.trim() && change({ label: "My theme" })}
+            className="h-8 rounded-md border border-input bg-transparent px-2 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          />
+        </div>
+        <Segmented
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: "light", label: "Light" },
+            { value: "dark", label: "Dark" },
+          ]}
+        />
+      </div>
+      {mode !== shownMode && <p className="-mt-1 text-xs text-faint">The app is in {shownMode} right now: switch it to {mode} to see these colours.</p>}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+        {baseColours.map(({ id, label }) => (
+          <ColourField key={`${mode}-${id}`} label={label} value={colours[id]} onChange={(value) => setColour(id, value)} />
+        ))}
+      </div>
+      {warnings.length > 0 && (
+        <ul className="grid gap-0.5 text-xs text-destructive">
+          {warnings.map((warning) => (
+            <li key={warning}>{warning}</li>
+          ))}
+        </ul>
+      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button type="button" size="sm" variant="outline" onClick={() => void addAsPlugin()}>
+          <Icon name="plug-circle-linear" />
+          Add as a plugin
+        </Button>
+        <Button type="button" size="sm" variant="outline" onClick={() => savePluginFile(`${slug}-theme.js`, asPlugin(), "text/javascript;charset=utf-8")}>
+          <Icon name="download-linear" />
+          Save as a plugin file
+        </Button>
+        <Button type="button" size="sm" variant="ghost" className="ml-auto text-destructive hover:text-destructive" onClick={() => void remove()}>
+          Delete
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** One colour: the browser's picker, and the same colour as text to type or paste. */
+function ColourField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const [text, setText] = useState(value);
+  const [was, setWas] = useState(value);
+  if (was !== value) {
+    setWas(value);
+    setText(value);
+  }
+  const id = useId();
+  const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : "#000000";
+  return (
+    <div className="grid min-w-0 gap-1">
+      <label htmlFor={id} className="truncate text-xs text-muted-foreground">
+        {label}
+      </label>
+      <div className="flex items-center gap-1.5">
+        <input type="color" aria-label={`${label}: pick`} value={hex} onChange={(event) => onChange(event.target.value)} className="size-8 shrink-0 cursor-pointer rounded border border-input bg-transparent p-0.5" />
+        <input
+          id={id}
+          value={text}
+          spellCheck={false}
+          onChange={(event) => setText(event.target.value)}
+          onBlur={() => (cleanColour(text) ? onChange(text) : setText(value))}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.currentTarget.blur();
+          }}
+          className="h-8 w-full min-w-0 rounded-md border border-input bg-transparent px-2 font-mono text-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        />
+      </div>
+    </div>
   );
 }
 

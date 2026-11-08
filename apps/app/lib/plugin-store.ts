@@ -10,6 +10,7 @@ export const pluginCategories = [
   { id: "panels", label: "Panels and views" },
   { id: "worlds", label: "Worlds and kinds" },
   { id: "stats", label: "Stats and goals" },
+  { id: "themes", label: "Themes" },
   { id: "other", label: "Other" },
 ] as const;
 export type PluginCategory = (typeof pluginCategories)[number]["id"];

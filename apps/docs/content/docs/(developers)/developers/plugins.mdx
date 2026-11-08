@@ -1,9 +1,9 @@
 ---
 title: Plugins
-description: "Scripts that add commands, panels and export formats to every project you open: your own, or installed from the plugin store. Run sandboxed in your browser with your own access."
+description: "Scripts that add commands, panels, export formats and themes to every project you open: your own, or installed from the plugin store. Run sandboxed in your browser with your own access."
 ---
 
-A plugin is a script that adds to Plotra: a command in **All commands**, a panel in a pane, a format to export to, or note types for your world. You write one yourself, or install one someone else published in the [plugin store](#the-plugin-store). Either way it's kept in **Your settings**, and runs in every project you open.
+A plugin is a script that adds to Plotra: a command in **All commands**, a panel in a pane, a format to export to, a colour theme, or note types for your world. You write one yourself, or install one someone else published in the [plugin store](#the-plugin-store). Either way it's kept in **Your settings**, and runs in every project you open.
 
 ## Adding a plugin
 
@@ -145,6 +145,34 @@ plotra.registerPanel({
 
 It opens with **Open Tag counts** in **All commands**, or `plotra.ui.openPanel("tags")`. The panel takes Plotra's colours as CSS variables: `--plotra-background`, `--plotra-foreground`, `--plotra-muted-foreground`, `--plotra-border`, `--plotra-primary` and the rest of the theme.
 
+### A theme
+
+A theme is colours for the app, light and dark, and optionally CSS. Once the plugin is on, it's listed under **Customize** → **Look** → **Colours** → **From your plugins**, and in **All commands** as **Use the … theme**. Whoever picks it keeps a copy, so it stays in use on every page, also where plugins don't run, and follows your updates the next time the plugin runs.
+
+```js
+// ==Plotra plugin==
+// @name        Harbour theme
+// @description Sea blues, in light and dark
+// @version     1.0
+// @access      read
+// ==/Plotra plugin==
+
+plotra.registerTheme({
+  id: "harbour",
+  title: "Harbour",
+  light: { background: "#eef4f8", card: "#ffffff", foreground: "#0b1d2a", "muted-foreground": "#4a5c68", ember: "#1971c2" },
+  dark: { background: "#0b1d2a", card: "#112636", foreground: "#e6eef4", "muted-foreground": "#9fb2bd", ember: "#4d9be6" },
+});
+```
+
+A plugin that only registers a theme needs nothing else. Say `@access read`. One plugin may register several themes.
+
+Colours are the app's CSS variables without the `--`: `background`, `foreground`, `card`, `popover`, `muted`, `muted-foreground`, `faint`, `accent`, `border`, `input`, `ring`, `sidebar`, `sidebar-accent`, `ember` (the accent) and the rest of the theme. Give at least `background` and `foreground`, and the others are worked out from them: cards, menus, borders, hover and quieter text; from `ember`, its focus ring and its colour as text. Values are `#hex` or a colour function such as `rgb()`, `hsl()` or `oklch()`. Anything else is left out.
+
+`css` adds rules of the theme's own, cleaned like **Your own CSS**: nothing that loads from elsewhere (`url(…)`, `@import`, `image-set`, backslashes). Up to 20,000 characters.
+
+In **Customize**, any theme someone makes can become a plugin like this one: **Add as a plugin** or **Save as a plugin file**. Publish it in the store under **Themes**.
+
 ## The API
 
 Every call that reaches Plotra returns a promise. A refusal (no access, no such note, a limit) rejects it with a message for a person.
@@ -157,6 +185,7 @@ Every call that reaches Plotra returns a promise. A refusal (no access, no such 
 | `registerCommand({ id, title, run })` | A command in **All commands**. `id`: letters, digits, `.`, `-` or `_` |
 | `registerExport({ id, title, extension, run })` | An export format; `run` returns the file |
 | `registerPanel({ id, title, render })` | A panel; `render(body)` draws it |
+| `registerTheme({ id, title, light, dark, css? })` | A theme in **Customize → Colours**; see [A theme](#a-theme) |
 | `notes.list()` | Every note in binder order, without the trash: `id`, `parentId`, `kind`, `title`, `synopsis`, `tags`, `aliases`, `status`, `wordCount`, `updatedAt`, `canEdit` |
 | `notes.read(id)` | One note, with `markdown`: its text as Markdown (`null` for boards) |
 | `notes.search(query, limit?)` | Full-text search, best first: `id`, `title`, `kind`, `snippet` |

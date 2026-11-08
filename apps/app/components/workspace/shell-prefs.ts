@@ -158,6 +158,18 @@ export function useCompilePrefs() {
   };
 }
 
+/** Puts a theme's stylesheet in the page now, as text, never as markup. Also a theme being edited, before it's saved. */
+export function applyThemeCss(css: string) {
+  let style = document.getElementById(THEME_STYLE_ID) as HTMLStyleElement | null;
+  if (!css) return style?.remove();
+  if (!style) {
+    style = document.createElement("style");
+    style.id = THEME_STYLE_ID;
+    document.head.appendChild(style);
+  }
+  style.textContent = css;
+}
+
 /**
  * Puts the person's theme (lib/themes.ts) in the page, and keeps a copy on this
  * device so the next page has it before it paints (`themeScript`). Waits for
@@ -169,16 +181,7 @@ export function useThemeSync() {
   const css = useMemo(() => themeCss(shell.theme), [shell.theme]);
   useEffect(() => {
     if (!prefs) return;
-    let style = document.getElementById(THEME_STYLE_ID) as HTMLStyleElement | null;
-    if (css) {
-      if (!style) {
-        style = document.createElement("style");
-        style.id = THEME_STYLE_ID;
-        document.head.appendChild(style);
-      }
-      // As text, never as markup.
-      style.textContent = css;
-    } else style?.remove();
+    applyThemeCss(css);
     try {
       if (css) localStorage.setItem(THEME_KEY, css);
       else localStorage.removeItem(THEME_KEY);

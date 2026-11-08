@@ -9,6 +9,7 @@ import { errorText } from "@/lib/errors";
 import { loadPlugins, pluginCall, type PluginCode } from "@/lib/plugin-actions";
 import { cleanPartId, isBrowserMethod, isServerMethod } from "@/lib/plugins";
 import { pluginDocument, readTheme, type FromPlugin, type PluginContext, type PluginMode, type ToPlugin } from "@/lib/plugin-sandbox";
+import { cleanPluginTheme } from "@/lib/themes";
 import { isTrashed } from "@/lib/tree";
 import { panelKey, savePluginFile, type PluginPart } from "./plugin-registry";
 
@@ -148,9 +149,15 @@ export function PluginFrame({ plugin, mode, panel, className }: { plugin: Plugin
     const register = (message: Extract<FromPlugin, { type: "register" }>) => {
       const name = cleanPartId(message.name);
       const what = message.what;
-      if (!name || (what !== "command" && what !== "export" && what !== "panel") || typeof message.title !== "string" || !message.title.trim()) return;
-      const part: PluginPart = { pluginId: plugin.id, pluginName: plugin.name, what, name, title: message.title.trim().slice(0, 80) };
-      if (what === "export") part.extension = typeof message.extension === "string" && /^[a-z0-9]{1,10}$/i.test(message.extension) ? message.extension.toLowerCase() : "txt";
+      if (!name || (what !== "command" && what !== "export" && what !== "panel" && what !== "theme") || typeof message.title !== "string" || !message.title.trim()) return;
+      const part: PluginPart = { pluginId: plugin.id, pluginName: plugin.name, what, name, title: message.title.trim().slice(0, what === "theme" ? 40 : 80) };
+      if (message.what === "export") part.extension = typeof message.extension === "string" && /^[a-z0-9]{1,10}$/i.test(message.extension) ? message.extension.toLowerCase() : "txt";
+      if (message.what === "theme") {
+        // Only colours and CSS that can't load anything (lib/themes.ts).
+        const theme = cleanPluginTheme(message);
+        if (!theme) return;
+        part.theme = theme;
+      }
       registry.add(part);
     };
 

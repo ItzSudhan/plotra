@@ -20,7 +20,7 @@ The sections are on four tabs: **Look**, **Layout**, **Keys and typing** and **A
 | Look | **Work like…** | Start from the layout of an app you know: **Like Scrivener**, **Like Plottr**, **Like Google Docs**, **Like Obsidian**, **Like World Anvil or LegendKeeper**, or **Distraction-free**. **Plotra** is how a new project starts. See [Work like another app](#work-like-another-app). |
 | Look | **Interface size** | How big the buttons, menus and labels are drawn, on every page: **Compact**, **Comfortable** (the default), **Large** or **Larger**. The text you write has its own size, under **The page**. See [Interface size](#interface-size). |
 | Look | **The page** | Typeface, text size, line width, line spacing and paragraphs. See [The page](#the-page). |
-| Look | **Colours** | A palette for the app (**Paper**, **Sepia**, **Slate**, **Forest**, **Pure** or **High contrast**, each with a light and a dark version) and an accent colour. See [Colours and your own CSS](#colours-and-your-own-css). |
+| Look | **Colours** | A theme for the app (one of Plotra's, one from a plugin, or one you make, each with a light and a dark version) and an accent colour. See [Colours and your own CSS](#colours-and-your-own-css). |
 | Look | **Opening and printing** | **Open projects in focus mode**, **Typewriter scrolling from the start**, and the **Paper** the Read view lays pages out on and prints to: **US Letter** or **A4**. |
 | Layout | **Ribbon** | Which views are in the ribbon and in what order, or **Show every view**. See [The ribbon](#the-ribbon). |
 | Layout | **Inspector** | Which panels are shown and in what order: Properties, Outline, Links, Story, Comments, History, AI. Panels the project doesn't have are not offered. Tick **One tab for each panel, instead of Note and Review** to stop panels sharing tabs. With everything hidden, Links stays. |
@@ -90,11 +90,21 @@ Someone's own choice always wins: the page goes choice by choice (pick a typefac
 
 ## Colours and your own CSS
 
-A palette changes the app's backgrounds, text and borders; **Paper** is Plotra's own. Each has a light and a dark version, which follow the light and dark switch as before. The accent colour is used for buttons, focus rings, the active tab and highlights: **Ember** (Plotra's own), **Gold**, **Green**, **Teal**, **Blue**, **Violet** or **Rose**.
+A theme sets the app's backgrounds, text, borders and, for some, the accent. Each has a light and a dark version, which follow the light and dark switch as before. **Colours** lists three kinds:
+
+- **Plotra's**: **Paper** (Plotra's own), **Sepia**, **Slate**, **Forest**, **Pure**, **High contrast**, **Dusk**, **Fjord**, **Rosewood** and **Mocha**.
+- **From your plugins**: themes that [plugins](/docs/developers/plugins#a-theme) add, from the **Themes** shelf of the plugin store or your own. Once picked, a plugin's theme stays in use on every page, even where plugins don't run; it updates when the plugin does.
+- **Yours**: themes you make. **New theme** starts one from the theme in use. Give it a name, then pick its six colours for light and for dark: **Background**, **Pages and cards**, **Sidebar**, **Text**, **Quieter text** and **Accent**. The rest (menus, borders, hover, focus rings) follow from those. Changes show at once. A warning appears when text or the accent would be hard to read. You can keep 12.
+
+To share a theme you made, choose **Add as a plugin** (it joins your plugins, ready to [publish to the store](/docs/developers/plugins)) or **Save as a plugin file** to send the `.js` file to someone.
+
+You can also switch themes from your account menu (**Colours**), or with **Use the … theme** in **All commands**.
+
+The accent colour is used for buttons, focus rings, the active tab and highlights: the theme's own where it has one, or **Ember** (Plotra's own), **Gold**, **Green**, **Teal**, **Blue**, **Violet** or **Rose**.
 
 **Your own CSS**, on the **Advanced** tab, applies a stylesheet of yours to every page, for you only. Choose **Apply** to use it. The app's colours are CSS variables, such as `--background`, `--foreground`, `--card`, `--border` and `--ember` (the accent), set on `html:root` for light and `html.dark` for dark. Anything that would load from elsewhere is taken out (`url(…)`, `@import`, `image-set`, and backslashes), so a setup file from someone else can't use CSS to send what's on your screen anywhere. Up to 20,000 characters.
 
-Colours are kept with your account, and a copy on each device so pages open in your colours straight away. In **Colours**, **Reset to default** goes back to Paper and the ember accent; **Your own CSS** has its own **Reset to default**, which takes your CSS away.
+Colours are kept with your account, and a copy on each device so pages open in your colours straight away. In **Colours**, **Reset to default** goes back to Paper and its accent, and keeps the themes you made; **Your own CSS** has its own **Reset to default**, which takes your CSS away.
 
 ## Work like another app
 

@@ -157,6 +157,7 @@ plotra.registerCommand({ id: "x", title: "X", run() {} });`;
       registerCommand: (spec: unknown) => void;
       registerExport: (spec: unknown) => void;
       registerPanel: (spec: unknown) => void;
+      registerTheme: (spec: unknown) => void;
       notes: { read: (id: string) => Promise<unknown>; list: () => Promise<unknown> };
     };
     return { sent, deliver, plotra, win, body, listeners };
@@ -200,6 +201,14 @@ plotra.registerCommand({ id: "x", title: "X", run() {} });`;
       deliver({ plotra: 1, type: "result", id: 2, ok: false, error: "No access." });
       expect(await read).toEqual({ title: "Romeo" });
       await expect(list).rejects.toThrow("No access.");
+    });
+
+    test("a theme registers its colours and CSS", () => {
+      const { sent, plotra } = frame("background");
+      plotra.registerTheme({ id: "Harbour", title: "Harbour", light: { background: "#eef4f8", size: 3 }, dark: { background: "#0b1d2a" }, css: "a { color: red }" });
+      expect(sent).toEqual([{ plotra: 1, type: "register", what: "theme", name: "harbour", title: "Harbour", light: { background: "#eef4f8" }, dark: { background: "#0b1d2a" }, css: "a { color: red }" }]);
+      expect(() => plotra.registerTheme({ id: "empty", title: "Empty" })).toThrow("colours for light, dark, or both");
+      expect(() => plotra.registerTheme({ id: "bad", title: "Bad", light: "#fff" })).toThrow("object of colours");
     });
 
     test("a panel's frame draws its own panel and registers nothing", () => {

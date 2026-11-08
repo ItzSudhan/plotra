@@ -33,6 +33,7 @@ import { IoDialogs } from "@/components/io/io-dialogs";
 import { PluginHost } from "@/components/plugins/plugin-host";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@plotra/ui/components/context-menu";
 import { CustomizeDialog } from "./customize-dialog";
+import { usePluginThemeRefresh, usePluginThemes } from "./use-themes";
 import { useLivePrefsSync, useMotionSync, useShell, useStartPrefs, useThemeSync, useUiSizeSync } from "./shell-prefs";
 import { useRibbon } from "./ribbon";
 import { viewGroups, type ViewMeta } from "./view-meta";
@@ -89,7 +90,8 @@ function Sharing() {
 
 function Shell() {
   const { left, right, focus } = useUi();
-  const { setUi, activeNodeId, project, binder, ui } = useWorkspace();
+  const { setUi, activeNodeId, project, binder, ui, plugins } = useWorkspace();
+  usePluginThemeRefresh(usePluginThemes(plugins.parts));
   const leftWidth = useSidebarWidth("left", 280);
   const rightWidth = useSidebarWidth("right", 300);
   useSessionCounter();

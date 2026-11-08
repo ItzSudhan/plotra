@@ -55,6 +55,18 @@ for (const [id, palette] of Object.entries(palettes)) {
         }
       }
 
+      // A palette's own accent, when it brings one.
+      if (isHex(palette[mode].ember) && isHex(vars.background)) {
+        test("its own accent on background is 3:1 or more", () => {
+          expect(contrast(palette[mode].ember, vars.background)).toBeGreaterThanOrEqual(3);
+        });
+      }
+      if (mode === "light" && isHex(palette.light["ember-ink"]) && isHex(vars.background)) {
+        test("its own accent as text is 4.5:1 or more", () => {
+          expect(contrast(palette.light["ember-ink"], vars.background)).toBeGreaterThanOrEqual(4.5);
+        });
+      }
+
       for (const [accentId, accent] of Object.entries(accents)) {
         const [fg, bg] = [accent[mode], vars.background];
         if (!isHex(fg) || !isHex(bg)) continue;

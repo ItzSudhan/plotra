@@ -175,7 +175,15 @@ export type ShellPrefs = {
   /** The "Work like…" preset last applied, by id; cleared by nothing, it only labels where the setup started. */
   preset?: string;
   /** Colours and CSS of the person's own (apps/app/lib/themes.ts). */
-  theme?: { palette?: string; accent?: string; css?: string };
+  theme?: {
+    palette?: string;
+    accent?: string;
+    css?: string;
+    /** Themes the person made, from a few base colours. */
+    own?: Array<{ id: string; label: string; light: Record<string, string>; dark: Record<string, string> }>;
+    /** A copy of the plugin theme in use (`plotra.registerTheme`), so it holds where plugins don't run. */
+    plugin?: { pluginId: string; id: string; label: string; from: string; light: Record<string, string>; dark: Record<string, string>; css?: string };
+  };
   /** What each view remembers: the graph's filters, the outline's columns, the corkboard's card size… by "view.setting". */
   views?: Record<string, unknown>;
   /** Export layout (apps/app/lib/io/compile.ts): the settings last used, and presets the person saved. */

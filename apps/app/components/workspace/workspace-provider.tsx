@@ -43,6 +43,7 @@ import { errorText } from "@/lib/errors";
 import { showNavPending } from "@/components/nav-feedback";
 import { nav } from "@/components/transitions";
 import { panelKey, PluginRegistry, runPluginPart } from "@/components/plugins/plugin-registry";
+import { usePluginThemes, useThemes } from "./use-themes";
 import { plural } from "@/lib/plural";
 
 export type ProjectInfo = {
@@ -298,6 +299,8 @@ function useWorkspaceState({
   const [plugins] = useState(() => new PluginRegistry());
   const pluginParts = useStore(plugins.parts);
   const pluginsOn = (useStore(plugins.plugins)?.length ?? 0) > 0;
+  const themes = useThemes(usePluginThemes(plugins.parts));
+  const { choices: themeChoices, choose: chooseTheme } = themes;
   const projectId = project.id;
 
   // What the project type and its settings switch on (plan.md 2.8).
@@ -1270,8 +1273,20 @@ function useWorkspaceState({
     // The person's plugins' commands, panels and exports (lib/plugins.ts), under their own heading.
     for (const part of pluginParts) {
       const id = `plugin.${part.pluginId}.${part.what}.${part.name}`;
+      // A plugin's theme is one of the themes below.
+      if (part.what === "theme") continue;
       if (part.what === "panel") list.push({ id, title: `Open ${part.title}`, group: "Plugins", run: () => openView("plugin", { panel: panelKey(part.pluginId, part.name), title: part.title }) });
       else list.push({ id, title: part.what === "export" ? `Export as ${part.title}` : part.title, group: "Plugins", run: () => void runPluginPart(plugins, part, project.title) });
+    }
+    // Every theme, the app's, the plugins' and the person's own (lib/themes.ts).
+    for (const choice of themeChoices) {
+      list.push({
+        id: `theme.${choice.key}`,
+        title: `Use the ${choice.label} theme`,
+        group: "View",
+        keywords: `theme colours colors palette ${choice.from ?? ""}`,
+        run: () => chooseTheme(choice.key),
+      });
     }
     if (pluginsOn) list.push({ id: "plugins.reload", title: "Reload plugins", group: "Plugins", run: () => plugins.reload() });
     list.push({
@@ -1301,6 +1316,8 @@ function useWorkspaceState({
     pluginParts,
     plugins,
     pluginsOn,
+    themeChoices,
+    chooseTheme,
     project.actions,
     project.settings,
     project.title,

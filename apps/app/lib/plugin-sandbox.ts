@@ -50,6 +50,7 @@ export type ToPlugin =
 export type FromPlugin =
   | { plotra: 1; type: "call"; id: number; method: string; args: unknown[] }
   | { plotra: 1; type: "register"; what: "command" | "export" | "panel"; name: string; title: string; extension?: string }
+  | { plotra: 1; type: "register"; what: "theme"; name: string; title: string; light: unknown; dark: unknown; css?: unknown }
   | { plotra: 1; type: "done"; id: number; ok: boolean; value?: unknown; error?: string }
   | { plotra: 1; type: "error"; message: string };
 
@@ -135,6 +136,21 @@ var plotra = {
         if (drawn && typeof drawn.then === "function") drawn.then(null, function (e) { send({ type: "error", message: describe(e) }); });
       } catch (e) { send({ type: "error", message: describe(e) }); }
     }
+  },
+  registerTheme: function (s) {
+    var id = spec(s, "theme");
+    var colours = function (v, mode) {
+      var out = {};
+      if (v === undefined) return out;
+      if (!v || typeof v !== "object") throw new TypeError("A theme's " + mode + " is an object of colours: { background: '#ffffff', ... }.");
+      Object.keys(v).forEach(function (k) { if (typeof v[k] === "string") out[k] = v[k].slice(0, 60); });
+      return out;
+    };
+    var light = colours(s.light, "light");
+    var dark = colours(s.dark, "dark");
+    if (s.css !== undefined && typeof s.css !== "string") throw new TypeError("A theme's css must be a string.");
+    if (!Object.keys(light).length && !Object.keys(dark).length && !s.css) throw new TypeError("Give the theme colours for light, dark, or both.");
+    if (C.mode === "background") send({ type: "register", what: "theme", name: id, title: s.title.trim().slice(0, 40), light: light, dark: dark, css: s.css ? s.css.slice(0, 20000) : "" });
   },
   notes: Object.freeze({
     list: function () { return call("notes.list"); },
