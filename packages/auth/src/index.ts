@@ -12,6 +12,18 @@ const google =
     ? { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET }
     : undefined;
 
+// GitHub isn't a way to sign in: a signed-in person links it from Project
+// settings → GitHub, asking for the `repo` scope, so Plotra can list their
+// repositories, make a new one, and keep a project's copy in it
+// (apps/app/lib/git-sync-actions.ts). No new accounts come from it.
+const github =
+  process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+    ? { clientId: process.env.GITHUB_CLIENT_ID, clientSecret: process.env.GITHUB_CLIENT_SECRET, disableSignUp: true }
+    : undefined;
+
+/** Whether people can link a GitHub account (GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET set). */
+export const githubLinking = Boolean(github);
+
 /** Social providers with credentials configured, so the UI only shows working buttons. */
 export const socialProviders: Array<"google"> = google ? ["google"] : [];
 
@@ -172,7 +184,14 @@ export const auth = betterAuth({
       "/change-email": { window: 3600, max: 5 },
     },
   },
-  socialProviders: { ...(google && { google }) },
+  socialProviders: { ...(google && { google }), ...(github && { github }) },
+  account: {
+    // Tokens from Google and GitHub are kept encrypted with BETTER_AUTH_SECRET.
+    encryptOAuthTokens: true,
+    // A GitHub account's email is often not the one used for Plotra; linking
+    // only ever happens while signed in, so it's still the same person.
+    accountLinking: { allowDifferentEmails: true },
+  },
   plugins: [
     // Workspaces are Better Auth organizations.
     organization({
