@@ -46,7 +46,7 @@ curl -H "Authorization: Bearer plt_…" https://app.plotra.ink/api/v1/projects
 | `POST /api/v1/projects/{project}/notes` | Makes a note. Body: `{ title, kind?, parentId?, markdown?, tags?, synopsis? }`. `201` with `{ note }` |
 | `PATCH /api/v1/projects/{project}/notes/{note}` | Body: any of `{ title, synopsis, tags, aliases, status }`. `{ note }` |
 | `DELETE /api/v1/projects/{project}/notes/{note}` | Moves the note, and what's inside it, to the trash. `{ note }` |
-| `POST /api/v1/projects/{project}/notes/{note}/text` | Body: `{ mode: "append" \| "replace", markdown, suggest? }`. `{ markdown }`: the note's text after |
+| `POST /api/v1/projects/{project}/notes/{note}/text` | Body: `{ mode: "append" \| "replace" \| "update", markdown, suggest? }`. `{ markdown }`: the note's text after |
 | `GET /api/v1/notifications` | `{ items: [{ id, type, projectId, nodeId, payload, readAt, createdAt, actorName, projectTitle }], unread }`: your latest 40 |
 | `POST /api/v1/notifications` | Body: `{ id }` marks one read, `{ id: null }` all of them. `{ ok: true }` |
 
@@ -58,6 +58,7 @@ Text is written through the live document, the way a collaborator's typing is: a
 
 - `append` adds the Markdown to the end of the note.
 - `replace` rewrites the whole note. What was there is saved first as a version named "Before an API change", in the note's [history](/docs/collaboration/version-history).
+- `update` is `replace` for a note you read with `GET` and changed: paragraphs whose Markdown is still the same, word for word, are kept as they were, with their comments and any formatting Markdown can't show. Only new or changed paragraphs are written. It also saves a version first. It can't be combined with `suggest`.
 - With `suggest: true` the change arrives as [suggestions](/docs/collaboration/comments-and-suggestions), to accept or reject, and the text is unchanged until then.
 
 `[[Title]]` in the Markdown links to the note of that title or alias. A note that is locked by its stage can't be written.

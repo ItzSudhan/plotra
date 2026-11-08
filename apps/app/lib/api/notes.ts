@@ -6,7 +6,7 @@ import * as Y from "yjs";
 import { requireNodeAccess, requireProjectAccess } from "../access";
 import { fetchRoomState, postRoomUpdate } from "../agent/collab-service";
 import { loadDocument } from "../agent/documents";
-import { applyEdits, ensureBlockIds, replaceAll, type EditOptions } from "../agent/edits";
+import { applyEdits, blockIds, ensureBlockIds, replaceAll, restoreValue, textToBlocks, type EditOptions } from "../agent/edits";
 import { searchNodes, plainSnippet } from "../agent/search";
 import { listNodes } from "../binder";
 import { trashNode, updateNode } from "../binder-actions";
@@ -26,6 +26,7 @@ import { isDocumentKind } from "../story";
 import { indexNodes, isTrashed, type BinderNode } from "../tree";
 import { insertVersion, makeRoom } from "../versions";
 import { ApiError } from "./handler";
+import { planUpdate } from "./note-update";
 
 // What the API and the MCP server can do with a person's projects
 // (beat-the-competitors.md step 9). Each function checks access the way the
@@ -185,16 +186,19 @@ export async function trashApiNote(projectId: string, nodeId: string): Promise<A
   return toNote(await trashNode(projectId, nodeId));
 }
 
-export type TextChange = { mode: "append" | "replace"; markdown: string; suggest?: boolean };
+export type TextChange = { mode: "append" | "replace" | "update"; markdown: string; suggest?: boolean };
 
 /**
  * Writes a note's text through the collab server, so anyone with it open sees
  * the change at once and nothing they're typing is lost. `append` adds to the
  * end; `replace` rewrites the whole note, keeping what was there as a version
- * first. With `suggest` the change arrives as tracked changes to accept or reject.
+ * first; `update` does the same but keeps every block whose Markdown is
+ * unchanged as it was, comments and all (lib/api/note-update.ts). With
+ * `suggest` the change arrives as tracked changes to accept or reject.
  */
 export async function writeApiNoteText(projectId: string, nodeId: string, change: TextChange): Promise<{ markdown: string }> {
-  if (change.mode !== "append" && change.mode !== "replace") throw new ApiError(400, 'mode must be "append" or "replace".');
+  if (change.mode !== "append" && change.mode !== "replace" && change.mode !== "update") throw new ApiError(400, 'mode must be "append", "replace" or "update".');
+  if (change.mode === "update" && change.suggest) throw new ApiError(400, 'suggest works with "append" and "replace".');
   if (typeof change.markdown !== "string") throw new ApiError(400, "markdown must be text.");
   if (change.markdown.length > MAX_MARKDOWN) throw new ApiError(413, "That's too much text for one note.");
   const { user } = await requireSession();
@@ -228,16 +232,22 @@ export async function writeApiNoteText(projectId: string, nodeId: string, change
     Y.applyUpdate(doc, state);
     const before = Y.encodeStateVector(doc);
     ensureBlockIds(doc);
-    if (change.mode === "replace" && !change.suggest) await keepVersion(projectId, nodeId, user.id, state);
-    const result = change.mode === "append" ? applyEdits(doc, [{ op: "insert", after: "end", text: change.markdown }], options) : replaceAll(doc, change.markdown, options);
-    if (result.problems.length) throw new ApiError(400, result.problems.join(" "));
+    if (change.mode !== "append" && !change.suggest) await keepVersion(projectId, nodeId, user.id, state);
+    const titleOf = (id: string) => index.byId.get(id)?.title;
+    if (change.mode === "update") {
+      const current = ydocToValue(Y.encodeStateAsUpdate(doc));
+      const known = blockIds(doc);
+      restoreValue(doc, planUpdate(current, change.markdown, (block) => valueToMarkdown([block], { titleOf }), (text) => textToBlocks(text, options, known)));
+    } else {
+      const result = change.mode === "append" ? applyEdits(doc, [{ op: "insert", after: "end", text: change.markdown }], options) : replaceAll(doc, change.markdown, options);
+      if (result.problems.length) throw new ApiError(400, result.problems.join(" "));
+    }
     const update = Y.encodeStateAsUpdate(doc, before);
     // Two bytes is an update that changes nothing.
     if (update.length > 2) {
       await postRoomUpdate(room, update);
       await syncRoomState(room, Y.encodeStateAsUpdate(doc));
     }
-    const titleOf = (id: string) => index.byId.get(id)?.title;
     return { markdown: valueToMarkdown(ydocToValue(Y.encodeStateAsUpdate(doc)), { titleOf }) };
   } finally {
     doc.destroy();
