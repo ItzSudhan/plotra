@@ -73,23 +73,22 @@ export function LocalAiStep({ workspaceSlug, onDone }: { workspaceSlug: string; 
             Looking for Ollama on this computer…
           </p>
         ) : found?.running && models.length > 0 ? (
-          <div className="animate-in fade-in-0 duration-300">
+          <>
             <p className="flex items-center gap-2 font-medium">
-              <Icon name="check-circle-linear" className="size-5 text-teal motion-safe:animate-in motion-safe:zoom-in-50 motion-safe:spin-in-[-45deg] motion-safe:duration-500" />
+              <Icon name="check-circle-linear" className="size-5 text-teal" />
               Ollama is running on this computer
             </p>
             <p className="mt-1 text-sm text-muted-foreground">Choose the model for the assistant. One that calls tools is chosen for you.</p>
             <div role="radiogroup" aria-label="Model" className="mt-4 flex flex-wrap gap-2">
-              {models.map((model, i) => (
+              {models.map((model) => (
                 <button
                   key={model}
                   type="button"
                   role="radio"
                   aria-checked={picked === model}
                   onClick={() => setPicked(model)}
-                  style={{ animationDelay: `${120 + i * 60}ms` }}
                   className={cn(
-                    "h-8 rounded-full border px-3 font-mono text-xs text-muted-foreground transition-[color,border-color,background-color,transform] hover:text-foreground active:scale-95 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1 motion-safe:fill-mode-backwards",
+                    "h-8 rounded-full border px-3 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground",
                     picked === model && "border-ember/60 bg-ember/[0.06] text-foreground",
                   )}
                 >
@@ -97,16 +96,16 @@ export function LocalAiStep({ workspaceSlug, onDone }: { workspaceSlug: string; 
                 </button>
               ))}
             </div>
-          </div>
+          </>
         ) : found?.running ? (
-          <div className="animate-in fade-in-0 duration-300">
+          <>
             <p className="font-medium">Ollama is running, but has no models yet</p>
             <p className="mt-1 text-sm text-muted-foreground">
               Get one in a terminal with <code className="rounded bg-muted px-1 font-mono text-xs text-foreground">ollama pull qwen3:8b</code>, then check again.
             </p>
-          </div>
+          </>
         ) : (
-          <div className="animate-in fade-in-0 duration-300">
+          <>
             <p className="font-medium">No AI on this computer yet</p>
             <p className="mt-1 text-sm text-muted-foreground">
               <a href="https://ollama.com/download" target="_blank" rel="noreferrer" className="underline decoration-border underline-offset-4 hover:text-foreground">
@@ -118,7 +117,7 @@ export function LocalAiStep({ workspaceSlug, onDone }: { workspaceSlug: string; 
               </a>
               .
             </p>
-          </div>
+          </>
         )}
       </div>
 
