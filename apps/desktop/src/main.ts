@@ -59,6 +59,27 @@ function serverPaths() {
 const staticFile = (name: string) => path.join(__dirname, "..", "static", name);
 const OFFLINE_PAGE = staticFile("offline.html");
 const SIGN_IN_PAGE = staticFile("sign-in.html");
+const LOADING_PAGE = staticFile("loading.html");
+const LOADING_URL = pathToFileURL(LOADING_PAGE).href;
+
+/**
+ * Shows the loading page at once, with `status` under Plotra's name, then
+ * loads `url` behind it: the window is never blank or frozen on the last
+ * page while the next one comes in.
+ */
+function loadWithStatus(win: BrowserWindow, url: string, status: string, options?: Electron.LoadURLOptions) {
+  const online = !url.startsWith("http://127.0.0.1") && !url.startsWith("http://localhost");
+  void win
+    .loadFile(LOADING_PAGE, { query: online ? { status, online: "1" } : { status } })
+    .catch(() => {})
+    .then(() => {
+      // Unless something else was loaded meanwhile (the window closed, or the person went elsewhere).
+      if (!win.isDestroyed() && win.webContents.getURL().startsWith(LOADING_URL)) return win.loadURL(url, options);
+    })
+    .catch(() => {
+      // A failed load is shown by did-fail-load (openWindow).
+    });
+}
 
 /** Paper or ink behind every window, so none flashes white in dark mode. */
 const windowBackground = () => (nativeTheme.shouldUseDarkColors ? "#141311" : "#f7f6f3");
@@ -180,14 +201,15 @@ async function signInThroughBrowser(win: BrowserWindow, target: string) {
   let flow: SignInFlow;
   try {
     flow = await startSignIn(CLOUD_URL, mode);
-    await shell.openExternal(flow.browserUrl);
+    // The browser comes to the front, so it's clear where signing in happens.
+    await shell.openExternal(flow.browserUrl, { activate: true });
   } catch {
     if (!win.isDestroyed()) void win.loadFile(SIGN_IN_PAGE, { query: { failed: "1" } }).catch(() => {});
     return;
   }
   if (win.isDestroyed()) return flow.cancel();
   signingIn = { flow, win };
-  void win.loadFile(SIGN_IN_PAGE, { query: expired ? { expired: "1" } : {} }).catch(() => {});
+  void win.loadFile(SIGN_IN_PAGE, { query: expired ? { expired: "1" } : mode === "sign-up" ? { mode } : {} }).catch(() => {});
   let code: string;
   try {
     code = await flow.code;
@@ -202,12 +224,12 @@ async function signInThroughBrowser(win: BrowserWindow, target: string) {
   if (process.platform === "darwin") app.focus({ steal: true });
   win.focus();
   // The header is how the cloud knows it's this window asking (apps/app/app/api/desktop/exchange).
-  void win.loadURL(exchangeUrl(CLOUD_URL, code, flow.verifier, afterSignIn(target)), { extraHeaders: "x-plotra-desktop: 1\n" }).catch(() => {});
+  loadWithStatus(win, exchangeUrl(CLOUD_URL, code, flow.verifier, afterSignIn(target)), "Signing you in…", { extraHeaders: "x-plotra-desktop: 1\n" });
   // Other windows that were waiting at the sign-in page come along, signed in by the same cookie.
   for (const other of appWindows()) {
     if (other !== win && pendingSignIn.has(other.webContents.id)) {
       pendingSignIn.delete(other.webContents.id);
-      void other.loadURL(CLOUD_URL).catch(() => {});
+      loadWithStatus(other, CLOUD_URL, "Opening Plotra Cloud…");
     }
   }
 }
@@ -220,7 +242,11 @@ const sameOrigin = (a: string, b: string) => {
   }
 };
 
-function openWindow(url: string, onReady?: () => void): BrowserWindow {
+/**
+ * A window of the app, on `url`, with the loading page showing until it's in.
+ * `load: false` leaves the loading to the caller.
+ */
+function openWindow(url: string, onReady?: () => void, { load = true }: { load?: boolean } = {}): BrowserWindow {
   const win = new BrowserWindow({
     width: 1320,
     height: 860,
@@ -232,8 +258,17 @@ function openWindow(url: string, onReady?: () => void): BrowserWindow {
     webPreferences: { contextIsolation: true, sandbox: true, spellcheck: true },
   });
   win.once("ready-to-show", () => {
-    win.show();
+    // Waiting on a sign-in in the browser: show the window without pulling it in front of the browser.
+    if (pendingSignIn.has(win.webContents.id)) win.showInactive();
+    else win.show();
     onReady?.();
+  });
+  // The loading, offline and sign-in pages aren't somewhere to go back to: once the app's own page is in, they're forgotten.
+  let onAppPage = false;
+  win.webContents.on("did-navigate", (_event, target) => {
+    const appPage = !target.startsWith("file:");
+    if (appPage && !onAppPage) win.webContents.navigationHistory.clear();
+    onAppPage = appPage;
   });
   // No connection (or the library's server gone): a page saying so, not a blank window.
   win.webContents.on("did-fail-load", (_event, code, _description, failedUrl, isMainFrame) => {
@@ -297,7 +332,7 @@ function openWindow(url: string, onReady?: () => void): BrowserWindow {
     const action = pageAction(target, OFFLINE_PAGE);
     if (action) {
       event.preventDefault();
-      if (action === "retry") void win.loadURL(failedUrls.get(win.webContents.id) ?? current?.url ?? url).catch(() => {});
+      if (action === "retry") loadWithStatus(win, failedUrls.get(win.webContents.id) ?? current?.url ?? url, "Trying again…");
       else if (action === "local") showChooser();
       return;
     }
@@ -313,8 +348,7 @@ function openWindow(url: string, onReady?: () => void): BrowserWindow {
     event.preventDefault();
     if (/^https?:/.test(target)) void shell.openExternal(target);
   });
-  // A failed load is shown by did-fail-load above.
-  void win.loadURL(url).catch(() => {});
+  if (load) loadWithStatus(win, url, current?.mode === "local" ? "Opening your library…" : "Opening Plotra Cloud…");
   return win;
 }
 
@@ -374,7 +408,16 @@ function openCloud(start: CloudStart = "sign-in"): BrowserWindow {
   current = { mode: "cloud", url: CLOUD_URL };
   settings = { ...settings, mode: "cloud" };
   save();
-  const win = openWindow(start === "sign-up" ? new URL("/sign-up", CLOUD_URL).toString() : CLOUD_URL);
+  if (start === "sign-up") {
+    // Straight to making an account in the browser; the window says so meanwhile, without showing the cloud's own page first.
+    const signUp = new URL("/sign-up", CLOUD_URL).toString();
+    const win = openWindow(signUp, undefined, { load: false });
+    void win.loadFile(LOADING_PAGE, { query: { status: "Opening your browser…" } }).catch(() => {});
+    void signInThroughBrowser(win, signUp);
+    buildMenu();
+    return win;
+  }
+  const win = openWindow(CLOUD_URL);
   buildMenu();
   return win;
 }

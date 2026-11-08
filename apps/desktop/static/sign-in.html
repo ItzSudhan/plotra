@@ -79,6 +79,40 @@
         border-color: var(--accent);
         color: var(--accent-fg);
       }
+      .waiting {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin: -8px 0 24px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .waiting[hidden] {
+        display: none;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .dot {
+          animation: pulse 1.4s ease-in-out infinite;
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.25;
+          transform: scale(0.8);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
       a.button:focus-visible {
         outline: none;
         box-shadow: 0 0 0 3px var(--ring);
@@ -89,7 +123,8 @@
     <!-- Shown in the window while the person signs in in their browser (src/sign-in.ts). The buttons link back to this page with an `action`; the app handles them (src/main.ts). -->
     <main>
       <h1 id="title">Sign in in your browser</h1>
-      <p id="message">Plotra opened your browser to sign you in. Once you have, come back here: Plotra opens by itself.</p>
+      <p id="message">Plotra opened your browser to sign you in, with Google or your email. Once you have, Plotra comes back by itself.</p>
+      <p class="waiting" id="waiting"><span class="dot" aria-hidden="true"></span>Waiting for you to sign in in the browser…</p>
       <div class="buttons">
         <a class="button primary" id="reopen" href="sign-in.html?action=reopen">Open the browser again</a>
         <a class="button" id="local" href="sign-in.html?action=local">Use a library on this computer</a>
@@ -99,11 +134,16 @@
       const query = new URLSearchParams(location.search);
       if (query.get("expired") === "1") {
         document.getElementById("title").textContent = "Sign in again";
-        document.getElementById("message").textContent = "That sign-in had expired, so Plotra opened your browser again. Sign in there, then come back here.";
+        document.getElementById("message").textContent = "That sign-in had expired, so Plotra opened your browser again. Sign in there, and Plotra comes back by itself.";
+      } else if (query.get("mode") === "sign-up") {
+        document.getElementById("title").textContent = "Create your account in your browser";
+        document.getElementById("message").textContent = "Plotra opened your browser to make your account, with Google or your email. Once you have, Plotra comes back by itself.";
+        document.getElementById("waiting").lastChild.textContent = "Waiting for you in the browser…";
       } else if (query.get("failed") === "1") {
         document.getElementById("title").textContent = "Couldn't open your browser";
         document.getElementById("message").textContent = "Plotra signs you in through your browser. Try again, or use a library on this computer, which needs no account.";
         document.getElementById("reopen").textContent = "Try again";
+        document.getElementById("waiting").hidden = true;
       }
       document.getElementById("reopen").focus();
     </script>
