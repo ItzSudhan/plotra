@@ -29,7 +29,7 @@ export default function RootLayout() {
 }
 
 function Navigation() {
-  const { status } = useSession();
+  const { status, onboarded } = useSession();
   const scheme = useScheme();
   const c = useColors();
 
@@ -41,7 +41,9 @@ function Navigation() {
 
   const base = scheme === "dark" ? DarkTheme : DefaultTheme;
   const theme = { ...base, colors: { ...base.colors, primary: c.ember, background: c.background, card: c.background, text: c.foreground, border: c.border } };
-  const signedIn = status === "signedIn";
+  // Signed in and through the first-run welcome (app/onboarding.tsx): the app itself.
+  const signedIn = status === "signedIn" && onboarded;
+  const welcoming = status === "signedIn" && !onboarded;
 
   return (
     <ThemeProvider value={theme}>
@@ -93,8 +95,11 @@ function Navigation() {
           <Stack.Screen name="settings/plugin-store" options={{ title: "Plugin store" }} />
           <Stack.Screen name="settings/plugin/[slug]" options={{ title: "" }} />
         </Stack.Protected>
-        <Stack.Protected guard={!signedIn}>
-          <Stack.Screen name="welcome" options={{ headerShown: false }} />
+        <Stack.Protected guard={welcoming}>
+          <Stack.Screen name="onboarding" options={{ headerShown: false, animation: "fade" }} />
+        </Stack.Protected>
+        <Stack.Protected guard={status === "signedOut"}>
+          <Stack.Screen name="welcome" options={{ headerShown: false, animation: "fade" }} />
         </Stack.Protected>
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
       </Stack>

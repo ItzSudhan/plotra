@@ -4,13 +4,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { createClient, type Client } from "./api";
 import { clearFiles } from "./files";
 import { unregisterPush } from "./push";
-import { DEFAULT_SERVER, signInWithBrowser } from "./sign-in";
+import { DEFAULT_SERVER, signInWithBrowser, type SignInMode } from "./sign-in";
 
 // Who's signed in on this phone. The token lives in the keychain (iOS) or the
 // keystore (Android); the server address beside it, for self-hosters.
 
 const TOKEN = "plotra.token";
 const SERVER = "plotra.server";
+/** "pending" from signing in until the first-run welcome (app/onboarding.tsx) is finished. */
+const ONBOARDED = "plotra.onboarded";
 
 type Status = "loading" | "signedOut" | "signedIn";
 
@@ -20,8 +22,11 @@ type Value = {
   client: Client | null;
   /** Stands in for `client` while screens close after signing out: its requests just fail. */
   signedOutClient: Client;
-  /** Opens the browser to sign in. Resolves with a message to show, or null. */
-  signIn: (server: string) => Promise<string | null>;
+  /** Whether the first-run welcome has been through, on this phone, since signing in. */
+  onboarded: boolean;
+  finishOnboarding: () => void;
+  /** Opens the browser to sign in, or to make an account. Resolves with a message to show, or null. */
+  signIn: (server: string, mode?: SignInMode) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
 
@@ -31,11 +36,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<Status>("loading");
   const [server, setServer] = useState(DEFAULT_SERVER);
   const [token, setToken] = useState<string | null>(null);
+  const [onboarded, setOnboarded] = useState(true);
   const signingOut = useRef(false);
 
   useEffect(() => {
     (async () => {
       const [savedToken, savedServer] = await Promise.all([SecureStore.getItemAsync(TOKEN), SecureStore.getItemAsync(SERVER)]).catch(() => [null, null]);
+      // The welcome comes back if the app was closed halfway through it.
+      if (savedToken && (await AsyncStorage.getItem(ONBOARDED).catch(() => null)) === "pending") setOnboarded(false);
       if (savedServer) setServer(savedServer);
       if (savedToken) setToken(savedToken);
       setStatus(savedToken ? "signedIn" : "signedOut");
@@ -55,9 +63,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const client = useMemo(() => (token ? createClient(server, token, () => void forget()) : null), [server, token, forget]);
   const signedOutClient = useMemo(() => createClient(server, "", () => {}), [server]);
 
-  const signIn = useCallback(async (target: string) => {
-    const result = await signInWithBrowser(target);
+  const signIn = useCallback(async (target: string, mode: SignInMode = "sign-in") => {
+    const result = await signInWithBrowser(target, mode);
     if (!result.ok) return result.message;
+    // A fresh sign-in gets the welcome: who they are, a workspace and a first project if they need them.
+    await AsyncStorage.setItem(ONBOARDED, "pending").catch(() => {});
+    setOnboarded(false);
     await SecureStore.setItemAsync(TOKEN, result.token);
     await SecureStore.setItemAsync(SERVER, target);
     signingOut.current = false;
@@ -77,7 +88,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await forget();
   }, [client, forget]);
 
-  return <Context.Provider value={{ status, server, client, signedOutClient, signIn, signOut }}>{children}</Context.Provider>;
+  const finishOnboarding = useCallback(() => {
+    void AsyncStorage.removeItem(ONBOARDED).catch(() => {});
+    setOnboarded(true);
+  }, []);
+
+  return <Context.Provider value={{ status, server, client, signedOutClient, onboarded, finishOnboarding, signIn, signOut }}>{children}</Context.Provider>;
 }
 
 export function useSession(): Value {

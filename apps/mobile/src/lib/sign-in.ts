@@ -15,12 +15,20 @@ const RETURN_URL = "plotra://sign-in";
 
 export type SignInResult = { ok: true; token: string } | { ok: false; message: string | null };
 
-export async function signInWithBrowser(server: string): Promise<SignInResult> {
+export type SignInMode = "sign-in" | "sign-up";
+
+/** Where the browser starts: the page that signs the app in, or the sign-up page, which goes on to it once the account is made. */
+export function signInUrl(server: string, mode: SignInMode, query: URLSearchParams): string {
+  const app = `/mobile/sign-in?${query}`;
+  return mode === "sign-up" ? `${server}/sign-up?${new URLSearchParams({ callbackURL: app })}` : server + app;
+}
+
+export async function signInWithBrowser(server: string, mode: SignInMode = "sign-in"): Promise<SignInResult> {
   const verifier = base64url(Crypto.getRandomBytes(32));
   const state = base64url(Crypto.getRandomBytes(32));
   const challenge = toBase64url(await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, verifier, { encoding: Crypto.CryptoEncoding.BASE64 }));
 
-  const result = await WebBrowser.openAuthSessionAsync(`${server}/mobile/sign-in?${new URLSearchParams({ state, challenge })}`, RETURN_URL);
+  const result = await WebBrowser.openAuthSessionAsync(signInUrl(server, mode, new URLSearchParams({ state, challenge })), RETURN_URL);
   if (result.type !== "success") return { ok: false, message: null };
 
   const { queryParams } = Linking.parse(result.url);
