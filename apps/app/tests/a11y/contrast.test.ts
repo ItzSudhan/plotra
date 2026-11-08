@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { accents, palettes } from "@/lib/themes";
+import { officialPlugins } from "@/lib/official-plugins";
+import { accents, cleanPluginTheme, expandColours, palettes } from "@/lib/themes";
 
 // Every palette, light and dark, stays readable (issue #19): text at 4.5:1
 // (WCAG 1.4.3) and every accent at 3:1 against the background, since accents
@@ -82,4 +83,32 @@ for (const [id, palette] of Object.entries(palettes)) {
 
 test("the defaults were found", () => {
   for (const mode of ["light", "dark"] as const) for (const name of [...TEXT, ...SURFACES]) expect(isHex(base[mode][name])).toBe(true);
+});
+
+// The themes Plotra's own plugins add (lib/official-plugins) are held to the same.
+describe("Plotra's theme plugins", () => {
+  const themes: Array<{ slug: string; id: string; light: Record<string, string>; dark: Record<string, string> }> = [];
+  for (const plugin of officialPlugins.filter((p) => p.category === "themes")) {
+    new Function("plotra", plugin.code)({
+      registerTheme: (spec: { id: string; light: unknown; dark: unknown }) => {
+        const clean = cleanPluginTheme(spec);
+        if (clean) themes.push({ slug: plugin.slug, id: spec.id, ...clean });
+      },
+    });
+  }
+
+  test("there are some", () => {
+    expect(themes.length).toBeGreaterThanOrEqual(5);
+  });
+
+  for (const theme of themes) {
+    for (const mode of ["light", "dark"] as const) {
+      const vars = { ...base[mode], ...expandColours(theme[mode], mode) };
+      test(`${theme.slug}/${theme.id} (${mode}) is readable`, () => {
+        for (const text of TEXT) for (const surface of SURFACES) expect([text, surface, contrast(vars[text], vars[surface]) >= 4.5]).toEqual([text, surface, true]);
+        expect(contrast(vars.ember, vars.background)).toBeGreaterThanOrEqual(3);
+        if (mode === "light") expect(contrast(vars["ember-ink"], vars.background)).toBeGreaterThanOrEqual(4.5);
+      });
+    }
+  }
 });

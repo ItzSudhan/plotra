@@ -18,6 +18,8 @@ import { code as repeatedWords } from "./repeated-words";
 import { code as tagsOverview } from "./tags-overview";
 import { code as unmentionedCharacters } from "./unmentioned-characters";
 import { code as wordCountByChapter } from "./word-count-by-chapter";
+import { code as themePack } from "./theme-pack";
+import { code as lowLight } from "./low-light";
 
 /** Who the store says made them. */
 export const OFFICIAL_AUTHOR = "Plotra";
@@ -114,6 +116,26 @@ const sources: Source[] = [
     summary: "How much of your draft is at each stage, by chapters, scenes and words.",
     about: "A panel that adds up your chapters and scenes by their status (draft, revised, final, or your own stages), with a bar for the whole book and a table of counts. It updates as you change statuses.\n\nIt only reads your notes.",
     code: progressByStatus,
+    released: "2026-11-08",
+    notes: "First version.",
+  },
+  {
+    slug: "theme-pack",
+    category: "themes",
+    summary: "Four colour themes, each in light and dark: Typewriter, Nightfall, Meadow and Lilac.",
+    about:
+      "Adds four themes to Customize → Look → Colours, under From your plugins:\n\n- Typewriter: cream paper, black ink and a red accent.\n- Nightfall: deep blue night with an amber accent.\n- Meadow: soft greens with a teal accent.\n- Lilac: pale violet with a purple accent.\n\nOnce you pick one, it stays in use on every page. Each keeps text readable at 4.5:1 or more.\n\nIt only reads your notes. In fact it reads none: it only adds themes.",
+    code: themePack,
+    released: "2026-11-08",
+    notes: "First version.",
+  },
+  {
+    slug: "low-light",
+    category: "themes",
+    summary: "A dim, warm theme for writing at night, with less blue and softer contrast.",
+    about:
+      "Adds Low light to Customize → Look → Colours, under From your plugins. In dark, near-black paper with warm, dimmed text, and pictures toned down to match; in light, a soft, unbleached page. Text stays readable at 4.5:1 or more.\n\nIt only reads your notes. In fact it reads none: it only adds a theme.",
+    code: lowLight,
     released: "2026-11-08",
     notes: "First version.",
   },
