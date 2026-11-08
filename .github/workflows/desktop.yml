@@ -35,6 +35,8 @@ concurrency:
 jobs:
   build:
     name: Build (${{ matrix.os }})
+    # The phone app's releases (mobile-v…) carry an APK, not the desktop app.
+    if: ${{ !startsWith(github.event.release.tag_name || inputs.tag, 'mobile-') }}
     strategy:
       fail-fast: false
       matrix:
