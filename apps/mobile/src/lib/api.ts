@@ -60,6 +60,8 @@ export function createClient(server: string, token: string, onUnauthorized: () =
 
   return {
     server,
+    /** Any API call, for features that keep their own calls in their own module (lib/*-api.ts). */
+    request,
     me: () => request<Me>("/api/v1/me"),
     projects: () => request<{ projects: Project[] }>("/api/v1/projects").then((r) => r.projects),
     notes: (projectId: string) => request<{ notes: Note[] }>(`${p(projectId)}/notes`).then((r) => r.notes),

@@ -10,7 +10,9 @@
     "ios": {
       "bundleIdentifier": "ink.plotra.app",
       "supportsTablet": true,
-      "config": { "usesNonExemptEncryption": false }
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "ink.plotra.app",
@@ -29,14 +31,31 @@
       "expo-secure-store",
       "expo-web-browser",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Plotra uses your photos when you add a picture to a note.",
+          "cameraPermission": "Plotra uses the camera when you take a picture for a note."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#e2602a"
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 120,
           "backgroundColor": "#f7f6f3",
-          "dark": { "backgroundColor": "#141311", "image": "./assets/images/splash-icon.png" }
+          "dark": {
+            "backgroundColor": "#141311",
+            "image": "./assets/images/splash-icon.png"
+          }
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,
