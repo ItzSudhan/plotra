@@ -21,6 +21,8 @@ export type LocalServer = {
   /** The server's log file, offered behind "Show details" when something fails. */
   log: string;
   stop: () => Promise<void>;
+  /** False once the server has stopped, asked to or not. */
+  running: () => boolean;
   /** Asks the server for a snapshot of the database now; resolves to its file name. */
   snapshot: () => Promise<string>;
 };
@@ -174,5 +176,5 @@ export async function startLocalServer(library: Library, paths: ServerPaths, por
     return ((await res.json()) as { file: string }).file;
   };
 
-  return { url, token, log: logFile, stop, snapshot };
+  return { url, token, log: logFile, stop, running: () => exited === null && stopping === null, snapshot };
 }

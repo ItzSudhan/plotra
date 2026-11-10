@@ -17,7 +17,7 @@ import {
   type Library,
 } from "./library";
 import { backupSaved, describeError, fileManager, folderName, libraryLabels, NOT_A_LIBRARY, quoted, switchQuestion } from "./messages";
-import { staysInWindow } from "./navigation";
+import { isSwitchRequest, staysInWindow } from "./navigation";
 import { freePort, startLocalServer, type LocalServer } from "./server";
 import { loadSettings, rememberLibrary, saveSettings, type Settings } from "./settings";
 import { afterSignIn, exchangeUrl, signInPage, startSignIn, type SignInFlow } from "./sign-in";
@@ -25,7 +25,8 @@ import { closeGently, isClosing, showGently } from "./motion";
 import { checkForUpdates } from "./updates";
 
 // Plotra's desktop app (local-mode-plan.md, phase 4). It works one of two ways,
-// chosen on first run and changed from the File menu:
+// chosen on first run and switched between at any time, from the File menu or
+// the account menu in the app's own pages:
 //   Plotra Cloud      a window on app.plotra.ink, as in a browser
 //   On this computer  a library folder of the person's own, served by the same
 //                     app running on this computer (./server.ts)
@@ -44,12 +45,20 @@ type Place = { parent: string; name: string; dailySnapshots?: boolean };
 const isPlace = (value: unknown): value is Place =>
   typeof value === "object" && value !== null && typeof (value as { parent?: unknown }).parent === "string" && typeof (value as { name?: unknown }).name === "string" && path.isAbsolute((value as { parent: string }).parent);
 
-type Current =
-  | { mode: "cloud"; url: string }
-  | { mode: "local"; url: string; library: Library; server: LocalServer | null; unlock: () => void };
+type Local = { mode: "local"; url: string; library: Library; server: LocalServer | null; unlock: () => void };
+type Current = { mode: "cloud"; url: string } | Local;
 
 let settings: Settings;
 let current: Current | null = null;
+/**
+ * The library left running while Plotra Cloud is open, so switching back to
+ * it is instant: no server to start, no database to open. It stays locked to
+ * this copy of Plotra meanwhile, and closes when another library opens or the
+ * app quits.
+ */
+let parked: Local | null = null;
+/** The page each way of working was left on, so switching back returns there. */
+const leftAt: { cloud?: string; local?: { dir: string; url: string } } = {};
 let chooser: BrowserWindow | null = null;
 /** The small "Opening your library…" window shown while a library starts. */
 let splash: BrowserWindow | null = null;
@@ -342,6 +351,12 @@ function openWindow(url: string, onReady?: () => void, { load = true }: { load?:
   });
   // The window is the app, never plotra.ink's website (./navigation.ts).
   win.webContents.on("will-navigate", (event, target) => {
+    // "Switch to Plotra Cloud" / "Switch to your library" in the app's account menu.
+    if (current && isSwitchRequest(target, current.url)) {
+      event.preventDefault();
+      void switchOver();
+      return;
+    }
     const action = pageAction(target, OFFLINE_PAGE);
     if (action) {
       event.preventDefault();
@@ -397,20 +412,53 @@ function closeWindow(win: BrowserWindow): Promise<boolean> {
   });
 }
 
-/** Closes the windows, then the library. Resolves to false (leaving it open) when the person keeps a window open. */
-async function closeCurrent(): Promise<boolean> {
+/** The app page a window is on, or null on the loading, offline or sign-in page. */
+function pageOf(win: BrowserWindow | undefined, origin: string): string | null {
+  if (!win || win.isDestroyed()) return null;
+  const page = win.webContents.getURL();
+  return sameOrigin(page, origin) && !isSwitchRequest(page, origin) ? page : null;
+}
+
+/**
+ * Closes the windows, then the library: or, with `park`, leaves the library
+ * running for switching back (`parked`). Resolves to false (leaving it all
+ * open) when the person keeps a window open.
+ */
+async function closeCurrent({ park = false }: { park?: boolean } = {}): Promise<boolean> {
   closeSplash();
+  const was = current;
+  const page = was ? pageOf(focusedAppWindow(), was.url) : null;
   const closed = await Promise.all(appWindows().map(closeWindow));
   if (closed.includes(false)) return false;
-  const was = current;
   current = null;
   cancelSignIn();
+  if (was?.mode === "cloud" && page) leftAt.cloud = page;
   if (was?.mode === "local") {
-    await was.server?.stop();
-    was.unlock();
+    if (page) leftAt.local = { dir: was.library.dir, url: page };
+    if (park && was.server?.running() !== false) parked = was;
+    else await closeLibrary(was);
   }
   buildMenu();
   return true;
+}
+
+async function closeLibrary(library: Local) {
+  await library.server?.stop();
+  library.unlock();
+}
+
+/** Closes the library left running for switching back, if there is one. */
+async function closeParked() {
+  const was = parked;
+  parked = null;
+  if (was) await closeLibrary(was);
+}
+
+/** The window the person was last in: the focused one, else the first. */
+function focusedAppWindow(): BrowserWindow | undefined {
+  const focused = BrowserWindow.getFocusedWindow();
+  const windows = appWindows();
+  return focused && windows.includes(focused) ? focused : windows[0];
 }
 
 /**
@@ -430,7 +478,7 @@ function openCloud(start: CloudStart = "sign-in"): BrowserWindow {
     buildMenu();
     return win;
   }
-  const win = openWindow(CLOUD_URL);
+  const win = openWindow(leftAt.cloud ?? CLOUD_URL);
   buildMenu();
   return win;
 }
@@ -442,7 +490,24 @@ type OpenOptions = {
   status?: string;
 };
 
+/** Where a library's window opens: the page it was left on, when that was on the same server. */
+function localStart(dir: string, url: string): string {
+  const left = leftAt.local;
+  return left && path.resolve(left.dir) === path.resolve(dir) && sameOrigin(left.url, url) ? left.url : url;
+}
+
 async function openLocal(dir: string, { env = {}, status }: OpenOptions = {}): Promise<boolean> {
+  // Left running when Plotra Cloud opened: back at once.
+  if (parked && path.resolve(parked.library.dir) === path.resolve(dir) && !Object.keys(env).length && parked.server?.running() !== false) {
+    current = parked;
+    parked = null;
+    settings = rememberLibrary(settings, current.library.dir);
+    save();
+    openWindow(localStart(current.library.dir, current.url));
+    buildMenu();
+    return true;
+  }
+  await closeParked();
   let library: Library;
   let unlock: () => void;
   try {
@@ -466,7 +531,7 @@ async function openLocal(dir: string, { env = {}, status }: OpenOptions = {}): P
     current = { mode: "local", url, library, server, unlock };
     settings = rememberLibrary(settings, library.dir);
     save();
-    openWindow(url, closeSplash);
+    openWindow(localStart(library.dir, url), closeSplash);
     buildMenu();
     return true;
   } catch (error) {
@@ -481,8 +546,9 @@ async function openLocal(dir: string, { env = {}, status }: OpenOptions = {}): P
  * Closes what's open and opens something else, after asking when something is
  * open (`to` names what comes next; without it there's no question). When the
  * opening fails and nothing is open any more, the first-run choice comes back.
+ * `park` leaves an open library running, for switching back to it.
  */
-async function switchTo(open: () => Promise<boolean> | boolean, to?: string): Promise<boolean> {
+async function switchTo(open: () => Promise<boolean> | boolean, to?: string, { park = false }: { park?: boolean } = {}): Promise<boolean> {
   const from = currentName();
   if (from && to) {
     const { response } = await dialog.showMessageBox({
@@ -497,7 +563,7 @@ async function switchTo(open: () => Promise<boolean> | boolean, to?: string): Pr
   }
   switching = true;
   try {
-    if (!(await closeCurrent())) return false;
+    if (!(await closeCurrent({ park }))) return false;
     const opened = await open();
     if (!opened && !current) showChooser();
     return opened;
@@ -518,17 +584,41 @@ function focusCurrent(): boolean {
 
 const isOpen = (dir: string) => current?.mode === "local" && path.resolve(current.library.dir) === path.resolve(dir);
 
+/** Switching to Plotra Cloud closes nothing: the library keeps running, for switching back. No question, then. */
 function switchToCloud(start?: CloudStart): Promise<boolean> {
   if (current?.mode === "cloud" && focusCurrent()) return Promise.resolve(true);
-  return switchTo(() => {
-    openCloud(start);
-    return true;
-  }, "Plotra Cloud");
+  return switchTo(
+    () => {
+      openCloud(start);
+      return true;
+    },
+    undefined,
+    { park: true },
+  );
 }
 
+/** Asks first only when it closes another library; from Plotra Cloud it just switches. */
 async function switchToLibrary(dir: string): Promise<boolean> {
   if (isOpen(dir) && focusCurrent()) return true;
-  return switchTo(() => openLocal(dir), quoted(dir));
+  return switchTo(() => openLocal(dir), current?.mode === "local" ? quoted(dir) : undefined);
+}
+
+/** The library switching from Plotra Cloud goes back to: the one left running, else the one open last. */
+function lastLibrary(): string | null {
+  if (parked) return parked.library.dir;
+  return settings.library && isLibrary(settings.library) ? settings.library : null;
+}
+
+/**
+ * Over to the other way of working: a library to Plotra Cloud, Plotra Cloud to
+ * the library open last (or, with none yet, the choice of one).
+ */
+async function switchOver(): Promise<boolean> {
+  if (current?.mode === "local") return switchToCloud();
+  const dir = lastLibrary();
+  if (dir) return switchToLibrary(dir);
+  showChooser();
+  return false;
 }
 
 /** Makes a library called `name` in `parent` (the first-run window's "Set up your library"), or opens the one already there. */
@@ -696,8 +786,12 @@ async function restoreSnapshot() {
   });
 }
 
+/** Switches between Plotra Cloud and the library, from anywhere in the app. */
+const SWITCH_KEY = "CmdOrCtrl+Shift+K";
+
 function buildMenu() {
   const local = current?.mode === "local" ? current : null;
+  const last = lastLibrary();
   const recent = libraryLabels(settings.recent.filter(isLibrary));
   const file: MenuItemConstructorOptions[] = [
     { label: "New Window", accelerator: "CmdOrCtrl+Shift+N", enabled: Boolean(current), click: () => current && openWindow(current.url) },
@@ -726,9 +820,11 @@ function buildMenu() {
     },
     { label: "Restore a Snapshot…", enabled: Boolean(local?.server), click: () => void restoreSnapshot() },
     { type: "separator" },
-    current?.mode === "cloud"
-      ? { label: "Use a Library on This Computer…", click: () => showChooser() }
-      : { label: "Switch to Plotra Cloud", click: () => void switchToCloud() },
+    current?.mode === "local" || !last
+      ? current?.mode === "cloud"
+        ? { label: "Use a Library on This Computer…", accelerator: SWITCH_KEY, click: () => showChooser() }
+        : { label: "Switch to Plotra Cloud", accelerator: current ? SWITCH_KEY : undefined, click: () => void switchToCloud() }
+      : { label: `Switch to ${quoted(last)}`, accelerator: SWITCH_KEY, click: () => void switchOver() },
   ];
   if (process.platform !== "darwin") file.push({ type: "separator" }, { role: "quit" });
 
@@ -795,10 +891,11 @@ else {
   app.on("before-quit", (event) => {
     if (quitting) return;
     quitting = true;
-    if (current?.mode !== "local") return;
+    if (current?.mode !== "local" && !parked) return;
     event.preventDefault();
     void closeCurrent().then(
-      (closed) => {
+      async (closed) => {
+        if (closed) await closeParked().catch(() => {});
         if (closed) app.quit();
         else quitting = false; // A window was kept open to finish saving.
       },

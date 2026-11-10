@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { staysInWindow } from "../src/navigation";
+import { isSwitchRequest, staysInWindow } from "../src/navigation";
 
 describe("where the window may go", () => {
   const cloud = "https://app.plotra.ink/w/mine";
@@ -24,5 +24,18 @@ describe("where the window may go", () => {
 
   test("a lookalike host isn't the website", () => {
     expect(staysInWindow("https://notplotra.ink/", cloud, "cloud")).toBe(true);
+  });
+});
+
+describe("the in-app switch", () => {
+  test("is caught on the page's own server", () => {
+    expect(isSwitchRequest("https://app.plotra.ink/desktop/switch", "https://app.plotra.ink/w/mine")).toBe(true);
+    expect(isSwitchRequest("http://127.0.0.1:51234/desktop/switch?from=menu", "http://127.0.0.1:51234/")).toBe(true);
+  });
+
+  test("anywhere else is not", () => {
+    expect(isSwitchRequest("https://evil.example/desktop/switch", "https://app.plotra.ink/")).toBe(false);
+    expect(isSwitchRequest("https://app.plotra.ink/desktop/sign-in", "https://app.plotra.ink/")).toBe(false);
+    expect(isSwitchRequest("not a url", "https://app.plotra.ink/")).toBe(false);
   });
 });

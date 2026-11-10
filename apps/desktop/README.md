@@ -7,7 +7,7 @@ Plotra as an app on your computer (see [local-mode-plan.md](../../local-mode-pla
 
 Signing in to Plotra Cloud happens in your own browser, where Google and your password manager work: the app catches the cloud's sign-in page, opens the browser there, and waits on a port of its own at 127.0.0.1 for a one-time code, which its window swaps for a session (src/sign-in.ts, and packages/auth/src/desktop.ts for the cloud's half).
 
-The choice is remembered, and the File menu switches between them, opens other libraries, makes backups (Back Up Now) and restores snapshots. While a library starts, a small "Opening your library…" window shows; with no connection, Plotra Cloud shows an offline page with "Try again".
+The choice is remembered, and you can switch between them at any time: "Switch to Plotra Cloud" / "Switch to your library" in the account menu, File → Switch to…, or Cmd/Ctrl+Shift+K. Switching to Plotra Cloud leaves the library running (and locked to this computer) so switching back is instant, and each side reopens on the page you left. The File menu also opens other libraries, makes backups (Back Up Now) and restores snapshots. While a library starts, a small "Opening your library…" window shows; with no connection, Plotra Cloud shows an offline page with "Try again".
 
 ## A library
 

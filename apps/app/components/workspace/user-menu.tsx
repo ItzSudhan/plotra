@@ -200,6 +200,15 @@ export function UserMenu({
             Sponsor Plotra
           </a>
         </DropdownMenuItem>
+        {/* In the desktop app: over to the other way of working. The app catches this address and switches (apps/desktop/src/navigation.ts). */}
+        {/\bPlotraDesktop\//.test(navigator.userAgent) && (
+          // A real navigation, not the router's: the app only sees those. The page itself never loads.
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+          <DropdownMenuItem onSelect={() => window.location.assign("/desktop/switch")}>
+            <Icon name={isLocalMode ? "cloud-check-linear" : "monitor-linear"} />
+            {isLocalMode ? "Switch to Plotra Cloud" : "Switch to your library"}
+          </DropdownMenuItem>
+        )}
         {/* Local mode's one person is always signed in (local-mode-plan.md). */}
         {!isLocalMode && (
           <DropdownMenuItem onSelect={handleSignOut}>

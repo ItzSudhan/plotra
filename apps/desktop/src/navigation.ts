@@ -19,3 +19,20 @@ export function staysInWindow(target: string, appUrl: string, mode: "cloud" | "l
   const host = to.hostname;
   return host !== "plotra.ink" && !host.endsWith(".plotra.ink");
 }
+
+/**
+ * The address the app's own pages go to for "Switch to Plotra Cloud" / "Switch
+ * to your library" (apps/app/components/workspace/user-menu.tsx). It never
+ * loads: the window catches it and switches instead.
+ */
+export const SWITCH_PATH = "/desktop/switch";
+
+/** True when `target` is the switch address on the page's own server. */
+export function isSwitchRequest(target: string, appUrl: string): boolean {
+  try {
+    const to = new URL(target);
+    return to.origin === new URL(appUrl).origin && to.pathname === SWITCH_PATH;
+  } catch {
+    return false;
+  }
+}
